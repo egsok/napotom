@@ -6,12 +6,13 @@ import sys
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QPushButton, QComboBox, QCheckBox, QLabel,
-    QFileDialog, QGroupBox
+    QFileDialog, QGroupBox, QMessageBox
 )
 from PyQt6.QtCore import Qt
 
 from ui.styles import COLORS
 from utils.config import config_manager
+from core.updater import Updater
 
 
 class SettingsDialog(QDialog):
@@ -22,6 +23,13 @@ class SettingsDialog(QDialog):
         self.setWindowTitle("Settings")
         self.setMinimumWidth(450)
         self.setModal(True)
+
+        # Initialize updater
+        self._updater = Updater()
+        self._updater.update_available.connect(self._on_update_available)
+        self._updater.already_up_to_date.connect(self._on_already_up_to_date)
+        self._updater.check_failed.connect(self._on_check_failed)
+        self._updater.update_result.connect(self._on_update_result)
 
         self._setup_ui()
         self._load_settings()
@@ -233,9 +241,58 @@ class SettingsDialog(QDialog):
         return "Not installed"
 
     def _check_updates(self):
-        """Placeholder for checking yt-dlp updates."""
-        # TODO: Implement yt-dlp update check
-        pass
+        """Check for yt-dlp updates."""
+        self.check_updates_btn.setEnabled(False)
+        self.check_updates_btn.setText("Checking...")
+        self._updater.check_for_updates()
+
+    def _on_update_available(self, current: str, latest: str):
+        """Handle update available signal."""
+        self.check_updates_btn.setEnabled(True)
+        self.check_updates_btn.setText("Check Now")
+
+        reply = QMessageBox.question(
+            self,
+            "Update Available",
+            f"yt-dlp {latest} is available (current: {current}).\n\nUpdate now?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.check_updates_btn.setEnabled(False)
+            self.check_updates_btn.setText("Updating...")
+            self._updater.install_update()
+
+    def _on_already_up_to_date(self, version: str):
+        """Handle already up to date signal."""
+        self.check_updates_btn.setEnabled(True)
+        self.check_updates_btn.setText("Check Now")
+        QMessageBox.information(
+            self,
+            "Up to Date",
+            f"yt-dlp {version} is the latest version."
+        )
+
+    def _on_check_failed(self, error: str):
+        """Handle check failed signal."""
+        self.check_updates_btn.setEnabled(True)
+        self.check_updates_btn.setText("Check Now")
+        QMessageBox.warning(
+            self,
+            "Update Check Failed",
+            f"Could not check for updates:\n{error}"
+        )
+
+    def _on_update_result(self, success: bool, message: str):
+        """Handle update result signal."""
+        self.check_updates_btn.setEnabled(True)
+        self.check_updates_btn.setText("Check Now")
+
+        if success:
+            QMessageBox.information(self, "Update Complete", message)
+            # Refresh the version display
+            self.version_label.setText(self._get_ytdlp_version())
+        else:
+            QMessageBox.warning(self, "Update Failed", message)
 
     @staticmethod
     def _get_quality_key(display: str) -> str:
