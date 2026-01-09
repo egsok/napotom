@@ -8,6 +8,7 @@ from uuid import uuid4
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 
 from .downloader import Downloader, VideoInfo, DownloaderError
+from src.utils.notifications import notification_manager
 
 
 class QueueItemStatus(Enum):
@@ -198,6 +199,7 @@ class DownloadQueue(QObject):
                 item.progress = 100
                 item.file_path = file_path
                 self.item_updated.emit(item)
+                notification_manager.notify_complete(item.info.title if item.info else "Video")
                 break
 
         self._current_worker = None
@@ -210,6 +212,7 @@ class DownloadQueue(QObject):
                 item.status = QueueItemStatus.FAILED
                 item.error = error
                 self.item_updated.emit(item)
+                notification_manager.notify_error(item.info.title if item.info else "Video", error)
                 break
 
         self._current_worker = None
