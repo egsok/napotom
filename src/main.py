@@ -2,6 +2,8 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel
 from PyQt6.QtCore import Qt
 
+from ui.styles import STYLESHEET
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -16,6 +18,8 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
+    app.setStyleSheet(STYLESHEET)
+
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
