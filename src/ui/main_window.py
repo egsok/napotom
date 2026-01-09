@@ -149,6 +149,7 @@ class MainWindow(QMainWindow):
         self.queue.item_added.connect(self._on_item_added)
         self.queue.item_updated.connect(self._on_item_updated)
         self.queue.item_removed.connect(self._on_item_removed)
+        self.settings_btn.clicked.connect(self._on_settings_clicked)
 
     def _on_add_clicked(self):
         """Handle add button click."""
@@ -205,6 +206,17 @@ class MainWindow(QMainWindow):
     def _on_cancel_clicked(self, item_id: str):
         """Handle cancel button click."""
         self.queue.cancel(item_id)
+
+    def _on_settings_clicked(self):
+        """Handle settings button click."""
+        from ui.settings_dialog import SettingsDialog
+        dialog = SettingsDialog(self)
+        if dialog.exec():
+            # Reload settings
+            self.folder_label.setText(self._shorten_path(config_manager.get('download_path')))
+            self.quality_combo.setCurrentText(self._get_quality_display(
+                config_manager.get('default_quality', 'best')
+            ))
 
     @staticmethod
     def _get_quality_key(display: str) -> str:
