@@ -1,19 +1,8 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication
 
 from ui.styles import STYLESHEET
-
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Video Downloader 2")
-        self.setMinimumSize(600, 400)
-
-        label = QLabel("Video Downloader 2", self)
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setCentralWidget(label)
+from ui.main_window import MainWindow
 
 
 def main():
@@ -22,6 +11,7 @@ def main():
 
     window = MainWindow()
     window.show()
+
     sys.exit(app.exec())
 
 
