@@ -4,7 +4,7 @@ block_cipher = None
 
 a = Analysis(
     ['src/main.py'],
-    pathex=[],
+    pathex=['src'],
     binaries=[
         # Add ffmpeg binaries here when available
         # ('ffmpeg.exe', '.'),
@@ -16,6 +16,19 @@ a = Analysis(
     hiddenimports=[
         'yt_dlp',
         'win10toast',
+        'ui',
+        'ui.main_window',
+        'ui.settings_dialog',
+        'ui.styles',
+        'ui.widgets',
+        'ui.widgets.queue_item_widget',
+        'core',
+        'core.downloader',
+        'core.queue',
+        'core.updater',
+        'utils',
+        'utils.config',
+        'utils.notifications',
     ],
     hookspath=[],
     hooksconfig={},
@@ -49,5 +62,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    # icon='assets/icon.ico',  # Add icon when available
+    icon='assets/icon.ico',
 )
