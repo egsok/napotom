@@ -222,6 +222,8 @@ class MainWindow(QMainWindow):
             self.quality_combo.setCurrentText(self._get_quality_display(
                 config_manager.get('default_quality', 'best')
             ))
+            # Update queue parallel limit
+            self.queue._update_max_parallel()
 
     @staticmethod
     def _get_quality_key(display: str) -> str:

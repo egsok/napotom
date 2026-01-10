@@ -70,6 +70,7 @@ class Downloader:
             'retries': 10,
             'fragment_retries': 10,
             'remote_components': ['ejs:github'],
+            'concurrent_fragment_downloads': 4,
         }
         if self.ffmpeg_location:
             opts['ffmpeg_location'] = self.ffmpeg_location

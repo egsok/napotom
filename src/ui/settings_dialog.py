@@ -6,7 +6,7 @@ import sys
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QPushButton, QComboBox, QCheckBox, QLabel,
-    QFileDialog, QGroupBox, QMessageBox
+    QFileDialog, QGroupBox, QMessageBox, QSpinBox
 )
 from PyQt6.QtCore import Qt
 
@@ -87,6 +87,13 @@ class SettingsDialog(QDialog):
         self.quality_combo = QComboBox()
         self.quality_combo.addItems(["Best", "1080p", "720p", "Audio only"])
         download_layout.addRow("Default Quality:", self.quality_combo)
+
+        # Parallel downloads
+        self.parallel_spin = QSpinBox()
+        self.parallel_spin.setRange(1, 5)
+        self.parallel_spin.setValue(2)
+        self.parallel_spin.setToolTip("Number of videos to download simultaneously")
+        download_layout.addRow("Parallel Downloads:", self.parallel_spin)
 
         layout.addWidget(download_group)
 
@@ -201,6 +208,7 @@ class SettingsDialog(QDialog):
         self.quality_combo.setCurrentText(
             self._get_quality_display(config_manager.get('default_quality', 'best'))
         )
+        self.parallel_spin.setValue(config_manager.get('max_parallel_downloads', 2))
         self.notifications_check.setChecked(config_manager.get('notifications_enabled', True))
         self.sound_check.setChecked(config_manager.get('sound_enabled', True))
         self.updates_check.setChecked(config_manager.get('check_updates', True))
@@ -219,6 +227,7 @@ class SettingsDialog(QDialog):
         """Save settings and close dialog."""
         config_manager.set('download_path', self.path_input.text())
         config_manager.set('default_quality', self._get_quality_key(self.quality_combo.currentText()))
+        config_manager.set('max_parallel_downloads', self.parallel_spin.value())
         config_manager.set('notifications_enabled', self.notifications_check.isChecked())
         config_manager.set('sound_enabled', self.sound_check.isChecked())
         config_manager.set('check_updates', self.updates_check.isChecked())

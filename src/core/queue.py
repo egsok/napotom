@@ -9,6 +9,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 
 from .downloader import Downloader, VideoInfo, DownloaderError
 from utils.notifications import notification_manager
+from utils.config import config_manager
 
 
 class QueueItemStatus(Enum):
@@ -107,8 +108,13 @@ class DownloadQueue(QObject):
         super().__init__()
         self.items: List[QueueItem] = []
         self.thread_pool = QThreadPool()
-        self.thread_pool.setMaxThreadCount(1)  # Sequential downloads
-        self._current_worker: Optional[DownloadWorker] = None
+        self._update_max_parallel()
+        self._active_workers: dict[str, DownloadWorker] = {}
+
+    def _update_max_parallel(self):
+        """Update max parallel downloads from config."""
+        max_parallel = config_manager.get('max_parallel_downloads', 2)
+        self.thread_pool.setMaxThreadCount(max_parallel)
 
     def add(self, url: str, quality: str, output_path: str) -> QueueItem:
         """Add URL to download queue."""
@@ -140,8 +146,8 @@ class DownloadQueue(QObject):
         for item in self.items:
             if item.id == item_id:
                 item.status = QueueItemStatus.CANCELLED
-                if self._current_worker and self._current_worker.item.id == item_id:
-                    self._current_worker.cancel()
+                if item_id in self._active_workers:
+                    self._active_workers[item_id].cancel()
                 self.item_updated.emit(item)
                 break
 
@@ -165,15 +171,22 @@ class DownloadQueue(QObject):
         ]
 
     def _process_next(self) -> None:
-        """Start next pending download."""
-        # Find next pending item
+        """Start next pending downloads up to max parallel limit."""
+        max_parallel = config_manager.get('max_parallel_downloads', 2)
+        active_count = len(self._active_workers)
+
+        # Start pending items up to available slots
         for item in self.items:
+            if active_count >= max_parallel:
+                break
             if item.status == QueueItemStatus.PENDING:
                 self._start_download(item)
-                return
+                active_count += 1
 
-        # No more pending items
-        if not any(item.status == QueueItemStatus.DOWNLOADING for item in self.items):
+        # Check if all done
+        if not self._active_workers and not any(
+            item.status == QueueItemStatus.PENDING for item in self.items
+        ):
             self.queue_finished.emit()
 
     def _start_download(self, item: QueueItem) -> None:
@@ -182,7 +195,7 @@ class DownloadQueue(QObject):
         self.item_updated.emit(item)
 
         worker = DownloadWorker(item)
-        self._current_worker = worker
+        self._active_workers[item.id] = worker
 
         # Connect signals
         worker.signals.progress.connect(self._on_progress)
@@ -214,7 +227,7 @@ class DownloadQueue(QObject):
                 notification_manager.notify_complete(item.info.title if item.info else "Video")
                 break
 
-        self._current_worker = None
+        self._active_workers.pop(item_id, None)
         self._process_next()
 
     def _on_error(self, item_id: str, error: str):
@@ -227,7 +240,7 @@ class DownloadQueue(QObject):
                 notification_manager.notify_error(item.info.title if item.info else "Video", error)
                 break
 
-        self._current_worker = None
+        self._active_workers.pop(item_id, None)
         self._process_next()
 
     def _on_info_ready(self, item_id: str, info: VideoInfo):

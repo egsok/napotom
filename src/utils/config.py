@@ -34,6 +34,7 @@ class Config:
     notifications_enabled: bool = True
     sound_enabled: bool = True
     check_updates: bool = True
+    max_parallel_downloads: int = 2
 
     def __post_init__(self):
         if not self.download_path:
