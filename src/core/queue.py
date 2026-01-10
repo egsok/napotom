@@ -145,6 +145,18 @@ class DownloadQueue(QObject):
                 self.item_updated.emit(item)
                 break
 
+    def retry(self, item_id: str) -> None:
+        """Retry failed download."""
+        for item in self.items:
+            if item.id == item_id and item.status == QueueItemStatus.FAILED:
+                item.status = QueueItemStatus.PENDING
+                item.progress = 0
+                item.speed = 0.0
+                item.error = None
+                self.item_updated.emit(item)
+                self._process_next()
+                break
+
     def clear_completed(self) -> None:
         """Remove all completed/failed/cancelled items."""
         self.items = [

@@ -184,6 +184,7 @@ class MainWindow(QMainWindow):
         """Handle new item added to queue."""
         widget = QueueItemWidget(item)
         widget.cancel_clicked.connect(self._on_cancel_clicked)
+        widget.retry_clicked.connect(self._on_retry_clicked)
 
         # Insert before the stretch
         self.queue_layout.insertWidget(self.queue_layout.count() - 1, widget)
@@ -206,6 +207,10 @@ class MainWindow(QMainWindow):
     def _on_cancel_clicked(self, item_id: str):
         """Handle cancel button click."""
         self.queue.cancel(item_id)
+
+    def _on_retry_clicked(self, item_id: str):
+        """Handle retry button click."""
+        self.queue.retry(item_id)
 
     def _on_settings_clicked(self):
         """Handle settings button click."""

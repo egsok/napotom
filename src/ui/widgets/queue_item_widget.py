@@ -14,6 +14,7 @@ class QueueItemWidget(QWidget):
     """Widget representing a single download item."""
 
     cancel_clicked = pyqtSignal(str)  # item_id
+    retry_clicked = pyqtSignal(str)  # item_id
 
     def __init__(self, item: QueueItem, parent=None):
         super().__init__(parent)
@@ -47,6 +48,14 @@ class QueueItemWidget(QWidget):
         self.status_label = QLabel("")
         self.status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
         top_row.addWidget(self.status_label)
+
+        self.retry_btn = QPushButton("↻")
+        self.retry_btn.setObjectName("iconButton")
+        self.retry_btn.setFixedSize(32, 32)
+        self.retry_btn.setToolTip("Retry download")
+        self.retry_btn.clicked.connect(lambda: self.retry_clicked.emit(self.item.id))
+        self.retry_btn.setVisible(False)
+        top_row.addWidget(self.retry_btn)
 
         self.cancel_btn = QPushButton("×")
         self.cancel_btn.setObjectName("iconButton")
@@ -89,6 +98,11 @@ class QueueItemWidget(QWidget):
         # Progress
         self.progress_bar.setValue(item.progress)
 
+        # Reset buttons and styles
+        self.retry_btn.setVisible(False)
+        self.cancel_btn.setVisible(True)
+        self.status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+
         # Status and speed
         if item.status == QueueItemStatus.PENDING:
             self.status_label.setText("Waiting")
@@ -113,6 +127,7 @@ class QueueItemWidget(QWidget):
             self.status_label.setStyleSheet(f"color: {COLORS['error']};")
             self.speed_label.setText(item.error or "")
             self.progress_bar.setVisible(False)
+            self.retry_btn.setVisible(True)
         elif item.status == QueueItemStatus.CANCELLED:
             self.status_label.setText("Cancelled")
             self.status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")

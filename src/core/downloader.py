@@ -118,16 +118,19 @@ class Downloader:
         """
         opts = self._get_base_opts()
         opts['format'] = QUALITY_PRESETS.get(quality, QUALITY_PRESETS['best'])
-        opts['outtmpl'] = os.path.join(output_path, '%(title)s.%(ext)s')
-        opts['merge_output_format'] = 'mp4'
+        opts['overwrites'] = True
 
-        # Extract audio only for audio preset
+        # Filename template with quality
         if quality == 'audio':
+            opts['outtmpl'] = os.path.join(output_path, '%(title)s [audio].%(ext)s')
             opts['postprocessors'] = [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }]
+        else:
+            opts['outtmpl'] = os.path.join(output_path, '%(title)s [%(height)sp].%(ext)s')
+            opts['merge_output_format'] = 'mp4'
 
         downloaded_file = None
 
