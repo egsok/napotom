@@ -67,8 +67,9 @@ class Downloader:
             'quiet': True,
             'no_warnings': True,
             'socket_timeout': 30,
-            'retries': 3,
-            'fragment_retries': 3,
+            'retries': 10,
+            'fragment_retries': 10,
+            'remote_components': ['ejs:github'],
         }
         if self.ffmpeg_location:
             opts['ffmpeg_location'] = self.ffmpeg_location

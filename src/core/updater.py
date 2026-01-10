@@ -99,11 +99,20 @@ class Updater(QObject):
         installer.signals.update_complete.connect(self._on_update_complete)
         self.thread_pool.start(installer)
 
+    def _normalize_version(self, version: str) -> tuple:
+        """Normalize version string to comparable tuple."""
+        # yt-dlp versions are like "2025.12.8" or "2025.12.08"
+        # Convert to tuple of ints for proper comparison
+        try:
+            return tuple(int(x) for x in version.split('.'))
+        except ValueError:
+            return (0,)
+
     def _on_version_checked(self, current: str, latest: str):
         """Handle version check result."""
         if current == "error":
             self.check_failed.emit(latest)  # latest contains error message
-        elif current != latest:
+        elif self._normalize_version(current) < self._normalize_version(latest):
             self.update_available.emit(current, latest)
         else:
             self.already_up_to_date.emit(current)

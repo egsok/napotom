@@ -8,7 +8,7 @@ from uuid import uuid4
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 
 from .downloader import Downloader, VideoInfo, DownloaderError
-from src.utils.notifications import notification_manager
+from utils.notifications import notification_manager
 
 
 class QueueItemStatus(Enum):

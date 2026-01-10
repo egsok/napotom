@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from PyQt6.QtCore import QUrl
 from PyQt6.QtMultimedia import QSoundEffect
-from src.utils.config import config_manager
+from utils.config import config_manager
 
 
 def get_assets_path() -> Path:
@@ -21,15 +21,21 @@ class NotificationManager:
 
     def __init__(self):
         self._sound: QSoundEffect | None = None
-        self._init_sound()
+        self._sound_initialized = False
 
     def _init_sound(self):
-        """Initialize sound effect."""
+        """Initialize sound effect (lazy)."""
+        if self._sound_initialized:
+            return
+        self._sound_initialized = True
         sound_path = get_assets_path() / 'sounds' / 'complete.wav'
         if sound_path.exists():
-            self._sound = QSoundEffect()
-            self._sound.setSource(QUrl.fromLocalFile(str(sound_path)))
-            self._sound.setVolume(0.5)
+            try:
+                self._sound = QSoundEffect()
+                self._sound.setSource(QUrl.fromLocalFile(str(sound_path)))
+                self._sound.setVolume(0.5)
+            except Exception:
+                pass  # QApplication not ready yet
 
     def notify_complete(self, title: str):
         """Send completion notification."""
@@ -45,6 +51,7 @@ class NotificationManager:
 
     def _play_sound(self):
         """Play completion sound."""
+        self._init_sound()
         if self._sound:
             self._sound.play()
 
