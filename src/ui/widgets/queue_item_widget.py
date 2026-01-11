@@ -8,6 +8,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 
 from core.queue import QueueItem, QueueItemStatus
 from ui.styles import COLORS
+from utils.helpers import open_folder
 
 
 class QueueItemWidget(QWidget):
@@ -57,6 +58,14 @@ class QueueItemWidget(QWidget):
         self.retry_btn.setVisible(False)
         top_row.addWidget(self.retry_btn)
 
+        self.folder_btn = QPushButton("📁")
+        self.folder_btn.setObjectName("iconButton")
+        self.folder_btn.setFixedSize(32, 32)
+        self.folder_btn.setToolTip("Open folder")
+        self.folder_btn.clicked.connect(self._on_folder_clicked)
+        self.folder_btn.setVisible(False)
+        top_row.addWidget(self.folder_btn)
+
         self.cancel_btn = QPushButton("×")
         self.cancel_btn.setObjectName("iconButton")
         self.cancel_btn.setFixedSize(32, 32)
@@ -100,6 +109,7 @@ class QueueItemWidget(QWidget):
 
         # Reset buttons and styles
         self.retry_btn.setVisible(False)
+        self.folder_btn.setVisible(False)
         self.cancel_btn.setVisible(True)
         self.status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
 
@@ -121,6 +131,7 @@ class QueueItemWidget(QWidget):
             self.status_label.setStyleSheet(f"color: {COLORS['success']};")
             self.speed_label.setText("")
             self.progress_bar.setVisible(False)
+            self.folder_btn.setVisible(True)
             self.cancel_btn.setVisible(False)
         elif item.status == QueueItemStatus.FAILED:
             self.status_label.setText("Failed")
@@ -134,3 +145,7 @@ class QueueItemWidget(QWidget):
             self.speed_label.setText("")
             self.progress_bar.setVisible(False)
             self.cancel_btn.setVisible(False)
+
+    def _on_folder_clicked(self):
+        """Open folder containing the downloaded file."""
+        open_folder(self.item.output_path)
