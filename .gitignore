@@ -12,3 +12,4 @@ venv/
 *.exe
 ffmpeg.exe
 ffprobe.exe
+!build_mac.spec
