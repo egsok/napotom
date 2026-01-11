@@ -6,9 +6,8 @@ a = Analysis(
     ['src/main.py'],
     pathex=['src'],
     binaries=[
-        # Add ffmpeg binaries here when available
-        # ('ffmpeg.exe', '.'),
-        # ('ffprobe.exe', '.'),
+        ('ffmpeg.exe', '.'),
+        ('ffprobe.exe', '.'),
     ],
     datas=[
         ('assets', 'assets'),

@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: pip install pyqt6 yt-dlp pyinstaller win10toast
+      
+      - name: Download ffmpeg
+        shell: bash
+        run: |
+          curl -L "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip" -o ffmpeg.zip
+          unzip ffmpeg.zip
+          mv ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe .
+          mv ffmpeg-master-latest-win64-gpl/bin/ffprobe.exe .
+      
+      - name: Build exe
+        run: pyinstaller build.spec --noconfirm
+      
+      - name: Create ZIP
+        shell: bash
+        run: |
+          cd dist
+          7z a ../VideoDownloader2-Windows.zip VideoDownloader2.exe
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: VideoDownloader2-Windows.zip
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: mac
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: pip install pyqt6 yt-dlp pync pyinstaller
+      
+      - name: Download ffmpeg
+        run: |
+          mkdir -p bin
+          curl -L "https://evermeet.cx/ffmpeg/getrelease/ffmpeg/7z" -o ffmpeg.7z
+          curl -L "https://evermeet.cx/ffmpeg/getrelease/ffprobe/7z" -o ffprobe.7z
+          7z x ffmpeg.7z -obin
+          7z x ffprobe.7z -obin
+          chmod +x bin/ffmpeg bin/ffprobe
+      
+      - name: Convert iconset to icns
+        run: iconutil -c icns assets/icon.iconset -o assets/icon.icns
+      
+      - name: Build app
+        run: pyinstaller build_mac.spec --noconfirm
+      
+      - name: Create DMG
+        run: hdiutil create -volname "VideoDownloader2" -srcfolder dist/VideoDownloader2.app -ov -format UDZO VideoDownloader2-macOS.dmg
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: VideoDownloader2-macOS.dmg
+
+  release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+      
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-build
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Video Downloader 2
+          body: |
+            ## Downloads
+            
+            - **Windows**: VideoDownloader2-Windows.zip - распакуйте и запустите .exe
+            - **macOS**: VideoDownloader2-macOS.dmg - откройте и перетащите в Applications
+            
+            ### Включено
+            - ffmpeg встроен, дополнительная установка не требуется
+            - Поддержка YouTube, VK, и 1000+ других сайтов
+          files: |
+            VideoDownloader2-Windows.zip
+            VideoDownloader2-macOS.dmg
+          draft: false
+          prerelease: false
