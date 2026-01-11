@@ -11,6 +11,7 @@ from core.queue import DownloadQueue, QueueItem
 from ui.widgets.queue_item_widget import QueueItemWidget
 from ui.styles import COLORS
 from utils.config import config_manager
+from utils.helpers import open_folder
 
 
 class MainWindow(QMainWindow):
@@ -129,6 +130,20 @@ class MainWindow(QMainWindow):
         bottom_bar = QHBoxLayout()
         bottom_bar.addStretch()
 
+        self.open_folder_btn = QPushButton("Open Folder")
+        self.open_folder_btn.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border: 1px solid """ + COLORS['border'] + """;
+                padding: 8px 16px;
+            }
+            QPushButton:hover {
+                border-color: """ + COLORS['accent_purple'] + """;
+            }
+        """)
+        self.open_folder_btn.clicked.connect(self._on_open_folder_clicked)
+        bottom_bar.addWidget(self.open_folder_btn)
+
         self.settings_btn = QPushButton("Settings")
         self.settings_btn.setStyleSheet("""
             QPushButton {
@@ -224,6 +239,10 @@ class MainWindow(QMainWindow):
             ))
             # Update queue parallel limit
             self.queue._update_max_parallel()
+
+    def _on_open_folder_clicked(self):
+        """Handle open folder button click."""
+        open_folder(config_manager.get('download_path'))
 
     @staticmethod
     def _get_quality_key(display: str) -> str:

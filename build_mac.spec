@@ -28,6 +28,7 @@ a = Analysis(
         'utils',
         'utils.config',
         'utils.notifications',
+        'utils.helpers',
     ],
     hookspath=[],
     hooksconfig={},
