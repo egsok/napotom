@@ -5,7 +5,10 @@ block_cipher = None
 a = Analysis(
     ['src/main.py'],
     pathex=['src'],
-    binaries=[],
+    binaries=[
+        ('bin/ffmpeg', '.'),
+        ('bin/ffprobe', '.'),
+    ],
     datas=[
         ('assets', 'assets'),
     ],

@@ -22,6 +22,16 @@ jobs:
         run: |
           pip install pyqt6 yt-dlp pync pyinstaller
       
+      - name: Download ffmpeg
+        run: |
+          mkdir -p bin
+          curl -L "https://evermeet.cx/ffmpeg/getrelease/ffmpeg/7z" -o ffmpeg.7z
+          curl -L "https://evermeet.cx/ffmpeg/getrelease/ffprobe/7z" -o ffprobe.7z
+          7z x ffmpeg.7z -obin
+          7z x ffprobe.7z -obin
+          chmod +x bin/ffmpeg bin/ffprobe
+          ls -la bin/
+      
       - name: Convert iconset to icns
         run: |
           iconutil -c icns assets/icon.iconset -o assets/icon.icns
@@ -34,14 +44,8 @@ jobs:
         run: |
           hdiutil create -volname "VideoDownloader2" -srcfolder dist/VideoDownloader2.app -ov -format UDZO dist/VideoDownloader2.dmg
       
-      - name: Upload app artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: VideoDownloader2-macOS-app
-          path: dist/VideoDownloader2.app
-      
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VideoDownloader2-macOS-dmg
+          name: VideoDownloader2-macOS
           path: dist/VideoDownloader2.dmg

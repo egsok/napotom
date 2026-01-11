@@ -48,9 +48,11 @@ def get_ffmpeg_path() -> Optional[str]:
         # Running as script - check project root
         base_path = Path(__file__).parent.parent.parent
 
-    ffmpeg = Path(base_path) / 'ffmpeg.exe'
-    if ffmpeg.exists():
-        return str(ffmpeg.parent)
+    # Check for ffmpeg (macOS/Linux) or ffmpeg.exe (Windows)
+    for name in ('ffmpeg', 'ffmpeg.exe'):
+        ffmpeg = Path(base_path) / name
+        if ffmpeg.exists():
+            return str(ffmpeg.parent)
 
     return None  # Let yt-dlp find it in PATH
 
