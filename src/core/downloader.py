@@ -73,6 +73,7 @@ class Downloader:
             'fragment_retries': 10,
             'remote_components': ['ejs:github'],
             'concurrent_fragment_downloads': 4,
+            'legacy_server_connect': True,  # Fix SSL issues on macOS
         }
         if self.ffmpeg_location:
             opts['ffmpeg_location'] = self.ffmpeg_location
