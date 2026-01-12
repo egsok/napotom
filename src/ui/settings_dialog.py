@@ -236,16 +236,9 @@ class SettingsDialog(QDialog):
     def _get_ytdlp_version(self) -> str:
         """Get installed yt-dlp version."""
         try:
-            result = subprocess.run(
-                ['yt-dlp', '--version'],
-                capture_output=True,
-                text=True,
-                timeout=5,
-                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0
-            )
-            if result.returncode == 0:
-                return result.stdout.strip()
-        except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+            import yt_dlp
+            return yt_dlp.version.__version__
+        except (ImportError, AttributeError):
             pass
         return "Not installed"
 
