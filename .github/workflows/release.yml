@@ -47,8 +47,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: mac
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -101,7 +99,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Video Downloader 2
+          name: ${{ github.ref_name }} - Video Downloader 2
           body: |
             ## Downloads
             
@@ -111,6 +109,8 @@ jobs:
             ### Включено
             - ffmpeg встроен, дополнительная установка не требуется
             - Поддержка YouTube, VK, и 1000+ других сайтов
+            - 🌍 Русский и английский языки интерфейса
+            - 🍪 Поддержка cookies для возрастных ограничений
           files: |
             VideoDownloader2-Windows.zip
             VideoDownloader2-macOS.dmg
