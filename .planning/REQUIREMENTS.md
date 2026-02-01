@@ -41,22 +41,20 @@ Deferred to future release.
 
 ## Traceability
 
-Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | — | Pending |
-| BUG-02 | — | Pending |
-| BUG-03 | — | Pending |
-| BUG-04 | — | Pending |
-| STAB-01 | — | Pending |
-| STAB-02 | — | Pending |
-| FEAT-01 | — | Pending |
+| STAB-02 | Phase 1 | Pending |
+| BUG-01 | Phase 2 | Pending |
+| BUG-02 | Phase 2 | Pending |
+| BUG-03 | Phase 2 | Pending |
+| BUG-04 | Phase 2 | Pending |
+| STAB-01 | Phase 3 | Pending |
+| FEAT-01 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 7 total
-- Mapped to phases: 0
-- Unmapped: 7 ⚠️
+- Mapped to phases: 7 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-01*
