@@ -65,6 +65,12 @@ Plans:
 
 **Dependencies:** Phase 2 (bugs fixed first, then UX polish)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Expand error translation with friendly, actionable messages
+- [ ] 03-02-PLAN.md — Add browser cookie import to Settings
+
 **Requirements:**
 - STAB-01: User sees friendly error messages instead of raw yt-dlp errors
 - FEAT-01: User can import browser cookies for age-restricted videos
@@ -83,7 +89,7 @@ Plans:
 |-------|--------|--------------|-----------|
 | 1 - Logging Foundation | ✓ Complete | 1 | 1/1 |
 | 2 - Core Bug Fixes | ✓ Complete | 4 | 4/4 |
-| 3 - Error UX & Cookie Import | Pending | 2 | 0/2 |
+| 3 - Error UX & Cookie Import | In Progress | 2 | 0/2 |
 
 **Total:** 5/7 requirements complete (71%)
 
