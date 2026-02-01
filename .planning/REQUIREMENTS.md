@@ -16,12 +16,12 @@ Requirements for this bug fix and stabilization milestone.
 
 ### Stability
 
-- [ ] **STAB-01**: User sees friendly error messages instead of raw yt-dlp errors
+- [x] **STAB-01**: User sees friendly error messages instead of raw yt-dlp errors
 - [x] **STAB-02**: App logs errors to file for debugging
 
 ### Features
 
-- [ ] **FEAT-01**: User can import browser cookies for age-restricted videos
+- [x] **FEAT-01**: User can import browser cookies for age-restricted videos
 
 ## v2 Requirements
 
@@ -48,8 +48,8 @@ Deferred to future release.
 | BUG-02 | Phase 2 | Complete |
 | BUG-03 | Phase 2 | Complete |
 | BUG-04 | Phase 2 | Complete |
-| STAB-01 | Phase 3 | Pending |
-| FEAT-01 | Phase 3 | Pending |
+| STAB-01 | Phase 3 | Complete |
+| FEAT-01 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 7 total
@@ -58,4 +58,4 @@ Deferred to future release.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 — Phase 2 complete (BUG-01, BUG-02, BUG-03, BUG-04)*
+*Last updated: 2026-02-01 — Milestone complete (all 7 requirements)*
