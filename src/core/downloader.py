@@ -1,5 +1,6 @@
 """yt-dlp wrapper for video downloading."""
 
+import logging
 import os
 import sys
 from dataclasses import dataclass
@@ -8,6 +9,8 @@ from pathlib import Path
 
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -78,6 +81,7 @@ class Downloader:
 
     def get_info(self, url: str) -> VideoInfo:
         """Extract video information without downloading."""
+        logger.info('Getting video info: %s', url[:80])
         opts = self._get_base_opts()
 
         with yt_dlp.YoutubeDL(opts) as ydl:
@@ -85,6 +89,7 @@ class Downloader:
                 info = ydl.extract_info(url, download=False)
                 info = ydl.sanitize_info(info)
 
+                logger.info('Video info retrieved: %s (duration: %s)', info.get('title', 'Unknown')[:50], info.get('duration', 0))
                 return VideoInfo(
                     url=url,
                     title=info.get('title', 'Unknown'),
@@ -94,8 +99,10 @@ class Downloader:
                     extractor=info.get('extractor', 'unknown'),
                 )
             except ExtractorError as e:
+                logger.error('Extractor error for %s: %s', url[:50], e)
                 raise DownloaderError(self._translate_error(e))
             except Exception as e:
+                logger.exception('Failed to get video info for %s', url[:50])
                 raise DownloaderError(f"Failed to get video info: {e}")
 
     def download(
@@ -134,9 +141,10 @@ class Downloader:
             opts['merge_output_format'] = 'mp4'
 
         downloaded_file = None
+        last_logged_milestone = 0
 
         def progress_hook(d):
-            nonlocal downloaded_file
+            nonlocal downloaded_file, last_logged_milestone
 
             if d['status'] == 'downloading':
                 total = d.get('total_bytes') or d.get('total_bytes_estimate') or 0
@@ -148,23 +156,35 @@ class Downloader:
                     speed_mbps = speed / 1_000_000  # Convert to MB/s
                     if progress_callback:
                         progress_callback(percent, speed_mbps, 'downloading')
+                    
+                    # Only log at milestones to avoid log spam
+                    for milestone in (25, 50, 75, 100):
+                        if percent >= milestone and last_logged_milestone < milestone:
+                            logger.debug('Download progress: %d%% for %s', percent, url[:50])
+                            last_logged_milestone = milestone
+                            break
 
             elif d['status'] == 'finished':
                 downloaded_file = d.get('filename')
                 if progress_callback:
                     progress_callback(100, 0, 'processing')
+                logger.debug('Download progress: 100%% for %s', url[:50])
 
         opts['progress_hooks'] = [progress_hook]
+        logger.info('Starting download: %s (quality: %s)', url[:80], quality)
 
         with yt_dlp.YoutubeDL(opts) as ydl:
             try:
                 ydl.download([url])
                 if progress_callback:
                     progress_callback(100, 0, 'completed')
+                logger.info('Download completed: %s', downloaded_file or output_path)
                 return downloaded_file or output_path
             except DownloadError as e:
+                logger.error('Download error for %s: %s', url[:50], e)
                 raise DownloaderError(self._translate_error(e))
             except Exception as e:
+                logger.exception('Unexpected download error for %s', url[:50])
                 raise DownloaderError(f"Download failed: {e}")
 
     def _translate_error(self, error: Exception) -> str:
