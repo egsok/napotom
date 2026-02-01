@@ -556,7 +556,7 @@ class SettingsDialog(QDialog):
                 font-weight: bold;
             }}
             QPushButton:hover {{
-                background-color: {COLORS['accent_pink']};
+                background-color: {COLORS['accent_magenta']};
             }}
         """)
         ext_btn.clicked.connect(lambda: webbrowser.open(
