@@ -68,7 +68,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Expand error translation with friendly, actionable messages
+- [x] 03-01-PLAN.md — Expand error translation with friendly, actionable messages
 - [ ] 03-02-PLAN.md — Add browser cookie import to Settings
 
 **Requirements:**
@@ -89,9 +89,9 @@ Plans:
 |-------|--------|--------------|-----------|
 | 1 - Logging Foundation | ✓ Complete | 1 | 1/1 |
 | 2 - Core Bug Fixes | ✓ Complete | 4 | 4/4 |
-| 3 - Error UX & Cookie Import | In Progress | 2 | 0/2 |
+| 3 - Error UX & Cookie Import | In Progress | 2 | 1/2 |
 
-**Total:** 5/7 requirements complete (71%)
+**Total:** 6/7 requirements complete (86%)
 
 ---
 

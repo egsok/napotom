@@ -19,13 +19,13 @@
 
 ## Current Position
 
-**Phase:** 2 of 3 — Core Bug Fixes (COMPLETE)
-**Plan:** 2 of 2 in current phase
-**Status:** Phase complete
-**Last activity:** 2026-02-01 — Completed 02-02-PLAN.md (BUG-04)
+**Phase:** 3 of 3 — Error UX & Cookie Import
+**Plan:** 1 of 2 in current phase
+**Status:** In progress
+**Last activity:** 2026-02-01 — Completed 03-01-PLAN.md (STAB-01)
 
 ```
-[████████████░░░░░░░░] 60% — Phase 2 complete, ready for Phase 3
+[████████████████░░░░] 80% — Phase 3 started, 1 plan remaining
 ```
 
 ---
@@ -35,10 +35,10 @@
 | Metric | Value |
 |--------|-------|
 | Requirements (v1) | 7 |
-| Completed | 5 (STAB-02 + BUG-01/02/03/04) |
+| Completed | 6 (STAB-01/02 + BUG-01/02/03/04) |
 | Phases | 3 |
-| Current Phase | 2 (complete) |
-| Plans Completed | 4 |
+| Current Phase | 3 (in progress) |
+| Plans Completed | 5 |
 
 ---
 
@@ -60,6 +60,8 @@
 | Let OS handle MEI cleanup | Custom cleanup error-prone due to Windows file locking | 2026-02-01 |
 | Store dismissed version in config | Persists across sessions - user won't be re-prompted | 2026-02-01 |
 | Use pending restart flag | Prevents re-checking immediately after update | 2026-02-01 |
+| Pattern-based error translation | Most specific patterns first for precise matching | 2026-02-01 |
+| Cookie hints in actionable errors | Guides users to Settings for age/auth/403 errors | 2026-02-01 |
 
 ### Architecture Notes
 
@@ -71,6 +73,7 @@
 - **Download logging:** Module-level loggers with %-style formatting
 - **Queue tracing:** Item ID prefix on all queue log entries
 - **Update state:** Config-based tracking for dismissed versions and pending restarts
+- **Error translation:** Pattern-based with 29 patterns and clean fallback
 
 ### Technical Debt
 
@@ -79,7 +82,7 @@
 - ~~Version shows "Not installed" (BUG-02)~~ **DONE in Phase 02-01**
 - ~~MEI cleanup warning (BUG-03)~~ **DONE in Phase 02-01**
 - ~~Update loop after pip upgrade (BUG-04)~~ **DONE in Phase 02-02**
-- yt-dlp errors exposed raw to users (STAB-01 will fix in Phase 03)
+- ~~yt-dlp errors exposed raw to users (STAB-01)~~ **DONE in Phase 03-01**
 
 ### TODOs
 
@@ -95,21 +98,17 @@ _None identified_
 
 ### Last Session
 
-2026-02-01 — Completed 02-02-PLAN.md (BUG-04 fix).
+2026-02-01 — Completed 03-01-PLAN.md (STAB-01 error translation).
 
 ### Handoff Notes
 
-**Phase 2 complete (all 4 bugs fixed):**
-- BUG-01: windowsfilenames option in downloader.py
-- BUG-02: Defensive version detection with getattr
-- BUG-03: atexit handler for graceful shutdown
-- BUG-04: Config-based update state tracking in updater.py and main.py
+**Phase 3 in progress (1 of 2 plans complete):**
+- STAB-01: Pattern-based error translation with 29 patterns and cookie hints
 
-**Ready for Phase 3: Error UX & Cookie Import**
-- STAB-01: User-friendly error messages
+**Next up: 03-02-PLAN.md**
 - FEAT-01: Browser cookie import for restricted content
 
 ---
 
 *State initialized: 2026-02-01*
-*Last updated: 2026-02-01 — 02-02-PLAN.md complete*
+*Last updated: 2026-02-01 — 03-01-PLAN.md complete*
