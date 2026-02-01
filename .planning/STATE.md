@@ -25,7 +25,7 @@
 **Phase:** 3 of 3 — Error UX & Cookie Import (COMPLETE)
 **Plan:** 2 of 2 in current phase (COMPLETE)
 **Status:** Milestone Complete + Quick Tasks
-**Last activity:** 2026-02-01 — Completed quick-001 (Localization & UI)
+**Last activity:** 2026-02-01 — Completed quick-002 (CI & DMG improvements)
 
 ```
 [████████████████████] 100% — All phases complete
@@ -33,6 +33,7 @@
 
 **Quick Tasks:**
 - quick-001: Localization (EN/RU) & Settings UI improvements — COMPLETE
+- quick-002: Fix CI & Improve DMG — COMPLETE
 
 ---
 
@@ -112,7 +113,7 @@ _None identified_
 
 ### Last Session
 
-2026-02-01 — Completed quick-001 (Localization & UI improvements).
+2026-02-01 — Completed quick-002 (CI & DMG improvements).
 
 ### Handoff Notes
 
@@ -129,8 +130,9 @@ All 7 requirements implemented:
 
 Quick tasks completed:
 - quick-001: EN/RU localization with tr() function, language switcher in Settings
+- quick-002: Fix CI & Improve DMG (create-dmg, brew dependencies)
 
 ---
 
 *State initialized: 2026-02-01*
-*Last updated: 2026-02-01 — quick-001 complete*
+*Last updated: 2026-02-01 — quick-002 complete*
