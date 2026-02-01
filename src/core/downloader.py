@@ -148,9 +148,14 @@ class Downloader:
         cookie_file = config_manager.get('cookie_file_path', '')
         cookie_browser = config_manager.get('cookie_browser', '')
         
-        if cookie_file and os.path.exists(cookie_file):
-            opts['cookiefile'] = cookie_file
+        if cookie_file:
+            if os.path.exists(cookie_file):
+                logger.debug('Using cookie file: %s', cookie_file)
+                opts['cookiefile'] = cookie_file
+            else:
+                logger.warning('Cookie file not found: %s', cookie_file)
         elif cookie_browser:
+            logger.debug('Using browser cookies: %s', cookie_browser)
             opts['cookiesfrombrowser'] = (cookie_browser,)  # Tuple format required by yt-dlp
         
         if self.ffmpeg_location:
