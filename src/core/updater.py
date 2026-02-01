@@ -20,12 +20,33 @@ class UpdateChecker(QRunnable):
         super().__init__()
         self.signals = UpdaterSignals()
 
+    def _get_current_version(self) -> str:
+        """Get installed yt-dlp version with fallback strategies."""
+        # Strategy 1: Direct attribute access (fastest, works in most cases)
+        try:
+            import yt_dlp
+            version = getattr(yt_dlp, 'version', None)
+            if version:
+                v = getattr(version, '__version__', None)
+                if v:
+                    return v
+        except Exception:
+            pass
+
+        # Strategy 2: Direct module import (handles some bundled app edge cases)
+        try:
+            from yt_dlp import version
+            return version.__version__
+        except Exception:
+            pass
+
+        return "Unknown"
+
     @pyqtSlot()
     def run(self):
         """Check for updates."""
         try:
-            import yt_dlp
-            current = yt_dlp.version.__version__
+            current = self._get_current_version()
 
             # Check PyPI for latest version
             import urllib.request

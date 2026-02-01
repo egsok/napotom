@@ -289,12 +289,25 @@ class SettingsDialog(QDialog):
         self.accept()
 
     def _get_ytdlp_version(self) -> str:
-        """Get installed yt-dlp version."""
+        """Get installed yt-dlp version with fallback strategies."""
+        # Strategy 1: Direct attribute access (fastest, works in most cases)
         try:
             import yt_dlp
-            return yt_dlp.version.__version__
-        except (ImportError, AttributeError):
+            version = getattr(yt_dlp, 'version', None)
+            if version:
+                v = getattr(version, '__version__', None)
+                if v:
+                    return v
+        except Exception:
             pass
+
+        # Strategy 2: Direct module import (handles some bundled app edge cases)
+        try:
+            from yt_dlp import version
+            return version.__version__
+        except Exception:
+            pass
+
         return "Not installed"
 
     def _check_updates(self):
