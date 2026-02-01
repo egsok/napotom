@@ -423,9 +423,10 @@ class SettingsDialog(QDialog):
 
     def _open_log_folder(self):
         """Open the log file folder in file explorer."""
+        from utils.helpers import open_folder
         log_file = get_log_file_path()
         if log_file and log_file.parent.exists():
-            os.startfile(str(log_file.parent))
+            open_folder(str(log_file.parent))
 
     def _save_and_close(self):
         """Save settings and close dialog."""
