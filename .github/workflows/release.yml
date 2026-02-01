@@ -74,6 +74,17 @@ jobs:
       - name: Build app
         run: pyinstaller build_mac.spec --noconfirm
       
+      - name: Debug - Show app bundle structure
+        run: |
+          echo "=== Contents of dist/VideoDownloader2.app/Contents/MacOS/ ==="
+          ls -la dist/VideoDownloader2.app/Contents/MacOS/ || echo "MacOS folder not found"
+          echo ""
+          echo "=== Looking for ffmpeg in the bundle ==="
+          find dist/VideoDownloader2.app -name "ffmpeg*" -o -name "ffprobe*" 2>/dev/null || echo "No ffmpeg found"
+          echo ""
+          echo "=== Full bundle structure (first 50 items) ==="
+          find dist/VideoDownloader2.app -type f | head -50
+      
       - name: Create DMG
         run: |
           create-dmg \
