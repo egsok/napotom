@@ -10,9 +10,11 @@
 - `src/core/downloader.py` — yt-dlp wrapper, error translation, cookie support, logging
 - `src/core/queue.py` — Download queue and worker threads, with logging
 - `src/core/updater.py` — yt-dlp version detection and updates, with update loop prevention
-- `src/utils/config.py` — Configuration management, with update tracking and cookie browser fields
+- `src/utils/config.py` — Configuration management, with update tracking, cookie browser, and language fields
 - `src/utils/logger.py` — Centralized logging with rotating file handler
-- `src/ui/settings_dialog.py` — Settings with cookie import UI
+- `src/utils/i18n.py` — Internationalization with tr() function (EN/RU)
+- `src/utils/translations.py` — Translation dictionaries (88 keys)
+- `src/ui/settings_dialog.py` — Settings with cookie import UI and language switcher
 - `src/main.py` — App entry point
 - `build.spec` — PyInstaller configuration
 
@@ -22,12 +24,15 @@
 
 **Phase:** 3 of 3 — Error UX & Cookie Import (COMPLETE)
 **Plan:** 2 of 2 in current phase (COMPLETE)
-**Status:** Milestone Complete
-**Last activity:** 2026-02-01 — Completed 03-02-PLAN.md (FEAT-01)
+**Status:** Milestone Complete + Quick Tasks
+**Last activity:** 2026-02-01 — Completed quick-001 (Localization & UI)
 
 ```
 [████████████████████] 100% — All phases complete
 ```
+
+**Quick Tasks:**
+- quick-001: Localization (EN/RU) & Settings UI improvements — COMPLETE
 
 ---
 
@@ -65,6 +70,9 @@
 | Cookie hints in actionable errors | Guides users to Settings for age/auth/403 errors | 2026-02-01 |
 | Fresh cookie extraction per download | No caching - yt-dlp handles via cookiesfrombrowser tuple | 2026-02-01 |
 | Default profile only | Start simple - add profile selection if users request | 2026-02-01 |
+| Descriptive translation keys | Keys grouped by feature (app_title, settings_*, status_*) | 2026-02-01 |
+| itemData for combos | Quality/browser combos use data for language-independent selection | 2026-02-01 |
+| Translation fallback chain | current lang → English → key itself (helps debugging) | 2026-02-01 |
 
 ### Architecture Notes
 
@@ -78,6 +86,7 @@
 - **Update state:** Config-based tracking for dismissed versions and pending restarts
 - **Error translation:** Pattern-based with 29 patterns and clean fallback
 - **Cookie import:** yt-dlp extract_cookies_from_browser with cookiesfrombrowser option
+- **i18n:** tr() function with 88 translation keys, EN/RU dictionaries, config-based language
 
 ### Technical Debt
 
@@ -103,11 +112,11 @@ _None identified_
 
 ### Last Session
 
-2026-02-01 — Completed 03-02-PLAN.md (FEAT-01 cookie import).
+2026-02-01 — Completed quick-001 (Localization & UI improvements).
 
 ### Handoff Notes
 
-**Milestone complete!**
+**Milestone complete!** Plus quick tasks.
 
 All 7 requirements implemented:
 - STAB-02: Logging with rotation
@@ -118,7 +127,10 @@ All 7 requirements implemented:
 - STAB-01: Error translation with 29 patterns
 - FEAT-01: Browser cookie import in Settings
 
+Quick tasks completed:
+- quick-001: EN/RU localization with tr() function, language switcher in Settings
+
 ---
 
 *State initialized: 2026-02-01*
-*Last updated: 2026-02-01 — Milestone complete*
+*Last updated: 2026-02-01 — quick-001 complete*
