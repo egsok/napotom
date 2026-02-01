@@ -259,7 +259,7 @@ class SettingsDialog(QDialog):
                 font-size: 12px;
             }}
             QPushButton:hover {{
-                color: {COLORS['accent_pink']};
+                color: {COLORS['accent_magenta']};
             }}
         """)
         self.help_cookies_btn.setCursor(Qt.CursorShape.PointingHandCursor)
