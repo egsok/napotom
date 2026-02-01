@@ -15,6 +15,7 @@ from ui.styles import COLORS
 from utils.config import config_manager
 from utils.logger import get_log_file_path
 from core.updater import Updater
+from yt_dlp.cookies import extract_cookies_from_browser
 
 
 class SettingsDialog(QDialog):
@@ -177,6 +178,70 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(ytdlp_group)
 
+        # Browser Cookies section (FEAT-01)
+        cookie_group = QGroupBox("Browser Cookies")
+        cookie_group.setStyleSheet(f"""
+            QGroupBox {{
+                font-weight: bold;
+                border: 1px solid {COLORS['border']};
+                border-radius: 6px;
+                margin-top: 12px;
+                padding-top: 12px;
+            }}
+            QGroupBox::title {{
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 6px;
+                color: {COLORS['text_primary']};
+            }}
+        """)
+        cookie_layout = QVBoxLayout(cookie_group)
+        cookie_layout.setContentsMargins(16, 20, 16, 16)
+        cookie_layout.setSpacing(12)
+
+        # Description
+        cookie_desc = QLabel("Import cookies from your browser to access age-restricted or members-only videos.")
+        cookie_desc.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        cookie_desc.setWordWrap(True)
+        cookie_layout.addWidget(cookie_desc)
+
+        # Browser selection row
+        browser_row = QHBoxLayout()
+        
+        browser_label = QLabel("Browser:")
+        browser_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        browser_row.addWidget(browser_label)
+
+        self.browser_combo = QComboBox()
+        self.browser_combo.addItems(["None", "Chrome", "Edge", "Firefox", "Brave", "Opera"])
+        self.browser_combo.setMinimumWidth(120)
+        browser_row.addWidget(self.browser_combo)
+
+        browser_row.addStretch()
+
+        self.test_cookies_btn = QPushButton("Test Import")
+        self.test_cookies_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 1px solid {COLORS['border']};
+                padding: 8px 12px;
+            }}
+            QPushButton:hover {{
+                border-color: {COLORS['accent_purple']};
+            }}
+        """)
+        self.test_cookies_btn.clicked.connect(self._test_cookie_import)
+        browser_row.addWidget(self.test_cookies_btn)
+
+        cookie_layout.addLayout(browser_row)
+
+        # Status label for feedback
+        self.cookie_status = QLabel("")
+        self.cookie_status.setWordWrap(True)
+        cookie_layout.addWidget(self.cookie_status)
+
+        layout.addWidget(cookie_group)
+
         # Logging section
         log_group = QGroupBox("Logging")
         log_group.setStyleSheet(f"""
@@ -260,6 +325,11 @@ class SettingsDialog(QDialog):
         self.notifications_check.setChecked(config_manager.get('notifications_enabled', True))
         self.sound_check.setChecked(config_manager.get('sound_enabled', True))
         self.updates_check.setChecked(config_manager.get('check_updates', True))
+        
+        # Load cookie browser setting
+        cookie_browser = config_manager.get('cookie_browser', '')
+        browser_display = cookie_browser.title() if cookie_browser else "None"
+        self.browser_combo.setCurrentText(browser_display)
 
     def _browse_folder(self):
         """Open folder browser dialog."""
@@ -286,6 +356,12 @@ class SettingsDialog(QDialog):
         config_manager.set('notifications_enabled', self.notifications_check.isChecked())
         config_manager.set('sound_enabled', self.sound_check.isChecked())
         config_manager.set('check_updates', self.updates_check.isChecked())
+        
+        # Save cookie browser setting
+        browser_text = self.browser_combo.currentText()
+        cookie_browser = browser_text.lower() if browser_text != "None" else ""
+        config_manager.set('cookie_browser', cookie_browser)
+        
         self.accept()
 
     def _get_ytdlp_version(self) -> str:
@@ -363,6 +439,50 @@ class SettingsDialog(QDialog):
             self.version_label.setText(self._get_ytdlp_version())
         else:
             QMessageBox.warning(self, "Update Failed", message)
+
+    def _test_cookie_import(self):
+        """Test cookie import from selected browser."""
+        browser_text = self.browser_combo.currentText()
+        if browser_text == "None":
+            self.cookie_status.setText("Select a browser first.")
+            self.cookie_status.setStyleSheet(f"color: {COLORS['text_secondary']};")
+            return
+
+        browser = browser_text.lower()
+        self.test_cookies_btn.setEnabled(False)
+        self.test_cookies_btn.setText("Testing...")
+        self.cookie_status.setText("")
+
+        try:
+            # Use yt-dlp's built-in cookie extraction
+            cookie_jar = extract_cookies_from_browser(
+                browser_name=browser,
+                profile=None,  # Default profile
+                logger=None,   # Silent
+            )
+            
+            # Count cookies to verify extraction worked
+            cookie_count = len(list(cookie_jar))
+            
+            if cookie_count > 0:
+                self.cookie_status.setText(f"Found {cookie_count} cookies from {browser_text}")
+                self.cookie_status.setStyleSheet(f"color: {COLORS['success']};")
+            else:
+                self.cookie_status.setText(f"No cookies found in {browser_text}. Make sure you're logged into YouTube.")
+                self.cookie_status.setStyleSheet("color: #FF9800;")  # Warning orange
+                
+        except PermissionError:
+            self.cookie_status.setText(f"Permission denied. Close {browser_text} and try again.")
+            self.cookie_status.setStyleSheet(f"color: {COLORS['error']};")
+        except Exception as e:
+            error_msg = str(e)
+            if len(error_msg) > 100:
+                error_msg = error_msg[:97] + "..."
+            self.cookie_status.setText(f"Import failed: {error_msg}")
+            self.cookie_status.setStyleSheet(f"color: {COLORS['error']};")
+        finally:
+            self.test_cookies_btn.setEnabled(True)
+            self.test_cookies_btn.setText("Test Import")
 
     @staticmethod
     def _get_quality_key(display: str) -> str:
