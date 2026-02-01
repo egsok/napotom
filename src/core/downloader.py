@@ -112,7 +112,8 @@ def get_ffmpeg_path() -> Optional[str]:
         # Running as script - check project root
         base_path = Path(__file__).parent.parent.parent
 
-    ffmpeg = Path(base_path) / 'ffmpeg.exe'
+    binary_name = 'ffmpeg.exe' if sys.platform == 'win32' else 'ffmpeg'
+    ffmpeg = Path(base_path) / binary_name
     if ffmpeg.exists():
         return str(ffmpeg.parent)
 
