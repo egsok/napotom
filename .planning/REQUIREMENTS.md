@@ -1,0 +1,63 @@
+# Requirements: Video Downloader 2
+
+**Defined:** 2026-02-01
+**Core Value:** Downloads must work reliably — users paste a URL, it downloads.
+
+## v1 Requirements
+
+Requirements for this bug fix and stabilization milestone.
+
+### Bug Fixes
+
+- [ ] **BUG-01**: Fix Errno 22: Invalid argument when getting video info
+- [ ] **BUG-02**: Fix yt-dlp version detection showing "Not installed"
+- [ ] **BUG-03**: Fix PyInstaller temp directory cleanup warning (MEI folder)
+- [ ] **BUG-04**: Fix yt-dlp update loop — stops prompting after successful update
+
+### Stability
+
+- [ ] **STAB-01**: User sees friendly error messages instead of raw yt-dlp errors
+- [ ] **STAB-02**: App logs errors to file for debugging
+
+### Features
+
+- [ ] **FEAT-01**: User can import browser cookies for age-restricted videos
+
+## v2 Requirements
+
+Deferred to future release.
+
+- **FEAT-02**: Auto-update yt-dlp in background
+- **FEAT-03**: Download history with search
+- **FEAT-04**: Playlist support with selective downloads
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| New UI features | Focus on stability first |
+| Linux/macOS fixes | Windows-only for now |
+| Browser extension | Separate project |
+
+## Traceability
+
+Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| BUG-01 | — | Pending |
+| BUG-02 | — | Pending |
+| BUG-03 | — | Pending |
+| BUG-04 | — | Pending |
+| STAB-01 | — | Pending |
+| STAB-02 | — | Pending |
+| FEAT-01 | — | Pending |
+
+**Coverage:**
+- v1 requirements: 7 total
+- Mapped to phases: 0
+- Unmapped: 7 ⚠️
+
+---
+*Requirements defined: 2026-02-01*
+*Last updated: 2026-02-01 after initial definition*
