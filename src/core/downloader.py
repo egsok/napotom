@@ -67,8 +67,6 @@ ERROR_PATTERNS = [
     ('ssl', 'Secure connection failed. Check your network settings.'),
     
     # Technical errors
-    ('requested format is not available', 'Video format unavailable. Try a different quality setting.'),
-    ('format is not available', 'Video format unavailable. Try a different quality setting.'),
     ('ffmpeg', 'FFmpeg is required but not found or failed.'),
     ('postprocessing', 'Failed to process the downloaded video.'),
     ('no video formats', 'No downloadable formats found for this video.'),
@@ -97,70 +95,30 @@ class VideoInfo:
 
 
 # Quality presets mapping to yt-dlp format strings
-# Each preset has multiple fallbacks separated by / for robustness:
-# 1. Try video+audio merge (requires ffmpeg)
-# 2. Fall back to single stream with both (no ffmpeg needed)
-# 3. Fall back to any best format available
 QUALITY_PRESETS = {
-    "best": "bestvideo+bestaudio/bestvideo*+bestaudio*/best",
-    "1080p": "bestvideo[height<=1080]+bestaudio/bestvideo*[height<=1080]+bestaudio*/best[height<=1080]/best",
-    "720p": "bestvideo[height<=720]+bestaudio/bestvideo*[height<=720]+bestaudio*/best[height<=720]/best",
-    "audio": "bestaudio/bestaudio*/best",
+    "best": "bestvideo+bestaudio/best",
+    "1080p": "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+    "720p": "bestvideo[height<=720]+bestaudio/best[height<=720]",
+    "audio": "bestaudio/best",
 }
 
 
 def get_ffmpeg_path() -> Optional[str]:
-    """Get FFmpeg path, handling PyInstaller bundling.
-    
-    On macOS .app bundles, PyInstaller extracts to a temp folder (_MEIPASS).
-    We check multiple possible locations for the ffmpeg binary.
-    
-    PyInstaller 6.x uses _internal/ subfolder for dependencies.
-    """
-    binary_name = 'ffmpeg.exe' if sys.platform == 'win32' else 'ffmpeg'
-    paths_to_check = []
-    
+    """Get FFmpeg path, handling PyInstaller bundling."""
     if getattr(sys, 'frozen', False):
-        # Running as bundled exe/app
-        base_path = Path(sys._MEIPASS)
-        paths_to_check.append(base_path / binary_name)
-        # PyInstaller 6.x puts binaries in _internal/
-        paths_to_check.append(base_path / '_internal' / binary_name)
-        
-        # macOS .app bundle: also check relative to executable
-        if sys.platform == 'darwin':
-            exe_path = Path(sys.executable)
-            # sys.executable is inside .app/Contents/MacOS/
-            # Binaries might be in .app/Contents/MacOS/ or .app/Contents/Resources/
-            paths_to_check.append(exe_path.parent / binary_name)
-            paths_to_check.append(exe_path.parent / '_internal' / binary_name)
-            paths_to_check.append(exe_path.parent.parent / 'Resources' / binary_name)
-            # Also check Frameworks (common for macOS bundles)
-            paths_to_check.append(exe_path.parent.parent / 'Frameworks' / binary_name)
+        base_path = sys._MEIPASS
     else:
-        # Running as script - check project root
         base_path = Path(__file__).parent.parent.parent
-        paths_to_check.append(base_path / binary_name)
-        # Also check bin/ subdirectory (for dev with downloaded ffmpeg)
-        paths_to_check.append(base_path / 'bin' / binary_name)
+
+    # Platform-specific binary name
+    binary_name = 'ffmpeg.exe' if sys.platform == 'win32' else 'ffmpeg'
+    ffmpeg = Path(base_path) / binary_name
     
-    # Log paths being checked for debugging
-    logger.debug('Looking for ffmpeg binary: %s', binary_name)
-    logger.debug('Frozen: %s, Platform: %s', getattr(sys, 'frozen', False), sys.platform)
-    if getattr(sys, 'frozen', False):
-        logger.debug('_MEIPASS: %s', sys._MEIPASS)
-        logger.debug('sys.executable: %s', sys.executable)
-    
-    for ffmpeg_path in paths_to_check:
-        exists = ffmpeg_path.exists()
-        is_file = ffmpeg_path.is_file() if exists else False
-        logger.debug('Checking ffmpeg path: %s (exists: %s, is_file: %s)', ffmpeg_path, exists, is_file)
-        if exists and is_file:
-            logger.info('Found ffmpeg at: %s', ffmpeg_path.parent)
-            return str(ffmpeg_path.parent)
-    
-    # Log all checked paths for debugging
-    logger.warning('ffmpeg not found in bundled paths: %s', [str(p) for p in paths_to_check])
+    if ffmpeg.exists():
+        logger.debug('Found bundled ffmpeg at: %s', ffmpeg.parent)
+        return str(ffmpeg.parent)
+
+    logger.debug('Bundled ffmpeg not found, using system PATH')
     return None  # Let yt-dlp find it in PATH
 
 
@@ -169,10 +127,6 @@ class Downloader:
 
     def __init__(self):
         self.ffmpeg_location = get_ffmpeg_path()
-        if self.ffmpeg_location:
-            logger.info('Downloader initialized with ffmpeg at: %s', self.ffmpeg_location)
-        else:
-            logger.warning('Downloader initialized WITHOUT bundled ffmpeg - format merging may fail')
 
     def _get_base_opts(self) -> dict:
         """Get base yt-dlp options."""
