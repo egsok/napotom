@@ -38,6 +38,8 @@ class Config:
     # Update loop prevention (BUG-04)
     last_dismissed_ytdlp_version: str = ""  # Version user dismissed
     ytdlp_update_pending_restart: bool = False  # True after successful update
+    # Browser cookie import (FEAT-01)
+    cookie_browser: str = ""  # Browser for cookie import: chrome, edge, firefox, brave, opera, or empty
 
     def __post_init__(self):
         if not self.download_path:
