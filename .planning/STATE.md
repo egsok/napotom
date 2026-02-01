@@ -19,11 +19,12 @@
 ## Current Position
 
 **Phase:** 1 of 3 — Logging Foundation
-**Plan:** Not yet created
-**Status:** Awaiting planning
+**Plan:** 1 of 2 in phase (Logging Module)
+**Status:** In progress
+**Last activity:** 2026-02-01 — Completed 01-01-PLAN.md
 
 ```
-[░░░░░░░░░░░░░░░░░░░░] 0% — Phase 1 not started
+[██░░░░░░░░░░░░░░░░░░] 10% — Plan 01-01 complete
 ```
 
 ---
@@ -36,6 +37,7 @@
 | Completed | 0 |
 | Phases | 3 |
 | Current Phase | 1 |
+| Plans Completed | 1 |
 
 ---
 
@@ -47,6 +49,8 @@
 |----------|-----------|------|
 | Logging first | Need visibility into errors before fixing them | 2026-02-01 |
 | 3 phases for 7 requirements | Natural clustering: foundation → bugs → UX | 2026-02-01 |
+| Log location: AppData/logs/ | Follows Windows conventions, isolated from user files | 2026-02-01 |
+| Rotation: 5MB with 3 backups | Reasonable size for debugging without consuming disk | 2026-02-01 |
 
 ### Architecture Notes
 
@@ -54,11 +58,11 @@
 - Qt signals/slots for thread-safe communication
 - QThreadPool for background downloads
 - ConfigManager singleton for settings
-- No logging currently — console output only (suppressed in production)
+- **Logging:** RotatingFileHandler to AppData, initialized before Qt
 
 ### Technical Debt
 
-- No logging system (STAB-02 will fix)
+- ~~No logging system (STAB-02 will fix)~~ **DONE in 01-01**
 - yt-dlp errors exposed raw to users (STAB-01 will fix)
 
 ### TODOs
@@ -75,15 +79,14 @@ _None identified_
 
 ### Last Session
 
-_New project — no previous sessions_
+2026-02-01 — Completed 01-01-PLAN.md (Logging Module)
 
 ### Handoff Notes
 
-Ready to start Phase 1 planning. Key considerations:
-- Python logging module is the obvious choice
-- Log location should be `%APPDATA%/VideoDownloader2/logs/`
-- Need to decide on rotation strategy (size-based or time-based)
-- Consider adding log level config option for power users
+Logging foundation complete. Ready for 01-02 (Download Event Logging):
+- All modules can now use `logging.getLogger(__name__)`
+- Log file at `%APPDATA%/VideoDownloader2/logs/app.log`
+- `get_log_file_path()` available for settings UI display
 
 ---
 
