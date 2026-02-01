@@ -35,6 +35,9 @@ class Config:
     sound_enabled: bool = True
     check_updates: bool = True
     max_parallel_downloads: int = 2
+    # Update loop prevention (BUG-04)
+    last_dismissed_ytdlp_version: str = ""  # Version user dismissed
+    ytdlp_update_pending_restart: bool = False  # True after successful update
 
     def __post_init__(self):
         if not self.download_path:
