@@ -19,13 +19,13 @@
 
 ## Current Position
 
-**Phase:** 2 of 3 — Core Bug Fixes (PENDING)
-**Plan:** Not yet planned
-**Status:** Awaiting planning
-**Last activity:** 2026-02-01 — Completed Phase 1 (Logging Foundation)
+**Phase:** 2 of 3 — Core Bug Fixes
+**Plan:** 1 of 2 in current phase
+**Status:** In progress
+**Last activity:** 2026-02-01 — Completed 02-01-PLAN.md (BUG-01, BUG-02, BUG-03)
 
 ```
-[███████░░░░░░░░░░░░░] 33% — Phase 1 complete, ready for Phase 2
+[██████████░░░░░░░░░░] 50% — Phase 2 plan 1 complete, ready for plan 2
 ```
 
 ---
@@ -55,6 +55,9 @@
 | %-style log formatting | Best practice for logging - deferred string interpolation | 2026-02-01 |
 | Progress milestones (25/50/75/100%) | Avoid log spam while maintaining visibility | 2026-02-01 |
 | Item ID prefix in queue logs | Enables tracing single download through entire log | 2026-02-01 |
+| Use windowsfilenames option | yt-dlp handles all filename edge cases automatically | 2026-02-01 |
+| Defensive version detection | PyInstaller bundling can cause import issues; getattr fallback | 2026-02-01 |
+| Let OS handle MEI cleanup | Custom cleanup error-prone due to Windows file locking | 2026-02-01 |
 
 ### Architecture Notes
 
@@ -69,7 +72,10 @@
 ### Technical Debt
 
 - ~~No logging system (STAB-02 will fix)~~ **DONE in Phase 01**
-- yt-dlp errors exposed raw to users (STAB-01 will fix in Phase 02)
+- ~~Errno 22 on special characters (BUG-01)~~ **DONE in Phase 02-01**
+- ~~Version shows "Not installed" (BUG-02)~~ **DONE in Phase 02-01**
+- ~~MEI cleanup warning (BUG-03)~~ **DONE in Phase 02-01**
+- yt-dlp errors exposed raw to users (STAB-01 will fix in Phase 03)
 
 ### TODOs
 
@@ -85,25 +91,19 @@ _None identified_
 
 ### Last Session
 
-2026-02-01 — Completed Phase 1 (Logging Foundation), verified and committed.
+2026-02-01 — Completed 02-01-PLAN.md (BUG-01, BUG-02, BUG-03 fixes).
 
 ### Handoff Notes
 
-**Phase 1 complete and verified:**
-- Logger module: src/utils/logger.py (rotating file handler, 5MB, 3 backups)
-- Logging initialized in main.py before Qt
-- Download logging in downloader.py and queue.py with item ID tracing
-- Settings UI shows log path with "Open Folder" button
+**Phase 2 Plan 1 complete:**
+- BUG-01 fixed: windowsfilenames option in downloader.py
+- BUG-02 fixed: Defensive version detection with getattr in updater.py and settings_dialog.py
+- BUG-03 fixed: atexit handler in main.py, explanatory comments in build.spec
 
-**Ready for Phase 2: Core Bug Fixes**
-- BUG-01: Errno 22 when getting video info
-- BUG-02: yt-dlp version shows "Not installed"
-- BUG-03: PyInstaller MEI cleanup warning
-- BUG-04: yt-dlp update loop
-
-Logging is now available for debugging these bugs.
+**Ready for Phase 2 Plan 2:**
+- BUG-04: yt-dlp update loop (stores dismissed version in config)
 
 ---
 
 *State initialized: 2026-02-01*
-*Last updated: 2026-02-01*
+*Last updated: 2026-02-01 — 02-01-PLAN.md complete*
