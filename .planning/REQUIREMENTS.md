@@ -9,10 +9,10 @@ Requirements for this bug fix and stabilization milestone.
 
 ### Bug Fixes
 
-- [ ] **BUG-01**: Fix Errno 22: Invalid argument when getting video info
-- [ ] **BUG-02**: Fix yt-dlp version detection showing "Not installed"
-- [ ] **BUG-03**: Fix PyInstaller temp directory cleanup warning (MEI folder)
-- [ ] **BUG-04**: Fix yt-dlp update loop — stops prompting after successful update
+- [x] **BUG-01**: Fix Errno 22: Invalid argument when getting video info
+- [x] **BUG-02**: Fix yt-dlp version detection showing "Not installed"
+- [x] **BUG-03**: Fix PyInstaller temp directory cleanup warning (MEI folder)
+- [x] **BUG-04**: Fix yt-dlp update loop — stops prompting after successful update
 
 ### Stability
 
@@ -44,10 +44,10 @@ Deferred to future release.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | STAB-02 | Phase 1 | Complete |
-| BUG-01 | Phase 2 | Pending |
-| BUG-02 | Phase 2 | Pending |
-| BUG-03 | Phase 2 | Pending |
-| BUG-04 | Phase 2 | Pending |
+| BUG-01 | Phase 2 | Complete |
+| BUG-02 | Phase 2 | Complete |
+| BUG-03 | Phase 2 | Complete |
+| BUG-04 | Phase 2 | Complete |
 | STAB-01 | Phase 3 | Pending |
 | FEAT-01 | Phase 3 | Pending |
 
@@ -58,4 +58,4 @@ Deferred to future release.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after initial definition*
+*Last updated: 2026-02-01 — Phase 2 complete (BUG-01, BUG-02, BUG-03, BUG-04)*
