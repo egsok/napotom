@@ -176,9 +176,12 @@ class Downloader:
             except ExtractorError as e:
                 logger.error('Extractor error for %s: %s', url[:50], e)
                 raise DownloaderError(self._translate_error(e))
+            except DownloadError as e:
+                logger.error('Download error for %s: %s', url[:50], e)
+                raise DownloaderError(self._translate_error(e))
             except Exception as e:
                 logger.exception('Failed to get video info for %s', url[:50])
-                raise DownloaderError(f"Failed to get video info: {e}")
+                raise DownloaderError(self._translate_error(e))
 
     def download(
         self,
@@ -260,7 +263,7 @@ class Downloader:
                 raise DownloaderError(self._translate_error(e))
             except Exception as e:
                 logger.exception('Unexpected download error for %s', url[:50])
-                raise DownloaderError(f"Download failed: {e}")
+                raise DownloaderError(self._translate_error(e))
 
     def _translate_error(self, error: Exception) -> str:
         """Translate yt-dlp errors to user-friendly messages."""
