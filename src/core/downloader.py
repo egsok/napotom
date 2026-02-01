@@ -71,6 +71,9 @@ ERROR_PATTERNS = [
     ('postprocessing', 'Failed to process the downloaded video.'),
     ('no video formats', 'No downloadable formats found for this video.'),
     ('unsupported url', 'This URL is not supported.'),
+    
+    # Format selection failures (usually auth-related)
+    ('requested format is not available', 'No downloadable formats found. Try setting up cookies in Settings.'),
 ]
 
 
@@ -127,6 +130,7 @@ class Downloader:
 
     def __init__(self):
         self.ffmpeg_location = get_ffmpeg_path()
+        self._cookie_file_missing = False  # Track for error messages
 
     def _get_base_opts(self) -> dict:
         """Get base yt-dlp options."""
@@ -147,13 +151,16 @@ class Downloader:
         # Priority: cookie file > browser extraction (file is more reliable)
         cookie_file = config_manager.get('cookie_file_path', '')
         cookie_browser = config_manager.get('cookie_browser', '')
+        self._cookie_file_missing = False  # Track for better error messages
         
         if cookie_file:
             if os.path.exists(cookie_file):
                 logger.debug('Using cookie file: %s', cookie_file)
                 opts['cookiefile'] = cookie_file
             else:
+                # Cookie file configured but not found (e.g., Windows path on macOS)
                 logger.warning('Cookie file not found: %s', cookie_file)
+                self._cookie_file_missing = True
         elif cookie_browser:
             logger.debug('Using browser cookies: %s', cookie_browser)
             opts['cookiesfrombrowser'] = (cookie_browser,)  # Tuple format required by yt-dlp
@@ -276,6 +283,11 @@ class Downloader:
     def _translate_error(self, error: Exception) -> str:
         """Translate yt-dlp errors to user-friendly messages."""
         msg = str(error).lower()
+        
+        # Special case: format error when cookie file was configured but not found
+        # This often happens when config.json has a path from a different OS
+        if 'requested format is not available' in msg and getattr(self, '_cookie_file_missing', False):
+            return 'Cookie file not found. Re-import your cookies.txt file in Settings.'
         
         # Check against known patterns
         for pattern, friendly_msg in ERROR_PATTERNS:
