@@ -25,7 +25,7 @@
 **Phase:** 3 of 3 — Error UX & Cookie Import (COMPLETE)
 **Plan:** 2 of 2 in current phase (COMPLETE)
 **Status:** Milestone Complete + Quick Tasks
-**Last activity:** 2026-02-01 — Completed quick-002 (CI & DMG improvements)
+**Last activity:** 2026-02-01 — Completed quick-003 (Platform-aware FFmpeg detection)
 
 ```
 [████████████████████] 100% — All phases complete
@@ -34,6 +34,7 @@
 **Quick Tasks:**
 - quick-001: Localization (EN/RU) & Settings UI improvements — COMPLETE
 - quick-002: Fix CI & Improve DMG — COMPLETE
+- quick-003: Platform-aware FFmpeg detection (macOS/Linux support) — COMPLETE
 
 ---
 
@@ -74,6 +75,7 @@
 | Descriptive translation keys | Keys grouped by feature (app_title, settings_*, status_*) | 2026-02-01 |
 | itemData for combos | Quality/browser combos use data for language-independent selection | 2026-02-01 |
 | Translation fallback chain | current lang → English → key itself (helps debugging) | 2026-02-01 |
+| Platform-aware FFmpeg | Detect 'ffmpeg' vs 'ffmpeg.exe' at runtime for cross-platform support | 2026-02-01 |
 
 ### Architecture Notes
 
@@ -113,7 +115,7 @@ _None identified_
 
 ### Last Session
 
-2026-02-01 — Completed quick-002 (CI & DMG improvements).
+2026-02-01 — Completed quick-003 (Platform-aware FFmpeg detection).
 
 ### Handoff Notes
 
@@ -131,8 +133,9 @@ All 7 requirements implemented:
 Quick tasks completed:
 - quick-001: EN/RU localization with tr() function, language switcher in Settings
 - quick-002: Fix CI & Improve DMG (create-dmg, brew dependencies)
+- quick-003: Platform-aware FFmpeg detection (macOS/Linux support)
 
 ---
 
 *State initialized: 2026-02-01*
-*Last updated: 2026-02-01 — quick-002 complete*
+*Last updated: 2026-02-01 — quick-003 complete*
