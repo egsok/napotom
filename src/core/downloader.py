@@ -11,6 +11,8 @@ from pathlib import Path
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
 
+from utils.config import config_manager
+
 logger = logging.getLogger(__name__)
 
 
@@ -128,6 +130,12 @@ class Downloader:
             # Handles invalid chars (?*"<>|:/\), reserved names (CON, PRN), path limits
             'windowsfilenames': True,
         }
+        
+        # Add cookie browser if configured (FEAT-01)
+        cookie_browser = config_manager.get('cookie_browser', '')
+        if cookie_browser:
+            opts['cookiesfrombrowser'] = (cookie_browser,)  # Tuple format required by yt-dlp
+        
         if self.ffmpeg_location:
             opts['ffmpeg_location'] = self.ffmpeg_location
         return opts
