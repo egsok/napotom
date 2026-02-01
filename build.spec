@@ -1,13 +1,17 @@
 # -*- mode: python ; coding: utf-8 -*-
+import sys
 
 block_cipher = None
+
+ffmpeg_bin = 'ffmpeg.exe' if sys.platform == 'win32' else 'ffmpeg'
+ffprobe_bin = 'ffprobe.exe' if sys.platform == 'win32' else 'ffprobe'
 
 a = Analysis(
     ['src/main.py'],
     pathex=['src'],
     binaries=[
-        ('ffmpeg.exe', '.'),
-        ('ffprobe.exe', '.'),
+        (ffmpeg_bin, '.'),
+        (ffprobe_bin, '.'),
     ],
     datas=[
         ('assets', 'assets'),
