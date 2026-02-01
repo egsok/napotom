@@ -16,6 +16,12 @@ This milestone fixes critical bugs breaking core download functionality and adds
 
 **Dependencies:** None
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Create logger module and initialize at startup
+- [ ] 01-02-PLAN.md — Add logging to download operations and Settings UI
+
 **Requirements:**
 - STAB-02: App logs errors to file for debugging
 
@@ -69,7 +75,7 @@ This milestone fixes critical bugs breaking core download functionality and adds
 
 | Phase | Status | Requirements | Completed |
 |-------|--------|--------------|-----------|
-| 1 - Logging Foundation | Pending | 1 | 0/1 |
+| 1 - Logging Foundation | Planned | 1 | 0/1 |
 | 2 - Core Bug Fixes | Pending | 4 | 0/4 |
 | 3 - Error UX & Cookie Import | Pending | 2 | 0/2 |
 
