@@ -148,22 +148,23 @@ class Downloader:
         }
         
         # Add cookies if configured (FEAT-01)
-        # Priority: cookie file > browser extraction (file is more reliable)
+        # Priority: cookie file (if exists) > browser extraction
         cookie_file = config_manager.get('cookie_file_path', '')
         cookie_browser = config_manager.get('cookie_browser', '')
         self._cookie_file_missing = False  # Track for better error messages
         
-        if cookie_file:
-            if os.path.exists(cookie_file):
-                logger.debug('Using cookie file: %s', cookie_file)
-                opts['cookiefile'] = cookie_file
-            else:
-                # Cookie file configured but not found (e.g., Windows path on macOS)
-                logger.warning('Cookie file not found: %s', cookie_file)
-                self._cookie_file_missing = True
+        # Only use cookie file if it actually exists
+        if cookie_file and os.path.exists(cookie_file):
+            logger.debug('Using cookie file: %s', cookie_file)
+            opts['cookiefile'] = cookie_file
         elif cookie_browser:
+            # Browser extraction as fallback or primary if no file
             logger.debug('Using browser cookies: %s', cookie_browser)
-            opts['cookiesfrombrowser'] = (cookie_browser,)  # Tuple format required by yt-dlp
+            opts['cookiesfrombrowser'] = (cookie_browser,)
+        elif cookie_file:
+            # Cookie file was configured but doesn't exist
+            logger.warning('Cookie file not found: %s', cookie_file)
+            self._cookie_file_missing = True
         
         if self.ffmpeg_location:
             opts['ffmpeg_location'] = self.ffmpeg_location
