@@ -2,6 +2,7 @@
 
 import logging
 import os
+import re
 import sys
 from dataclasses import dataclass
 from typing import Optional, Callable, List
@@ -11,6 +12,55 @@ import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
 
 logger = logging.getLogger(__name__)
+
+
+# Error patterns ordered by specificity (most specific first)
+ERROR_PATTERNS = [
+    # Age restriction - actionable (cookies can help)
+    ('sign in to confirm your age', 'This video requires age verification. Import browser cookies in Settings.'),
+    ('age-restricted', 'This video is age-restricted. Import browser cookies in Settings.'),
+    ('age gate', 'This video is age-restricted. Import browser cookies in Settings.'),
+    
+    # Login required - actionable (cookies can help)
+    ('sign in to view', 'This video requires sign-in. Import browser cookies in Settings.'),
+    ('members only', 'This video is for channel members only.'),
+    ('join this channel', 'This video is for channel members only.'),
+    ('premium', 'This video requires a premium subscription.'),
+    
+    # Availability - not actionable
+    ('video unavailable', 'This video is unavailable. It may have been removed or made private.'),
+    ('private video', 'This video is private.'),
+    ('removed by', 'This video has been removed.'),
+    ('deleted video', 'This video has been deleted.'),
+    ('copyright', 'This video was removed due to a copyright claim.'),
+    
+    # Geo-restriction - not actionable
+    ('not available in your country', 'This video is not available in your region.'),
+    ('geo', 'This video is geographically restricted.'),
+    ('blocked in your country', 'This video is blocked in your region.'),
+    
+    # Live content
+    ('live event will begin', 'This is an upcoming live stream. Try again when it starts.'),
+    ('premieres in', 'This video will premiere later. Try again after it starts.'),
+    
+    # HTTP errors
+    ('403', 'Access denied. Try importing browser cookies in Settings.'),
+    ('404', 'Video not found. Check the URL.'),
+    ('429', 'Too many requests. Please wait a moment and try again.'),
+    ('503', 'Service temporarily unavailable. Try again later.'),
+    
+    # Network errors
+    ('connection', 'Connection error. Check your internet connection.'),
+    ('timeout', 'Connection timed out. Try again.'),
+    ('network', 'Network error. Check your internet connection.'),
+    ('ssl', 'Secure connection failed. Check your network settings.'),
+    
+    # Technical errors
+    ('ffmpeg', 'FFmpeg is required but not found or failed.'),
+    ('postprocessing', 'Failed to process the downloaded video.'),
+    ('no video formats', 'No downloadable formats found for this video.'),
+    ('unsupported url', 'This URL is not supported.'),
+]
 
 
 @dataclass
@@ -193,23 +243,29 @@ class Downloader:
     def _translate_error(self, error: Exception) -> str:
         """Translate yt-dlp errors to user-friendly messages."""
         msg = str(error).lower()
-
-        if 'video unavailable' in msg or 'private video' in msg:
-            return "Video unavailable or private"
-        elif 'sign in' in msg or 'age' in msg:
-            return "Video requires age verification"
-        elif 'geo' in msg or 'not available in your country' in msg:
-            return "Video not available in your region"
-        elif '403' in msg:
-            return "Access denied to video"
-        elif '404' in msg:
-            return "Video not found"
-        elif '429' in msg:
-            return "Too many requests, try again later"
-        elif 'ffmpeg' in msg:
-            return "FFmpeg required but not found"
-        else:
-            return str(error)
+        
+        # Check against known patterns
+        for pattern, friendly_msg in ERROR_PATTERNS:
+            if pattern in msg:
+                return friendly_msg
+        
+        # Fallback: Clean up the original message
+        return self._clean_error_message(str(error))
+    
+    def _clean_error_message(self, msg: str) -> str:
+        """Remove technical details and wiki links from error message."""
+        # Remove GitHub/wiki URLs
+        msg = re.sub(r'https?://[^\s]+', '', msg)
+        # Remove "ERROR:" prefixes
+        msg = re.sub(r'^ERROR:\s*', '', msg, flags=re.IGNORECASE)
+        # Remove yt-dlp technical prefixes
+        msg = re.sub(r'\[[\w\.-]+\]\s*', '', msg)
+        # Collapse whitespace
+        msg = re.sub(r'\s+', ' ', msg).strip()
+        # Truncate if too long
+        if len(msg) > 200:
+            msg = msg[:197] + '...'
+        return msg if msg else 'Download failed. Please try again.'
 
 
 class DownloaderError(Exception):
