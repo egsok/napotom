@@ -7,10 +7,11 @@
 **Current Focus:** Bug fix and stabilization milestone — fix 4 bugs, add logging, improve error UX, add cookie import.
 
 **Key Files:**
-- `src/core/downloader.py` — yt-dlp wrapper, error translation
-- `src/core/queue.py` — Download queue and worker threads
+- `src/core/downloader.py` — yt-dlp wrapper, error translation, **now with logging**
+- `src/core/queue.py` — Download queue and worker threads, **now with logging**
 - `src/core/updater.py` — yt-dlp version detection and updates
 - `src/utils/config.py` — Configuration management
+- `src/utils/logger.py` — Centralized logging with rotating file handler
 - `src/main.py` — App entry point
 - `build.spec` — PyInstaller configuration
 
@@ -18,13 +19,13 @@
 
 ## Current Position
 
-**Phase:** 1 of 3 — Logging Foundation
-**Plan:** 1 of 2 in phase (Logging Module)
-**Status:** In progress
-**Last activity:** 2026-02-01 — Completed 01-01-PLAN.md
+**Phase:** 1 of 3 — Logging Foundation (COMPLETE)
+**Plan:** 2 of 2 in phase (Download Event Logging)
+**Status:** Phase complete
+**Last activity:** 2026-02-01 — Completed 01-02-PLAN.md
 
 ```
-[██░░░░░░░░░░░░░░░░░░] 10% — Plan 01-01 complete
+[████░░░░░░░░░░░░░░░░] 20% — Phase 01 complete
 ```
 
 ---
@@ -34,10 +35,10 @@
 | Metric | Value |
 |--------|-------|
 | Requirements (v1) | 7 |
-| Completed | 0 |
+| Completed | 1 (STAB-02 Logging) |
 | Phases | 3 |
-| Current Phase | 1 |
-| Plans Completed | 1 |
+| Current Phase | 1 (complete) |
+| Plans Completed | 2 |
 
 ---
 
@@ -51,6 +52,9 @@
 | 3 phases for 7 requirements | Natural clustering: foundation → bugs → UX | 2026-02-01 |
 | Log location: AppData/logs/ | Follows Windows conventions, isolated from user files | 2026-02-01 |
 | Rotation: 5MB with 3 backups | Reasonable size for debugging without consuming disk | 2026-02-01 |
+| %-style log formatting | Best practice for logging - deferred string interpolation | 2026-02-01 |
+| Progress milestones (25/50/75/100%) | Avoid log spam while maintaining visibility | 2026-02-01 |
+| Item ID prefix in queue logs | Enables tracing single download through entire log | 2026-02-01 |
 
 ### Architecture Notes
 
@@ -59,15 +63,17 @@
 - QThreadPool for background downloads
 - ConfigManager singleton for settings
 - **Logging:** RotatingFileHandler to AppData, initialized before Qt
+- **Download logging:** Module-level loggers with %-style formatting
+- **Queue tracing:** Item ID prefix on all queue log entries
 
 ### Technical Debt
 
-- ~~No logging system (STAB-02 will fix)~~ **DONE in 01-01**
-- yt-dlp errors exposed raw to users (STAB-01 will fix)
+- ~~No logging system (STAB-02 will fix)~~ **DONE in Phase 01**
+- yt-dlp errors exposed raw to users (STAB-01 will fix in Phase 02)
 
 ### TODOs
 
-_None yet — planning not started_
+_None_
 
 ### Blockers
 
@@ -79,14 +85,18 @@ _None identified_
 
 ### Last Session
 
-2026-02-01 — Completed 01-01-PLAN.md (Logging Module)
+2026-02-01 — Completed 01-02-PLAN.md (Download Event Logging)
 
 ### Handoff Notes
 
-Logging foundation complete. Ready for 01-02 (Download Event Logging):
-- All modules can now use `logging.getLogger(__name__)`
-- Log file at `%APPDATA%/VideoDownloader2/logs/app.log`
-- `get_log_file_path()` available for settings UI display
+Phase 01 (Logging Foundation) is complete:
+- 01-01: Logger module with rotating file handler
+- 01-02: Download event logging and Settings UI display
+
+Ready for Phase 02 (Bug Fixes):
+- Full visibility into download operations
+- Error context captured in logs
+- Users can find log files via Settings
 
 ---
 
