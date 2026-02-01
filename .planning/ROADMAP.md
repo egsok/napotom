@@ -69,7 +69,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Expand error translation with friendly, actionable messages
-- [ ] 03-02-PLAN.md — Add browser cookie import to Settings
+- [x] 03-02-PLAN.md — Add browser cookie import to Settings
 
 **Requirements:**
 - STAB-01: User sees friendly error messages instead of raw yt-dlp errors
@@ -89,9 +89,9 @@ Plans:
 |-------|--------|--------------|-----------|
 | 1 - Logging Foundation | ✓ Complete | 1 | 1/1 |
 | 2 - Core Bug Fixes | ✓ Complete | 4 | 4/4 |
-| 3 - Error UX & Cookie Import | In Progress | 2 | 1/2 |
+| 3 - Error UX & Cookie Import | ✓ Complete | 2 | 2/2 |
 
-**Total:** 6/7 requirements complete (86%)
+**Total:** 7/7 requirements complete (100%)
 
 ---
 

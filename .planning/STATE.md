@@ -4,14 +4,15 @@
 
 **Core Value:** Downloads must work reliably — users paste a URL, it downloads.
 
-**Current Focus:** Bug fix and stabilization milestone — fix 4 bugs, add logging, improve error UX, add cookie import.
+**Current Focus:** Bug fix and stabilization milestone — COMPLETE
 
 **Key Files:**
-- `src/core/downloader.py` — yt-dlp wrapper, error translation, **now with logging**
-- `src/core/queue.py` — Download queue and worker threads, **now with logging**
-- `src/core/updater.py` — yt-dlp version detection and updates, **now with update loop prevention**
-- `src/utils/config.py` — Configuration management, **now with update tracking fields**
+- `src/core/downloader.py` — yt-dlp wrapper, error translation, cookie support, logging
+- `src/core/queue.py` — Download queue and worker threads, with logging
+- `src/core/updater.py` — yt-dlp version detection and updates, with update loop prevention
+- `src/utils/config.py` — Configuration management, with update tracking and cookie browser fields
 - `src/utils/logger.py` — Centralized logging with rotating file handler
+- `src/ui/settings_dialog.py` — Settings with cookie import UI
 - `src/main.py` — App entry point
 - `build.spec` — PyInstaller configuration
 
@@ -19,13 +20,13 @@
 
 ## Current Position
 
-**Phase:** 3 of 3 — Error UX & Cookie Import
-**Plan:** 1 of 2 in current phase
-**Status:** In progress
-**Last activity:** 2026-02-01 — Completed 03-01-PLAN.md (STAB-01)
+**Phase:** 3 of 3 — Error UX & Cookie Import (COMPLETE)
+**Plan:** 2 of 2 in current phase (COMPLETE)
+**Status:** Milestone Complete
+**Last activity:** 2026-02-01 — Completed 03-02-PLAN.md (FEAT-01)
 
 ```
-[████████████████░░░░] 80% — Phase 3 started, 1 plan remaining
+[████████████████████] 100% — All phases complete
 ```
 
 ---
@@ -35,10 +36,10 @@
 | Metric | Value |
 |--------|-------|
 | Requirements (v1) | 7 |
-| Completed | 6 (STAB-01/02 + BUG-01/02/03/04) |
+| Completed | 7/7 (STAB-01/02 + BUG-01/02/03/04 + FEAT-01) |
 | Phases | 3 |
-| Current Phase | 3 (in progress) |
-| Plans Completed | 5 |
+| Current Phase | 3 (complete) |
+| Plans Completed | 6 |
 
 ---
 
@@ -62,6 +63,8 @@
 | Use pending restart flag | Prevents re-checking immediately after update | 2026-02-01 |
 | Pattern-based error translation | Most specific patterns first for precise matching | 2026-02-01 |
 | Cookie hints in actionable errors | Guides users to Settings for age/auth/403 errors | 2026-02-01 |
+| Fresh cookie extraction per download | No caching - yt-dlp handles via cookiesfrombrowser tuple | 2026-02-01 |
+| Default profile only | Start simple - add profile selection if users request | 2026-02-01 |
 
 ### Architecture Notes
 
@@ -74,6 +77,7 @@
 - **Queue tracing:** Item ID prefix on all queue log entries
 - **Update state:** Config-based tracking for dismissed versions and pending restarts
 - **Error translation:** Pattern-based with 29 patterns and clean fallback
+- **Cookie import:** yt-dlp extract_cookies_from_browser with cookiesfrombrowser option
 
 ### Technical Debt
 
@@ -83,6 +87,7 @@
 - ~~MEI cleanup warning (BUG-03)~~ **DONE in Phase 02-01**
 - ~~Update loop after pip upgrade (BUG-04)~~ **DONE in Phase 02-02**
 - ~~yt-dlp errors exposed raw to users (STAB-01)~~ **DONE in Phase 03-01**
+- ~~No cookie import for age-restricted content (FEAT-01)~~ **DONE in Phase 03-02**
 
 ### TODOs
 
@@ -98,17 +103,22 @@ _None identified_
 
 ### Last Session
 
-2026-02-01 — Completed 03-01-PLAN.md (STAB-01 error translation).
+2026-02-01 — Completed 03-02-PLAN.md (FEAT-01 cookie import).
 
 ### Handoff Notes
 
-**Phase 3 in progress (1 of 2 plans complete):**
-- STAB-01: Pattern-based error translation with 29 patterns and cookie hints
+**Milestone complete!**
 
-**Next up: 03-02-PLAN.md**
-- FEAT-01: Browser cookie import for restricted content
+All 7 requirements implemented:
+- STAB-02: Logging with rotation
+- BUG-01: Errno 22 fixed with windowsfilenames
+- BUG-02: Version detection with fallback
+- BUG-03: MEI cleanup handled by OS
+- BUG-04: Update loop prevention
+- STAB-01: Error translation with 29 patterns
+- FEAT-01: Browser cookie import in Settings
 
 ---
 
 *State initialized: 2026-02-01*
-*Last updated: 2026-02-01 — 03-01-PLAN.md complete*
+*Last updated: 2026-02-01 — Milestone complete*
