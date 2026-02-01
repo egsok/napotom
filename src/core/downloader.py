@@ -74,6 +74,9 @@ class Downloader:
             'fragment_retries': 10,
             'remote_components': ['ejs:github'],
             'concurrent_fragment_downloads': 4,
+            # Fix BUG-01: Sanitize filenames for Windows compatibility
+            # Handles invalid chars (?*"<>|:/\), reserved names (CON, PRN), path limits
+            'windowsfilenames': True,
         }
         if self.ffmpeg_location:
             opts['ffmpeg_location'] = self.ffmpeg_location
