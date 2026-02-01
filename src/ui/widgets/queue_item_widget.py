@@ -9,6 +9,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from core.queue import QueueItem, QueueItemStatus
 from ui.styles import COLORS
 from utils.helpers import open_folder
+from utils.i18n import tr
 
 
 class QueueItemWidget(QWidget):
@@ -53,7 +54,7 @@ class QueueItemWidget(QWidget):
         self.retry_btn = QPushButton("↻")
         self.retry_btn.setObjectName("iconButton")
         self.retry_btn.setFixedSize(32, 32)
-        self.retry_btn.setToolTip("Retry download")
+        self.retry_btn.setToolTip(tr("retry_tooltip"))
         self.retry_btn.clicked.connect(lambda: self.retry_clicked.emit(self.item.id))
         self.retry_btn.setVisible(False)
         top_row.addWidget(self.retry_btn)
@@ -61,7 +62,7 @@ class QueueItemWidget(QWidget):
         self.folder_btn = QPushButton("📁")
         self.folder_btn.setObjectName("iconButton")
         self.folder_btn.setFixedSize(32, 32)
-        self.folder_btn.setToolTip("Open folder")
+        self.folder_btn.setToolTip(tr("open_folder_tooltip"))
         self.folder_btn.clicked.connect(self._on_folder_clicked)
         self.folder_btn.setVisible(False)
         top_row.addWidget(self.folder_btn)
@@ -102,7 +103,7 @@ class QueueItemWidget(QWidget):
                 title = title[:47] + "..."
             self.title_label.setText(title)
         else:
-            self.title_label.setText("Getting video info...")
+            self.title_label.setText(tr("getting_video_info"))
 
         # Progress
         self.progress_bar.setValue(item.progress)
@@ -115,7 +116,7 @@ class QueueItemWidget(QWidget):
 
         # Status and speed
         if item.status == QueueItemStatus.PENDING:
-            self.status_label.setText("Waiting")
+            self.status_label.setText(tr("status_waiting"))
             self.speed_label.setText("")
             self.progress_bar.setVisible(False)
         elif item.status == QueueItemStatus.DOWNLOADING:
@@ -123,24 +124,24 @@ class QueueItemWidget(QWidget):
             self.speed_label.setText(f"{item.speed:.1f} MB/s" if item.speed > 0 else "")
             self.progress_bar.setVisible(True)
         elif item.status == QueueItemStatus.PROCESSING:
-            self.status_label.setText("Processing...")
+            self.status_label.setText(tr("status_processing"))
             self.speed_label.setText("")
             self.progress_bar.setVisible(True)
         elif item.status == QueueItemStatus.COMPLETED:
-            self.status_label.setText("Done")
+            self.status_label.setText(tr("status_done"))
             self.status_label.setStyleSheet(f"color: {COLORS['success']};")
             self.speed_label.setText("")
             self.progress_bar.setVisible(False)
             self.folder_btn.setVisible(True)
             self.cancel_btn.setVisible(False)
         elif item.status == QueueItemStatus.FAILED:
-            self.status_label.setText("Failed")
+            self.status_label.setText(tr("status_failed"))
             self.status_label.setStyleSheet(f"color: {COLORS['error']};")
             self.speed_label.setText(item.error or "")
             self.progress_bar.setVisible(False)
             self.retry_btn.setVisible(True)
         elif item.status == QueueItemStatus.CANCELLED:
-            self.status_label.setText("Cancelled")
+            self.status_label.setText(tr("status_cancelled"))
             self.status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
             self.speed_label.setText("")
             self.progress_bar.setVisible(False)

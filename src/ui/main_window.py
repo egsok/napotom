@@ -12,6 +12,7 @@ from ui.widgets.queue_item_widget import QueueItemWidget
 from ui.styles import COLORS
 from utils.config import config_manager
 from utils.helpers import open_folder
+from utils.i18n import tr
 
 
 class MainWindow(QMainWindow):
@@ -19,7 +20,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Video Downloader 2")
+        self.setWindowTitle(tr("app_title"))
         self.setMinimumSize(650, 500)
 
         self.queue = DownloadQueue()
@@ -41,7 +42,7 @@ class MainWindow(QMainWindow):
         url_section = QHBoxLayout()
 
         self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("Paste video URL here...")
+        self.url_input.setPlaceholderText(tr("url_placeholder"))
         self.url_input.returnPressed.connect(self._on_add_clicked)
         url_section.addWidget(self.url_input, stretch=1)
 
@@ -58,15 +59,23 @@ class MainWindow(QMainWindow):
 
         # Quality selector
         quality_layout = QHBoxLayout()
-        quality_label = QLabel("Quality:")
+        quality_label = QLabel(tr("quality_label"))
         quality_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
         quality_layout.addWidget(quality_label)
 
         self.quality_combo = QComboBox()
-        self.quality_combo.addItems(["Best", "1080p", "720p", "Audio only"])
-        self.quality_combo.setCurrentText(self._get_quality_display(
-            config_manager.get('default_quality', 'best')
-        ))
+        self.quality_combo.addItem(tr("quality_best"), "best")
+        self.quality_combo.addItem(tr("quality_1080p"), "1080p")
+        self.quality_combo.addItem(tr("quality_720p"), "720p")
+        self.quality_combo.addItem(tr("quality_audio"), "audio")
+        
+        # Set current quality from config
+        quality_key = config_manager.get('default_quality', 'best')
+        for i in range(self.quality_combo.count()):
+            if self.quality_combo.itemData(i) == quality_key:
+                self.quality_combo.setCurrentIndex(i)
+                break
+        
         quality_layout.addWidget(self.quality_combo)
         options_section.addLayout(quality_layout)
 
@@ -74,7 +83,7 @@ class MainWindow(QMainWindow):
 
         # Output folder
         folder_layout = QHBoxLayout()
-        folder_label = QLabel("Save to:")
+        folder_label = QLabel(tr("save_to_label"))
         folder_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
         folder_layout.addWidget(folder_label)
 
@@ -82,7 +91,7 @@ class MainWindow(QMainWindow):
         self.folder_label.setStyleSheet("font-weight: bold;")
         folder_layout.addWidget(self.folder_label)
 
-        self.folder_btn = QPushButton("Change")
+        self.folder_btn = QPushButton(tr("change_btn"))
         self.folder_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
@@ -101,7 +110,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(options_section)
 
         # Queue section
-        queue_label = QLabel("QUEUE")
+        queue_label = QLabel(tr("queue_title"))
         queue_label.setObjectName("sectionTitle")
         layout.addWidget(queue_label)
 
@@ -121,7 +130,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(scroll, stretch=1)
 
         # Empty state
-        self.empty_label = QLabel("Paste a video URL and click + to start downloading")
+        self.empty_label = QLabel(tr("empty_queue"))
         self.empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.empty_label.setStyleSheet(f"color: {COLORS['text_secondary']}; padding: 40px;")
         self.queue_layout.insertWidget(0, self.empty_label)
@@ -130,7 +139,7 @@ class MainWindow(QMainWindow):
         bottom_bar = QHBoxLayout()
         bottom_bar.addStretch()
 
-        self.open_folder_btn = QPushButton("Open Folder")
+        self.open_folder_btn = QPushButton(tr("open_folder_btn"))
         self.open_folder_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
@@ -144,7 +153,7 @@ class MainWindow(QMainWindow):
         self.open_folder_btn.clicked.connect(self._on_open_folder_clicked)
         bottom_bar.addWidget(self.open_folder_btn)
 
-        self.settings_btn = QPushButton("Settings")
+        self.settings_btn = QPushButton(tr("settings_btn"))
         self.settings_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
@@ -174,10 +183,10 @@ class MainWindow(QMainWindow):
 
         # Validate URL (basic check)
         if not url.startswith(('http://', 'https://')):
-            QMessageBox.warning(self, "Invalid URL", "Please enter a valid URL")
+            QMessageBox.warning(self, tr("invalid_url_title"), tr("invalid_url_message"))
             return
 
-        quality = self._get_quality_key(self.quality_combo.currentText())
+        quality = self.quality_combo.currentData()
         output_path = config_manager.get('download_path')
 
         self.queue.add(url, quality, output_path)
@@ -188,7 +197,7 @@ class MainWindow(QMainWindow):
         """Handle folder button click."""
         folder = QFileDialog.getExistingDirectory(
             self,
-            "Select Download Folder",
+            tr("select_download_folder"),
             config_manager.get('download_path')
         )
         if folder:
@@ -234,37 +243,20 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             # Reload settings
             self.folder_label.setText(self._shorten_path(config_manager.get('download_path')))
-            self.quality_combo.setCurrentText(self._get_quality_display(
-                config_manager.get('default_quality', 'best')
-            ))
+            
+            # Update quality combo from config
+            quality_key = config_manager.get('default_quality', 'best')
+            for i in range(self.quality_combo.count()):
+                if self.quality_combo.itemData(i) == quality_key:
+                    self.quality_combo.setCurrentIndex(i)
+                    break
+            
             # Update queue parallel limit
             self.queue._update_max_parallel()
 
     def _on_open_folder_clicked(self):
         """Handle open folder button click."""
         open_folder(config_manager.get('download_path'))
-
-    @staticmethod
-    def _get_quality_key(display: str) -> str:
-        """Convert display quality to key."""
-        mapping = {
-            "Best": "best",
-            "1080p": "1080p",
-            "720p": "720p",
-            "Audio only": "audio",
-        }
-        return mapping.get(display, "best")
-
-    @staticmethod
-    def _get_quality_display(key: str) -> str:
-        """Convert quality key to display."""
-        mapping = {
-            "best": "Best",
-            "1080p": "1080p",
-            "720p": "720p",
-            "audio": "Audio only",
-        }
-        return mapping.get(key, "Best")
 
     @staticmethod
     def _shorten_path(path: str, max_len: int = 30) -> str:
