@@ -53,6 +53,9 @@ jobs:
         with:
           python-version: '3.12'
       
+      - name: Install system tools
+        run: brew install sevenzip create-dmg
+
       - name: Install dependencies
         run: pip install pyqt6 yt-dlp pync pyinstaller
       
@@ -72,7 +75,18 @@ jobs:
         run: pyinstaller build_mac.spec --noconfirm
       
       - name: Create DMG
-        run: hdiutil create -volname "VideoDownloader2" -srcfolder dist/VideoDownloader2.app -ov -format UDZO VideoDownloader2-macOS.dmg
+        run: |
+          create-dmg \
+            --volname "VideoDownloader2" \
+            --volicon "assets/icon.icns" \
+            --window-pos 200 120 \
+            --window-size 600 300 \
+            --icon-size 100 \
+            --icon "VideoDownloader2.app" 175 120 \
+            --hide-extension "VideoDownloader2.app" \
+            --app-drop-link 425 120 \
+            "VideoDownloader2-macOS.dmg" \
+            "dist/VideoDownloader2.app"
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
