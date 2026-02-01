@@ -152,12 +152,15 @@ def get_ffmpeg_path() -> Optional[str]:
         logger.debug('sys.executable: %s', sys.executable)
     
     for ffmpeg_path in paths_to_check:
-        logger.debug('Checking ffmpeg path: %s (exists: %s)', ffmpeg_path, ffmpeg_path.exists())
-        if ffmpeg_path.exists():
+        exists = ffmpeg_path.exists()
+        is_file = ffmpeg_path.is_file() if exists else False
+        logger.debug('Checking ffmpeg path: %s (exists: %s, is_file: %s)', ffmpeg_path, exists, is_file)
+        if exists and is_file:
             logger.info('Found ffmpeg at: %s', ffmpeg_path.parent)
             return str(ffmpeg_path.parent)
     
-    logger.warning('ffmpeg not found in bundled paths, will rely on system PATH')
+    # Log all checked paths for debugging
+    logger.warning('ffmpeg not found in bundled paths: %s', [str(p) for p in paths_to_check])
     return None  # Let yt-dlp find it in PATH
 
 

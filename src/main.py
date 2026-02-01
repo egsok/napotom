@@ -30,6 +30,15 @@ def main():
     log_file = setup_logging()
     logger = logging.getLogger(__name__)
     logger.info('Application starting')
+    logger.info('Python: %s, Platform: %s, Frozen: %s', sys.version, sys.platform, getattr(sys, 'frozen', False))
+    if getattr(sys, 'frozen', False):
+        logger.info('_MEIPASS: %s', sys._MEIPASS)
+        logger.info('sys.executable: %s', sys.executable)
+    
+    # Log ffmpeg detection early
+    from core.downloader import get_ffmpeg_path
+    ffmpeg_path = get_ffmpeg_path()
+    logger.info('FFmpeg location: %s', ffmpeg_path or 'NOT FOUND (will use system PATH)')
 
     # Register graceful exit handler (BUG-03: helps with clean shutdown logging)
     import atexit
