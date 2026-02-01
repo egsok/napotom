@@ -1,11 +1,13 @@
 """Video Downloader 2 - Main entry point."""
 
+import logging
 import sys
 import os
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtGui import QIcon
 
+from utils.logger import setup_logging
 from ui.styles import STYLESHEET
 from ui.main_window import MainWindow
 from core.updater import Updater
@@ -24,6 +26,11 @@ def get_asset_path(filename: str) -> str:
 
 
 def main():
+    # Initialize logging first, before any other operations
+    log_file = setup_logging()
+    logger = logging.getLogger(__name__)
+    logger.info('Application starting')
+    
     app = QApplication(sys.argv)
     app.setStyleSheet(STYLESHEET)
 
