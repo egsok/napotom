@@ -43,7 +43,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Fix Errno 22, version detection, and MEI cleanup (BUG-01, BUG-02, BUG-03)
-- [ ] 02-02-PLAN.md — Fix yt-dlp update loop (BUG-04)
+- [x] 02-02-PLAN.md — Fix yt-dlp update loop (BUG-04)
 
 **Requirements:**
 - BUG-01: Fix Errno 22: Invalid argument when getting video info
@@ -82,10 +82,10 @@ Plans:
 | Phase | Status | Requirements | Completed |
 |-------|--------|--------------|-----------|
 | 1 - Logging Foundation | ✓ Complete | 1 | 1/1 |
-| 2 - Core Bug Fixes | In progress | 4 | 3/4 |
+| 2 - Core Bug Fixes | ✓ Complete | 4 | 4/4 |
 | 3 - Error UX & Cookie Import | Pending | 2 | 0/2 |
 
-**Total:** 4/7 requirements complete (57%)
+**Total:** 5/7 requirements complete (71%)
 
 ---
 

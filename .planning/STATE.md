@@ -9,8 +9,8 @@
 **Key Files:**
 - `src/core/downloader.py` — yt-dlp wrapper, error translation, **now with logging**
 - `src/core/queue.py` — Download queue and worker threads, **now with logging**
-- `src/core/updater.py` — yt-dlp version detection and updates
-- `src/utils/config.py` — Configuration management
+- `src/core/updater.py` — yt-dlp version detection and updates, **now with update loop prevention**
+- `src/utils/config.py` — Configuration management, **now with update tracking fields**
 - `src/utils/logger.py` — Centralized logging with rotating file handler
 - `src/main.py` — App entry point
 - `build.spec` — PyInstaller configuration
@@ -19,13 +19,13 @@
 
 ## Current Position
 
-**Phase:** 2 of 3 — Core Bug Fixes
-**Plan:** 1 of 2 in current phase
-**Status:** In progress
-**Last activity:** 2026-02-01 — Completed 02-01-PLAN.md (BUG-01, BUG-02, BUG-03)
+**Phase:** 2 of 3 — Core Bug Fixes (COMPLETE)
+**Plan:** 2 of 2 in current phase
+**Status:** Phase complete
+**Last activity:** 2026-02-01 — Completed 02-02-PLAN.md (BUG-04)
 
 ```
-[██████████░░░░░░░░░░] 50% — Phase 2 plan 1 complete, ready for plan 2
+[████████████░░░░░░░░] 60% — Phase 2 complete, ready for Phase 3
 ```
 
 ---
@@ -35,10 +35,10 @@
 | Metric | Value |
 |--------|-------|
 | Requirements (v1) | 7 |
-| Completed | 1 (STAB-02 Logging) |
+| Completed | 5 (STAB-02 + BUG-01/02/03/04) |
 | Phases | 3 |
-| Current Phase | 2 (pending) |
-| Plans Completed | 2 |
+| Current Phase | 2 (complete) |
+| Plans Completed | 4 |
 
 ---
 
@@ -58,6 +58,8 @@
 | Use windowsfilenames option | yt-dlp handles all filename edge cases automatically | 2026-02-01 |
 | Defensive version detection | PyInstaller bundling can cause import issues; getattr fallback | 2026-02-01 |
 | Let OS handle MEI cleanup | Custom cleanup error-prone due to Windows file locking | 2026-02-01 |
+| Store dismissed version in config | Persists across sessions - user won't be re-prompted | 2026-02-01 |
+| Use pending restart flag | Prevents re-checking immediately after update | 2026-02-01 |
 
 ### Architecture Notes
 
@@ -68,6 +70,7 @@
 - **Logging:** RotatingFileHandler to AppData, initialized before Qt
 - **Download logging:** Module-level loggers with %-style formatting
 - **Queue tracing:** Item ID prefix on all queue log entries
+- **Update state:** Config-based tracking for dismissed versions and pending restarts
 
 ### Technical Debt
 
@@ -75,6 +78,7 @@
 - ~~Errno 22 on special characters (BUG-01)~~ **DONE in Phase 02-01**
 - ~~Version shows "Not installed" (BUG-02)~~ **DONE in Phase 02-01**
 - ~~MEI cleanup warning (BUG-03)~~ **DONE in Phase 02-01**
+- ~~Update loop after pip upgrade (BUG-04)~~ **DONE in Phase 02-02**
 - yt-dlp errors exposed raw to users (STAB-01 will fix in Phase 03)
 
 ### TODOs
@@ -91,19 +95,21 @@ _None identified_
 
 ### Last Session
 
-2026-02-01 — Completed 02-01-PLAN.md (BUG-01, BUG-02, BUG-03 fixes).
+2026-02-01 — Completed 02-02-PLAN.md (BUG-04 fix).
 
 ### Handoff Notes
 
-**Phase 2 Plan 1 complete:**
-- BUG-01 fixed: windowsfilenames option in downloader.py
-- BUG-02 fixed: Defensive version detection with getattr in updater.py and settings_dialog.py
-- BUG-03 fixed: atexit handler in main.py, explanatory comments in build.spec
+**Phase 2 complete (all 4 bugs fixed):**
+- BUG-01: windowsfilenames option in downloader.py
+- BUG-02: Defensive version detection with getattr
+- BUG-03: atexit handler for graceful shutdown
+- BUG-04: Config-based update state tracking in updater.py and main.py
 
-**Ready for Phase 2 Plan 2:**
-- BUG-04: yt-dlp update loop (stores dismissed version in config)
+**Ready for Phase 3: Error UX & Cookie Import**
+- STAB-01: User-friendly error messages
+- FEAT-01: Browser cookie import for restricted content
 
 ---
 
 *State initialized: 2026-02-01*
-*Last updated: 2026-02-01 — 02-01-PLAN.md complete*
+*Last updated: 2026-02-01 — 02-02-PLAN.md complete*
