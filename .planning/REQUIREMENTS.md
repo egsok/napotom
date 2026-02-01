@@ -17,7 +17,7 @@ Requirements for this bug fix and stabilization milestone.
 ### Stability
 
 - [ ] **STAB-01**: User sees friendly error messages instead of raw yt-dlp errors
-- [ ] **STAB-02**: App logs errors to file for debugging
+- [x] **STAB-02**: App logs errors to file for debugging
 
 ### Features
 
@@ -43,7 +43,7 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STAB-02 | Phase 1 | Pending |
+| STAB-02 | Phase 1 | Complete |
 | BUG-01 | Phase 2 | Pending |
 | BUG-02 | Phase 2 | Pending |
 | BUG-03 | Phase 2 | Pending |
