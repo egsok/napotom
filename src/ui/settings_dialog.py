@@ -1,5 +1,6 @@
 """Settings dialog window."""
 
+import os
 import subprocess
 import sys
 
@@ -12,6 +13,7 @@ from PyQt6.QtCore import Qt
 
 from ui.styles import COLORS
 from utils.config import config_manager
+from utils.logger import get_log_file_path
 from core.updater import Updater
 
 
@@ -175,6 +177,52 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(ytdlp_group)
 
+        # Logging section
+        log_group = QGroupBox("Logging")
+        log_group.setStyleSheet(f"""
+            QGroupBox {{
+                font-weight: bold;
+                border: 1px solid {COLORS['border']};
+                border-radius: 6px;
+                margin-top: 12px;
+                padding-top: 12px;
+            }}
+            QGroupBox::title {{
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 6px;
+                color: {COLORS['text_primary']};
+            }}
+        """)
+        log_layout = QHBoxLayout(log_group)
+        log_layout.setContentsMargins(16, 20, 16, 16)
+
+        log_path_label = QLabel("Log file:")
+        log_path_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        log_layout.addWidget(log_path_label)
+
+        log_file = get_log_file_path()
+        self.log_path_value = QLabel(str(log_file) if log_file else "Not configured")
+        self.log_path_value.setStyleSheet("font-size: 11px;")
+        self.log_path_value.setWordWrap(True)
+        log_layout.addWidget(self.log_path_value, 1)  # stretch factor 1
+
+        self.open_log_folder_btn = QPushButton("Open Folder")
+        self.open_log_folder_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 1px solid {COLORS['border']};
+                padding: 8px 12px;
+            }}
+            QPushButton:hover {{
+                border-color: {COLORS['accent_purple']};
+            }}
+        """)
+        self.open_log_folder_btn.clicked.connect(self._open_log_folder)
+        log_layout.addWidget(self.open_log_folder_btn)
+
+        layout.addWidget(log_group)
+
         # Spacer
         layout.addStretch()
 
@@ -222,6 +270,13 @@ class SettingsDialog(QDialog):
         )
         if folder:
             self.path_input.setText(folder)
+
+    def _open_log_folder(self):
+        """Open the log file folder in file explorer."""
+        log_file = get_log_file_path()
+        if log_file and log_file.parent.exists():
+            # Windows: use os.startfile to open folder
+            os.startfile(str(log_file.parent))
 
     def _save_and_close(self):
         """Save settings and close dialog."""
