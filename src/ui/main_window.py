@@ -253,6 +253,30 @@ class MainWindow(QMainWindow):
             
             # Update queue parallel limit
             self.queue._update_max_parallel()
+            
+            # Update UI text for new language
+            self._retranslate_ui()
+
+    def _retranslate_ui(self):
+        """Update all UI text to current language (hot reload)."""
+        self.setWindowTitle(tr("app_title"))
+        self.url_input.setPlaceholderText(tr("url_placeholder"))
+        self.folder_btn.setText(tr("change_btn"))
+        self.empty_label.setText(tr("empty_queue"))
+        self.open_folder_btn.setText(tr("open_folder_btn"))
+        self.settings_btn.setText(tr("settings_btn"))
+        
+        # Update quality combo (preserve selection)
+        current_quality = self.quality_combo.currentData()
+        self.quality_combo.clear()
+        self.quality_combo.addItem(tr("quality_best"), "best")
+        self.quality_combo.addItem(tr("quality_1080p"), "1080p")
+        self.quality_combo.addItem(tr("quality_720p"), "720p")
+        self.quality_combo.addItem(tr("quality_audio"), "audio")
+        for i in range(self.quality_combo.count()):
+            if self.quality_combo.itemData(i) == current_quality:
+                self.quality_combo.setCurrentIndex(i)
+                break
 
     def _on_open_folder_clicked(self):
         """Handle open folder button click."""

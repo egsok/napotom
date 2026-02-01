@@ -24,9 +24,9 @@ class SettingsDialog(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._initial_lang = get_current_language()
         self.setWindowTitle(tr("settings_title"))
-        self.setMinimumWidth(680)
-        self.setMaximumHeight(620)
+        self.setMinimumWidth(600)
         self.setModal(True)
 
         # Initialize updater
@@ -46,8 +46,8 @@ class SettingsDialog(QDialog):
                 font-weight: bold;
                 border: 1px solid {COLORS['border']};
                 border-radius: 6px;
-                margin-top: 10px;
-                padding-top: 8px;
+                margin-top: 8px;
+                padding-top: 4px;
             }}
             QGroupBox::title {{
                 subcontrol-origin: margin;
@@ -57,52 +57,57 @@ class SettingsDialog(QDialog):
             }}
         """
 
+    def _create_button_style(self, hover_color='accent_purple'):
+        """Return common button stylesheet."""
+        return f"""
+            QPushButton {{ 
+                background-color: transparent; 
+                border: 1px solid {COLORS['border']}; 
+                padding: 6px 12px; 
+            }}
+            QPushButton:hover {{ 
+                border-color: {COLORS[hover_color]}; 
+            }}
+        """
+
     def _setup_ui(self):
         """Setup dialog UI."""
         layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        layout.setSpacing(8)
         layout.setContentsMargins(16, 16, 16, 16)
 
         group_style = self._create_group_style()
+        btn_style = self._create_button_style()
 
-        # === ROW 1: Language + Preferences side by side ===
+        # === ROW 1: Language (inline, compact) + Preferences ===
         row1 = QHBoxLayout()
         row1.setSpacing(12)
 
-        # Language section (compact)
+        # Language - compact inline
         lang_group = QGroupBox(tr("language_section"))
         lang_group.setStyleSheet(group_style)
-        lang_layout = QVBoxLayout(lang_group)
-        lang_layout.setSpacing(8)
-        lang_layout.setContentsMargins(12, 16, 12, 12)
+        lang_layout = QHBoxLayout(lang_group)
+        lang_layout.setContentsMargins(12, 12, 12, 8)
 
-        lang_row = QHBoxLayout()
-        lang_label = QLabel(tr("language_label"))
-        lang_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-        lang_row.addWidget(lang_label)
+        self.lang_label = QLabel(tr("language_label"))
+        self.lang_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        lang_layout.addWidget(self.lang_label)
 
         self.language_combo = QComboBox()
         self.language_combo.addItem("English", "en")
         self.language_combo.addItem("Русский", "ru")
-        self.language_combo.setMinimumWidth(120)
+        self.language_combo.setMinimumWidth(110)
         self.language_combo.currentIndexChanged.connect(self._on_language_changed)
-        lang_row.addWidget(self.language_combo)
-        lang_row.addStretch()
-        lang_layout.addLayout(lang_row)
+        lang_layout.addWidget(self.language_combo)
 
-        self.restart_hint = QLabel(tr("language_restart_hint"))
-        self.restart_hint.setStyleSheet(f"color: {COLORS['accent_purple']}; font-style: italic; font-size: 11px;")
-        self.restart_hint.setVisible(False)
-        lang_layout.addWidget(self.restart_hint)
+        row1.addWidget(lang_group, 0)  # Don't stretch
 
-        row1.addWidget(lang_group)
-
-        # Preferences section (compact)
+        # Preferences - compact checkboxes in a row
         prefs_group = QGroupBox(tr("preferences_section"))
         prefs_group.setStyleSheet(group_style)
-        prefs_layout = QVBoxLayout(prefs_group)
-        prefs_layout.setSpacing(6)
-        prefs_layout.setContentsMargins(12, 16, 12, 12)
+        prefs_layout = QHBoxLayout(prefs_group)
+        prefs_layout.setContentsMargins(12, 12, 12, 8)
+        prefs_layout.setSpacing(16)
 
         self.notifications_check = QCheckBox(tr("enable_notifications"))
         prefs_layout.addWidget(self.notifications_check)
@@ -110,41 +115,37 @@ class SettingsDialog(QDialog):
         prefs_layout.addWidget(self.sound_check)
         self.updates_check = QCheckBox(tr("check_updates_startup"))
         prefs_layout.addWidget(self.updates_check)
+        prefs_layout.addStretch()
 
-        row1.addWidget(prefs_group)
+        row1.addWidget(prefs_group, 1)  # Stretch to fill
         layout.addLayout(row1)
 
-        # === ROW 2: Download Settings (full width) ===
-        download_group = QGroupBox(tr("download_settings"))
-        download_group.setStyleSheet(group_style)
-        download_layout = QHBoxLayout(download_group)
-        download_layout.setSpacing(16)
-        download_layout.setContentsMargins(12, 16, 12, 12)
+        # === ROW 2: Download Path (full width) ===
+        path_group = QGroupBox(tr("download_path_label").rstrip(':'))
+        path_group.setStyleSheet(group_style)
+        path_layout = QHBoxLayout(path_group)
+        path_layout.setContentsMargins(12, 12, 12, 8)
 
-        # Path
-        path_label = QLabel(tr("download_path_label"))
-        path_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-        download_layout.addWidget(path_label)
-        
         self.path_input = QLineEdit()
         self.path_input.setReadOnly(True)
-        download_layout.addWidget(self.path_input, 1)
+        path_layout.addWidget(self.path_input, 1)
 
         self.browse_btn = QPushButton(tr("browse_btn"))
-        self.browse_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 6px 10px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent_purple']}; }}
-        """)
+        self.browse_btn.setStyleSheet(btn_style)
         self.browse_btn.clicked.connect(self._browse_folder)
-        download_layout.addWidget(self.browse_btn)
+        path_layout.addWidget(self.browse_btn)
 
-        # Separator
-        download_layout.addWidget(self._create_separator())
+        layout.addWidget(path_group)
+
+        # === ROW 3: Quality + Parallel + yt-dlp + Logging ===
+        row3 = QHBoxLayout()
+        row3.setSpacing(12)
 
         # Quality
-        quality_label = QLabel(tr("default_quality_label"))
-        quality_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-        download_layout.addWidget(quality_label)
+        quality_group = QGroupBox(tr("default_quality_label").rstrip(':'))
+        quality_group.setStyleSheet(group_style)
+        quality_layout = QHBoxLayout(quality_group)
+        quality_layout.setContentsMargins(12, 12, 12, 8)
 
         self.quality_combo = QComboBox()
         self.quality_combo.addItem(tr("quality_best"), "best")
@@ -152,63 +153,50 @@ class SettingsDialog(QDialog):
         self.quality_combo.addItem(tr("quality_720p"), "720p")
         self.quality_combo.addItem(tr("quality_audio"), "audio")
         self.quality_combo.setMinimumWidth(100)
-        download_layout.addWidget(self.quality_combo)
+        quality_layout.addWidget(self.quality_combo)
 
-        # Separator
-        download_layout.addWidget(self._create_separator())
+        row3.addWidget(quality_group)
 
-        # Parallel
-        parallel_label = QLabel(tr("parallel_downloads_label"))
-        parallel_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-        download_layout.addWidget(parallel_label)
+        # Parallel downloads
+        parallel_group = QGroupBox(tr("parallel_downloads_label").rstrip(':'))
+        parallel_group.setStyleSheet(group_style)
+        parallel_layout = QHBoxLayout(parallel_group)
+        parallel_layout.setContentsMargins(12, 12, 12, 8)
 
         self.parallel_spin = QSpinBox()
         self.parallel_spin.setRange(1, 5)
         self.parallel_spin.setValue(2)
         self.parallel_spin.setToolTip(tr("parallel_downloads_tooltip"))
-        self.parallel_spin.setMaximumWidth(60)
-        download_layout.addWidget(self.parallel_spin)
+        parallel_layout.addWidget(self.parallel_spin)
 
-        layout.addWidget(download_group)
+        row3.addWidget(parallel_group)
 
-        # === ROW 3: yt-dlp + Logging side by side ===
-        row3 = QHBoxLayout()
-        row3.setSpacing(12)
-
-        # yt-dlp section
+        # yt-dlp version
         ytdlp_group = QGroupBox(tr("ytdlp_section"))
         ytdlp_group.setStyleSheet(group_style)
         ytdlp_layout = QHBoxLayout(ytdlp_group)
-        ytdlp_layout.setContentsMargins(12, 16, 12, 12)
+        ytdlp_layout.setContentsMargins(12, 12, 12, 8)
 
-        version_label = QLabel(tr("version_label"))
-        version_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-        ytdlp_layout.addWidget(version_label)
+        self.version_text_label = QLabel(tr("version_label"))
+        self.version_text_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        ytdlp_layout.addWidget(self.version_text_label)
 
         self.version_label = QLabel(self._get_ytdlp_version())
         self.version_label.setStyleSheet("font-weight: bold;")
         ytdlp_layout.addWidget(self.version_label)
-        ytdlp_layout.addStretch()
 
         self.check_updates_btn = QPushButton(tr("check_now_btn"))
-        self.check_updates_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 6px 10px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent_purple']}; }}
-        """)
+        self.check_updates_btn.setStyleSheet(btn_style)
         self.check_updates_btn.clicked.connect(self._check_updates)
         ytdlp_layout.addWidget(self.check_updates_btn)
 
         row3.addWidget(ytdlp_group)
 
-        # Logging section
+        # Logging
         log_group = QGroupBox(tr("logging_section"))
         log_group.setStyleSheet(group_style)
         log_layout = QHBoxLayout(log_group)
-        log_layout.setContentsMargins(12, 16, 12, 12)
-
-        log_path_label = QLabel(tr("log_file_label"))
-        log_path_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-        log_layout.addWidget(log_path_label)
+        log_layout.setContentsMargins(12, 12, 12, 8)
 
         log_file = get_log_file_path()
         log_display = str(log_file.name) if log_file else tr("not_configured")
@@ -216,44 +204,35 @@ class SettingsDialog(QDialog):
         self.log_path_value.setStyleSheet("font-size: 11px;")
         self.log_path_value.setToolTip(str(log_file) if log_file else "")
         log_layout.addWidget(self.log_path_value)
-        log_layout.addStretch()
 
         self.open_log_folder_btn = QPushButton(tr("open_folder_btn"))
-        self.open_log_folder_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 6px 10px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent_purple']}; }}
-        """)
+        self.open_log_folder_btn.setStyleSheet(btn_style)
         self.open_log_folder_btn.clicked.connect(self._open_log_folder)
         log_layout.addWidget(self.open_log_folder_btn)
 
         row3.addWidget(log_group)
         layout.addLayout(row3)
 
-        # === ROW 4: Cookies section (full width, compact) ===
+        # === ROW 4: Cookies section ===
         cookie_group = QGroupBox(tr("cookies_section"))
         cookie_group.setStyleSheet(group_style)
         cookie_layout = QVBoxLayout(cookie_group)
-        cookie_layout.setContentsMargins(12, 16, 12, 12)
+        cookie_layout.setContentsMargins(12, 12, 12, 8)
         cookie_layout.setSpacing(8)
 
-        # Description (shorter)
-        cookie_desc = QLabel(tr("cookies_description"))
-        cookie_desc.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
-        cookie_desc.setWordWrap(True)
-        cookie_layout.addWidget(cookie_desc)
+        # Description
+        self.cookie_desc = QLabel(tr("cookies_description"))
+        self.cookie_desc.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
+        self.cookie_desc.setWordWrap(True)
+        cookie_layout.addWidget(self.cookie_desc)
 
-        # Two columns: cookies.txt on left, browser on right
-        cookie_row = QHBoxLayout()
-        cookie_row.setSpacing(16)
-
-        # Left: Cookies file
-        file_col = QVBoxLayout()
-        file_col.setSpacing(4)
-
+        # Cookies file row
         file_row = QHBoxLayout()
-        file_label = QLabel(tr("cookies_file_label"))
-        file_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-        file_row.addWidget(file_label)
+        file_row.setSpacing(8)
+
+        self.cookies_file_label = QLabel(tr("cookies_file_label"))
+        self.cookies_file_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        file_row.addWidget(self.cookies_file_label)
 
         self.cookie_file_input = QLineEdit()
         self.cookie_file_input.setReadOnly(True)
@@ -261,50 +240,43 @@ class SettingsDialog(QDialog):
         file_row.addWidget(self.cookie_file_input, 1)
 
         self.browse_cookies_btn = QPushButton(tr("browse_btn"))
-        self.browse_cookies_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 5px 8px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent_purple']}; }}
-        """)
+        self.browse_cookies_btn.setStyleSheet(btn_style)
         self.browse_cookies_btn.clicked.connect(self._browse_cookie_file)
         file_row.addWidget(self.browse_cookies_btn)
 
         self.clear_cookies_btn = QPushButton(tr("clear_btn"))
-        self.clear_cookies_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 5px 8px; }}
-            QPushButton:hover {{ border-color: {COLORS['error']}; }}
-        """)
+        self.clear_cookies_btn.setStyleSheet(self._create_button_style('error'))
         self.clear_cookies_btn.clicked.connect(self._clear_cookie_file)
         file_row.addWidget(self.clear_cookies_btn)
 
-        file_col.addLayout(file_row)
-
-        # Help link
         self.help_cookies_btn = QPushButton(tr("how_to_export_cookies"))
         self.help_cookies_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: none; color: {COLORS['accent_purple']}; text-decoration: underline; padding: 0; font-size: 11px; text-align: left; }}
+            QPushButton {{ 
+                background-color: transparent; 
+                border: none; 
+                color: {COLORS['accent_purple']}; 
+                text-decoration: underline; 
+                padding: 6px 0; 
+            }}
             QPushButton:hover {{ color: {COLORS['accent_magenta']}; }}
         """)
         self.help_cookies_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.help_cookies_btn.clicked.connect(self._show_cookie_help)
-        file_col.addWidget(self.help_cookies_btn)
+        file_row.addWidget(self.help_cookies_btn)
 
-        cookie_row.addLayout(file_col, 2)
+        cookie_layout.addLayout(file_row)
 
-        # Vertical separator
-        cookie_row.addWidget(self._create_separator(vertical=True))
-
-        # Right: Browser fallback
-        browser_col = QVBoxLayout()
-        browser_col.setSpacing(4)
-
-        browser_header = QLabel(tr("or_use_browser"))
-        browser_header.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
-        browser_col.addWidget(browser_header)
-
+        # Browser import row
         browser_row = QHBoxLayout()
-        browser_label = QLabel(tr("browser_label"))
-        browser_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-        browser_row.addWidget(browser_label)
+        browser_row.setSpacing(8)
+
+        self.or_browser_label = QLabel(tr("or_use_browser"))
+        self.or_browser_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
+        browser_row.addWidget(self.or_browser_label)
+
+        self.browser_label = QLabel(tr("browser_label"))
+        self.browser_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        browser_row.addWidget(self.browser_label)
 
         self.browser_combo = QComboBox()
         self.browser_combo.addItem(tr("browser_none"), "")
@@ -317,17 +289,12 @@ class SettingsDialog(QDialog):
         browser_row.addWidget(self.browser_combo)
 
         self.test_cookies_btn = QPushButton(tr("test_import_btn"))
-        self.test_cookies_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 5px 8px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent_purple']}; }}
-        """)
+        self.test_cookies_btn.setStyleSheet(btn_style)
         self.test_cookies_btn.clicked.connect(self._test_cookie_import)
         browser_row.addWidget(self.test_cookies_btn)
 
-        browser_col.addLayout(browser_row)
-        cookie_row.addLayout(browser_col, 1)
-
-        cookie_layout.addLayout(cookie_row)
+        browser_row.addStretch()
+        cookie_layout.addLayout(browser_row)
 
         # Status label
         self.cookie_status = QLabel("")
@@ -358,15 +325,55 @@ class SettingsDialog(QDialog):
 
         layout.addLayout(button_layout)
 
-    def _create_separator(self, vertical=False):
-        """Create a visual separator line."""
-        sep = QFrame()
-        if vertical:
-            sep.setFrameShape(QFrame.Shape.VLine)
-        else:
-            sep.setFrameShape(QFrame.Shape.VLine)
-        sep.setStyleSheet(f"color: {COLORS['border']};")
-        return sep
+    def _retranslate_ui(self):
+        """Update all UI text to current language (hot reload)."""
+        self.setWindowTitle(tr("settings_title"))
+        
+        # Find group boxes and update their titles
+        for group in self.findChildren(QGroupBox):
+            name = group.objectName()
+            # We'll update titles based on known patterns
+        
+        # Update labels
+        self.lang_label.setText(tr("language_label"))
+        self.notifications_check.setText(tr("enable_notifications"))
+        self.sound_check.setText(tr("enable_sound"))
+        self.updates_check.setText(tr("check_updates_startup"))
+        self.browse_btn.setText(tr("browse_btn"))
+        self.version_text_label.setText(tr("version_label"))
+        self.check_updates_btn.setText(tr("check_now_btn"))
+        self.open_log_folder_btn.setText(tr("open_folder_btn"))
+        self.cookie_desc.setText(tr("cookies_description"))
+        self.cookies_file_label.setText(tr("cookies_file_label"))
+        self.cookie_file_input.setPlaceholderText(tr("no_file_selected"))
+        self.browse_cookies_btn.setText(tr("browse_btn"))
+        self.clear_cookies_btn.setText(tr("clear_btn"))
+        self.help_cookies_btn.setText(tr("how_to_export_cookies"))
+        self.or_browser_label.setText(tr("or_use_browser"))
+        self.browser_label.setText(tr("browser_label"))
+        self.test_cookies_btn.setText(tr("test_import_btn"))
+        self.cancel_btn.setText(tr("cancel_btn"))
+        self.save_btn.setText(tr("save_btn"))
+        
+        # Update quality combo items (preserve selection)
+        current_quality = self.quality_combo.currentData()
+        self.quality_combo.clear()
+        self.quality_combo.addItem(tr("quality_best"), "best")
+        self.quality_combo.addItem(tr("quality_1080p"), "1080p")
+        self.quality_combo.addItem(tr("quality_720p"), "720p")
+        self.quality_combo.addItem(tr("quality_audio"), "audio")
+        for i in range(self.quality_combo.count()):
+            if self.quality_combo.itemData(i) == current_quality:
+                self.quality_combo.setCurrentIndex(i)
+                break
+        
+        # Update browser combo (preserve selection)
+        current_browser = self.browser_combo.currentData()
+        self.browser_combo.setItemText(0, tr("browser_none"))
+        for i in range(self.browser_combo.count()):
+            if self.browser_combo.itemData(i) == current_browser:
+                self.browser_combo.setCurrentIndex(i)
+                break
 
     def _load_settings(self):
         """Load current settings into UI."""
@@ -399,10 +406,12 @@ class SettingsDialog(QDialog):
                 break
 
     def _on_language_changed(self, index):
-        """Handle language selection change."""
+        """Handle language selection change - hot reload UI."""
         new_lang = self.language_combo.itemData(index)
-        current_lang = config_manager.get('language', 'en')
-        self.restart_hint.setVisible(new_lang != current_lang)
+        # Temporarily set language to see preview
+        set_language(new_lang)
+        # Update all UI text
+        self._retranslate_ui()
 
     def _browse_folder(self):
         """Open folder browser dialog."""
@@ -430,6 +439,11 @@ class SettingsDialog(QDialog):
         config_manager.set('cookie_file_path', self.cookie_file_input.text())
         config_manager.set('cookie_browser', self.browser_combo.currentData())
         self.accept()
+
+    def reject(self):
+        """Handle cancel - restore original language."""
+        set_language(self._initial_lang)
+        super().reject()
 
     def _get_ytdlp_version(self) -> str:
         """Get installed yt-dlp version with fallback strategies."""
