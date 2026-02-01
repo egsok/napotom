@@ -178,8 +178,8 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(ytdlp_group)
 
-        # Browser Cookies section (FEAT-01)
-        cookie_group = QGroupBox("Browser Cookies")
+        # Cookies section (FEAT-01)
+        cookie_group = QGroupBox("Cookies (for age-restricted videos)")
         cookie_group.setStyleSheet(f"""
             QGroupBox {{
                 font-weight: bold;
@@ -200,12 +200,66 @@ class SettingsDialog(QDialog):
         cookie_layout.setSpacing(12)
 
         # Description
-        cookie_desc = QLabel("Import cookies from your browser to access age-restricted or members-only videos.")
+        cookie_desc = QLabel("Required for age-restricted or members-only videos. Use cookies.txt file (recommended) or browser import.")
         cookie_desc.setStyleSheet(f"color: {COLORS['text_secondary']};")
         cookie_desc.setWordWrap(True)
         cookie_layout.addWidget(cookie_desc)
 
-        # Browser selection row
+        # Cookies.txt file row (recommended)
+        file_row = QHBoxLayout()
+        
+        file_label = QLabel("Cookies file:")
+        file_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        file_row.addWidget(file_label)
+
+        self.cookie_file_input = QLineEdit()
+        self.cookie_file_input.setReadOnly(True)
+        self.cookie_file_input.setPlaceholderText("No file selected")
+        file_row.addWidget(self.cookie_file_input, 1)
+
+        self.browse_cookies_btn = QPushButton("Browse...")
+        self.browse_cookies_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 1px solid {COLORS['border']};
+                padding: 8px 12px;
+            }}
+            QPushButton:hover {{
+                border-color: {COLORS['accent_purple']};
+            }}
+        """)
+        self.browse_cookies_btn.clicked.connect(self._browse_cookie_file)
+        file_row.addWidget(self.browse_cookies_btn)
+
+        self.clear_cookies_btn = QPushButton("Clear")
+        self.clear_cookies_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 1px solid {COLORS['border']};
+                padding: 8px 12px;
+            }}
+            QPushButton:hover {{
+                border-color: {COLORS['error']};
+            }}
+        """)
+        self.clear_cookies_btn.clicked.connect(self._clear_cookie_file)
+        file_row.addWidget(self.clear_cookies_btn)
+
+        cookie_layout.addLayout(file_row)
+
+        # Help text for cookies.txt
+        help_label = QLabel('Export cookies using browser extension (e.g., "Get cookies.txt LOCALLY" for Chrome)')
+        help_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
+        help_label.setWordWrap(True)
+        cookie_layout.addWidget(help_label)
+
+        # Separator
+        separator = QLabel("— or use browser import (may not work on Windows) —")
+        separator.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
+        separator.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        cookie_layout.addWidget(separator)
+
+        # Browser selection row (fallback)
         browser_row = QHBoxLayout()
         
         browser_label = QLabel("Browser:")
@@ -326,7 +380,10 @@ class SettingsDialog(QDialog):
         self.sound_check.setChecked(config_manager.get('sound_enabled', True))
         self.updates_check.setChecked(config_manager.get('check_updates', True))
         
-        # Load cookie browser setting
+        # Load cookie settings
+        cookie_file = config_manager.get('cookie_file_path', '')
+        self.cookie_file_input.setText(cookie_file)
+        
         cookie_browser = config_manager.get('cookie_browser', '')
         browser_display = cookie_browser.title() if cookie_browser else "None"
         self.browser_combo.setCurrentText(browser_display)
@@ -357,7 +414,9 @@ class SettingsDialog(QDialog):
         config_manager.set('sound_enabled', self.sound_check.isChecked())
         config_manager.set('check_updates', self.updates_check.isChecked())
         
-        # Save cookie browser setting
+        # Save cookie settings
+        config_manager.set('cookie_file_path', self.cookie_file_input.text())
+        
         browser_text = self.browser_combo.currentText()
         cookie_browser = browser_text.lower() if browser_text != "None" else ""
         config_manager.set('cookie_browser', cookie_browser)
@@ -439,6 +498,37 @@ class SettingsDialog(QDialog):
             self.version_label.setText(self._get_ytdlp_version())
         else:
             QMessageBox.warning(self, "Update Failed", message)
+
+    def _browse_cookie_file(self):
+        """Open file browser to select cookies.txt file."""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Cookies File",
+            "",
+            "Cookie files (*.txt);;All files (*.*)"
+        )
+        if file_path:
+            # Validate it looks like a Netscape cookie file
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    first_lines = f.read(500)
+                    # Netscape cookie files start with this comment or have tab-separated values
+                    if '# Netscape HTTP Cookie File' in first_lines or '\t' in first_lines:
+                        self.cookie_file_input.setText(file_path)
+                        self.cookie_status.setText("Cookie file loaded successfully.")
+                        self.cookie_status.setStyleSheet(f"color: {COLORS['success']};")
+                    else:
+                        self.cookie_status.setText("Invalid format. Use Netscape/Mozilla cookie format.")
+                        self.cookie_status.setStyleSheet(f"color: {COLORS['error']};")
+            except Exception as e:
+                self.cookie_status.setText(f"Could not read file: {e}")
+                self.cookie_status.setStyleSheet(f"color: {COLORS['error']};")
+
+    def _clear_cookie_file(self):
+        """Clear the selected cookie file."""
+        self.cookie_file_input.setText("")
+        self.cookie_status.setText("Cookie file cleared.")
+        self.cookie_status.setStyleSheet(f"color: {COLORS['text_secondary']};")
 
     def _test_cookie_import(self):
         """Test cookie import from selected browser."""

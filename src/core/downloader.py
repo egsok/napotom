@@ -18,13 +18,22 @@ logger = logging.getLogger(__name__)
 
 # Error patterns ordered by specificity (most specific first)
 ERROR_PATTERNS = [
+    # Cookie extraction failures - actionable
+    ('could not copy', 'Cannot access browser cookies. Close browser or use cookies.txt file in Settings.'),
+    ('dpapi', 'Cannot decrypt browser cookies. Use cookies.txt file instead (see Settings).'),
+    ('failed to decrypt', 'Cannot decrypt browser cookies. Use cookies.txt file instead (see Settings).'),
+    
+    # Bot detection - actionable
+    ('sign in to confirm you\'re not a bot', 'YouTube requires authentication. Set up cookies in Settings.'),
+    ('confirm you\'re not a bot', 'YouTube requires authentication. Set up cookies in Settings.'),
+    
     # Age restriction - actionable (cookies can help)
-    ('sign in to confirm your age', 'This video requires age verification. Import browser cookies in Settings.'),
-    ('age-restricted', 'This video is age-restricted. Import browser cookies in Settings.'),
-    ('age gate', 'This video is age-restricted. Import browser cookies in Settings.'),
+    ('sign in to confirm your age', 'This video requires age verification. Set up cookies in Settings.'),
+    ('age-restricted', 'This video is age-restricted. Set up cookies in Settings.'),
+    ('age gate', 'This video is age-restricted. Set up cookies in Settings.'),
     
     # Login required - actionable (cookies can help)
-    ('sign in to view', 'This video requires sign-in. Import browser cookies in Settings.'),
+    ('sign in to view', 'This video requires sign-in. Set up cookies in Settings.'),
     ('members only', 'This video is for channel members only.'),
     ('join this channel', 'This video is for channel members only.'),
     ('premium', 'This video requires a premium subscription.'),
@@ -131,9 +140,14 @@ class Downloader:
             'windowsfilenames': True,
         }
         
-        # Add cookie browser if configured (FEAT-01)
+        # Add cookies if configured (FEAT-01)
+        # Priority: cookie file > browser extraction (file is more reliable)
+        cookie_file = config_manager.get('cookie_file_path', '')
         cookie_browser = config_manager.get('cookie_browser', '')
-        if cookie_browser:
+        
+        if cookie_file and os.path.exists(cookie_file):
+            opts['cookiefile'] = cookie_file
+        elif cookie_browser:
             opts['cookiesfrombrowser'] = (cookie_browser,)  # Tuple format required by yt-dlp
         
         if self.ffmpeg_location:
