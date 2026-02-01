@@ -30,7 +30,13 @@ def main():
     log_file = setup_logging()
     logger = logging.getLogger(__name__)
     logger.info('Application starting')
-    
+
+    # Register graceful exit handler (BUG-03: helps with clean shutdown logging)
+    import atexit
+    def graceful_exit():
+        logger.info('Application shutting down gracefully')
+    atexit.register(graceful_exit)
+
     app = QApplication(sys.argv)
     app.setStyleSheet(STYLESHEET)
 

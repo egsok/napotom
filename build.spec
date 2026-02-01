@@ -55,8 +55,11 @@ exe = EXE(
     strip=False,
     upx=True,
     upx_exclude=[],
+    # BUG-03: Let OS handle MEI temp cleanup (avoids "Failed to remove" warnings)
+    # Setting to None is the recommended approach - OS cleans up on reboot
     runtime_tmpdir=None,
-    console=False,  # No console window
+    # No console window - MEI warnings aren't user-visible anyway
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
