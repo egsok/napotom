@@ -39,6 +39,12 @@ Plans:
 
 **Dependencies:** Phase 1 (logging helps debug these fixes)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Fix Errno 22, version detection, and MEI cleanup (BUG-01, BUG-02, BUG-03)
+- [ ] 02-02-PLAN.md — Fix yt-dlp update loop (BUG-04)
+
 **Requirements:**
 - BUG-01: Fix Errno 22: Invalid argument when getting video info
 - BUG-02: Fix yt-dlp version detection showing "Not installed"
@@ -76,7 +82,7 @@ Plans:
 | Phase | Status | Requirements | Completed |
 |-------|--------|--------------|-----------|
 | 1 - Logging Foundation | ✓ Complete | 1 | 1/1 |
-| 2 - Core Bug Fixes | Pending | 4 | 0/4 |
+| 2 - Core Bug Fixes | Planned | 4 | 0/4 |
 | 3 - Error UX & Cookie Import | Pending | 2 | 0/2 |
 
 **Total:** 1/7 requirements complete (14%)
