@@ -247,11 +247,24 @@ class SettingsDialog(QDialog):
 
         cookie_layout.addLayout(file_row)
 
-        # Help text for cookies.txt
-        help_label = QLabel('Export cookies using browser extension (e.g., "Get cookies.txt LOCALLY" for Chrome)')
-        help_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
-        help_label.setWordWrap(True)
-        cookie_layout.addWidget(help_label)
+        # Help link for cookies.txt
+        self.help_cookies_btn = QPushButton("How to export cookies?")
+        self.help_cookies_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: transparent;
+                border: none;
+                color: {COLORS['accent_purple']};
+                text-decoration: underline;
+                padding: 0;
+                font-size: 12px;
+            }}
+            QPushButton:hover {{
+                color: {COLORS['accent_pink']};
+            }}
+        """)
+        self.help_cookies_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.help_cookies_btn.clicked.connect(self._show_cookie_help)
+        cookie_layout.addWidget(self.help_cookies_btn)
 
         # Separator
         separator = QLabel("— or use browser import (may not work on Windows) —")
@@ -498,6 +511,80 @@ class SettingsDialog(QDialog):
             self.version_label.setText(self._get_ytdlp_version())
         else:
             QMessageBox.warning(self, "Update Failed", message)
+
+    def _show_cookie_help(self):
+        """Show cookie export instructions dialog."""
+        import webbrowser
+        
+        dialog = QDialog(self)
+        dialog.setWindowTitle("How to Export Cookies")
+        dialog.setMinimumWidth(450)
+        
+        layout = QVBoxLayout(dialog)
+        layout.setSpacing(16)
+        layout.setContentsMargins(24, 24, 24, 24)
+        
+        # Title
+        title = QLabel("Export Cookies from Chrome")
+        title.setStyleSheet("font-size: 16px; font-weight: bold;")
+        layout.addWidget(title)
+        
+        # Steps
+        steps_text = """
+<b>Step 1:</b> Install the browser extension<br><br>
+
+<b>Step 2:</b> Go to <b>youtube.com</b> and make sure you're logged in<br><br>
+
+<b>Step 3:</b> Click the extension icon and select <b>"Export"</b> or <b>"Current Site"</b><br><br>
+
+<b>Step 4:</b> Save the file (e.g., <code>cookies.txt</code>)<br><br>
+
+<b>Step 5:</b> In this app, click <b>"Browse..."</b> and select the saved file
+        """
+        steps = QLabel(steps_text)
+        steps.setWordWrap(True)
+        steps.setStyleSheet(f"color: {COLORS['text_secondary']}; line-height: 1.5;")
+        layout.addWidget(steps)
+        
+        # Extension link button
+        ext_btn = QPushButton("Open Extension Page (Chrome Web Store)")
+        ext_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {COLORS['accent_purple']};
+                border: none;
+                padding: 12px 24px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: {COLORS['accent_pink']};
+            }}
+        """)
+        ext_btn.clicked.connect(lambda: webbrowser.open(
+            "https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
+        ))
+        layout.addWidget(ext_btn)
+        
+        # Note for other browsers
+        note = QLabel("For Firefox: Use 'cookies.txt' extension from Firefox Add-ons")
+        note.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
+        layout.addWidget(note)
+        
+        # Close button
+        close_btn = QPushButton("Close")
+        close_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 1px solid {COLORS['border']};
+                padding: 10px 24px;
+            }}
+            QPushButton:hover {{
+                border-color: {COLORS['accent_purple']};
+            }}
+        """)
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        
+        dialog.exec()
 
     def _browse_cookie_file(self):
         """Open file browser to select cookies.txt file."""
