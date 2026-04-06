@@ -25,7 +25,19 @@ def get_asset_path(filename: str) -> str:
     return os.path.join(base_path, 'assets', filename)
 
 
+def _setup_bundled_path():
+    """Add PyInstaller bundle dir to PATH so bundled binaries (node, ffmpeg) are discoverable."""
+    if getattr(sys, 'frozen', False):
+        bundle_dir = sys._MEIPASS
+        current_path = os.environ.get('PATH', '')
+        if bundle_dir not in current_path:
+            os.environ['PATH'] = bundle_dir + os.pathsep + current_path
+
+
 def main():
+    # Ensure bundled binaries are on PATH before anything else
+    _setup_bundled_path()
+
     # Initialize logging first, before any other operations
     log_file = setup_logging()
     logger = logging.getLogger(__name__)

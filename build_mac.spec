@@ -15,6 +15,7 @@ a = Analysis(
     binaries=[
         ('bin/ffmpeg', '.'),
         ('bin/ffprobe', '.'),
+        ('bin/node', '.'),
     ],
     datas=[
         ('assets', 'assets'),

@@ -56,9 +56,14 @@ jobs:
       - name: Install system tools
         run: brew install sevenzip create-dmg
 
+      - name: Set up Node.js (bundled for YouTube JS solver)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Install dependencies
         run: pip install "pyqt6>=6.11.0" "yt-dlp>=2026.03.17" "pyinstaller>=6.19.0" pync
-      
+
       - name: Download ffmpeg
         run: |
           mkdir -p bin
@@ -67,6 +72,11 @@ jobs:
           7z x ffmpeg.7z -obin
           7z x ffprobe.7z -obin
           chmod +x bin/ffmpeg bin/ffprobe
+
+      - name: Bundle Node.js binary
+        run: |
+          cp "$(which node)" bin/node
+          chmod +x bin/node
       
       - name: Convert iconset to icns
         run: iconutil -c icns assets/icon.iconset -o assets/icon.icns
