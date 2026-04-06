@@ -18,7 +18,7 @@ jobs:
           python-version: '3.12'
       
       - name: Install dependencies
-        run: pip install pyqt6 yt-dlp pyinstaller win10toast
+        run: pip install "pyqt6>=6.11.0" "yt-dlp>=2026.03.17" "pyinstaller>=6.19.0" win10toast
       
       - name: Download ffmpeg
         shell: bash
@@ -57,7 +57,7 @@ jobs:
         run: brew install sevenzip create-dmg
 
       - name: Install dependencies
-        run: pip install pyqt6 yt-dlp pync pyinstaller
+        run: pip install "pyqt6>=6.11.0" "yt-dlp>=2026.03.17" "pyinstaller>=6.19.0" pync
       
       - name: Download ffmpeg
         run: |

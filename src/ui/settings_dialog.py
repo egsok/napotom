@@ -512,11 +512,29 @@ class SettingsDialog(QDialog):
         
         dialog = QDialog(self)
         dialog.setWindowTitle(tr("cookie_help_title"))
-        dialog.setMinimumWidth(450)
+        dialog.setMinimumWidth(500)
         
         layout = QVBoxLayout(dialog)
         layout.setSpacing(12)
         layout.setContentsMargins(20, 20, 20, 20)
+        
+        # When needed info
+        when_needed = QLabel(tr("cookie_help_when_needed"))
+        when_needed.setWordWrap(True)
+        when_needed.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        layout.addWidget(when_needed)
+        
+        # Warning about cookie rotation
+        warning = QLabel(tr("cookie_help_warning"))
+        warning.setWordWrap(True)
+        warning.setStyleSheet(f"""
+            background-color: {COLORS['bg_input']};
+            border: 1px solid {COLORS['border']};
+            border-radius: 6px;
+            padding: 10px;
+            color: {COLORS['text_primary']};
+        """)
+        layout.addWidget(warning)
         
         title = QLabel(tr("export_from_chrome"))
         title.setStyleSheet("font-size: 14px; font-weight: bold;")
@@ -524,10 +542,11 @@ class SettingsDialog(QDialog):
         
         steps_text = (
             tr("cookie_step_1") + tr("cookie_step_2") + tr("cookie_step_3") +
-            tr("cookie_step_4") + tr("cookie_step_5")
+            tr("cookie_step_4") + tr("cookie_step_5") + tr("cookie_step_6")
         )
         steps = QLabel(steps_text)
         steps.setWordWrap(True)
+        steps.setOpenExternalLinks(True)
         steps.setStyleSheet(f"color: {COLORS['text_secondary']};")
         layout.addWidget(steps)
         

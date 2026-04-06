@@ -59,14 +59,22 @@ TRANSLATIONS = {
         
         # Cookie help dialog
         'cookie_help_title': 'How to Export Cookies',
-        'export_from_chrome': 'Export Cookies from Chrome',
-        'cookie_step_1': '<b>Step 1:</b> Install the browser extension<br><br>',
-        'cookie_step_2': '<b>Step 2:</b> Go to <b>youtube.com</b> and make sure you\'re logged in<br><br>',
-        'cookie_step_3': '<b>Step 3:</b> Click the extension icon and select <b>"Export"</b> or <b>"Current Site"</b><br><br>',
-        'cookie_step_4': '<b>Step 4:</b> Save the file (e.g., <code>cookies.txt</code>)<br><br>',
-        'cookie_step_5': '<b>Step 5:</b> In this app, click <b>"Browse..."</b> and select the saved file',
+        'cookie_help_when_needed': '<b>When do you need cookies?</b><br>'
+            'Only for age-restricted or members-only videos. '
+            'Regular videos download without cookies.<br><br>',
+        'cookie_help_warning': '⚠️ <b>Important:</b> YouTube rotates cookies on open tabs. '
+            'Use a <b>private/incognito window</b> to export cookies that stay valid.<br><br>',
+        'export_from_chrome': 'Export Cookies (Chrome, Edge, Firefox)',
+        'cookie_step_1': '<b>Step 1:</b> Install the '
+            '<a href="https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc">'
+            'Get cookies.txt LOCALLY</a> browser extension<br><br>',
+        'cookie_step_2': '<b>Step 2:</b> Open a <b>private/incognito window</b> and log into YouTube<br><br>',
+        'cookie_step_3': '<b>Step 3:</b> In the <b>same tab</b>, go to <code>https://www.youtube.com/robots.txt</code><br><br>',
+        'cookie_step_4': '<b>Step 4:</b> Click the extension icon → export cookies → save as <code>cookies.txt</code><br><br>',
+        'cookie_step_5': '<b>Step 5:</b> <b>Close the private window</b> (so cookies don\'t rotate)<br><br>',
+        'cookie_step_6': '<b>Step 6:</b> In this app, click <b>"Browse..."</b> and select the saved file',
         'open_extension_page': 'Open Extension Page (Chrome Web Store)',
-        'firefox_note': "For Firefox: Use 'cookies.txt' extension from Firefox Add-ons",
+        'firefox_note': "For Firefox: Use 'cookies.txt' extension from Firefox Add-ons. Same incognito steps apply.",
         'close_btn': 'Close',
         'select_cookies_file': 'Select Cookies File',
         
@@ -164,14 +172,22 @@ TRANSLATIONS = {
         
         # Cookie help dialog
         'cookie_help_title': 'Как экспортировать Cookies',
-        'export_from_chrome': 'Экспорт Cookies из Chrome',
-        'cookie_step_1': '<b>Шаг 1:</b> Установите расширение для браузера<br><br>',
-        'cookie_step_2': '<b>Шаг 2:</b> Перейдите на <b>youtube.com</b> и убедитесь, что вы вошли в аккаунт<br><br>',
-        'cookie_step_3': '<b>Шаг 3:</b> Нажмите на иконку расширения и выберите <b>"Export"</b> или <b>"Current Site"</b><br><br>',
-        'cookie_step_4': '<b>Шаг 4:</b> Сохраните файл (например, <code>cookies.txt</code>)<br><br>',
-        'cookie_step_5': '<b>Шаг 5:</b> В этом приложении нажмите <b>"Обзор..."</b> и выберите сохранённый файл',
+        'cookie_help_when_needed': '<b>Когда нужны cookies?</b><br>'
+            'Только для видео с возрастными ограничениями или для участников. '
+            'Обычные видео скачиваются без cookies.<br><br>',
+        'cookie_help_warning': '⚠️ <b>Важно:</b> YouTube обновляет cookies в открытых вкладках. '
+            'Используйте <b>приватное/инкогнито окно</b> для экспорта cookies, которые будут работать.<br><br>',
+        'export_from_chrome': 'Экспорт Cookies (Chrome, Edge, Firefox)',
+        'cookie_step_1': '<b>Шаг 1:</b> Установите расширение '
+            '<a href="https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc">'
+            'Get cookies.txt LOCALLY</a><br><br>',
+        'cookie_step_2': '<b>Шаг 2:</b> Откройте <b>приватное/инкогнито окно</b> и войдите на YouTube<br><br>',
+        'cookie_step_3': '<b>Шаг 3:</b> В <b>той же вкладке</b> перейдите на <code>https://www.youtube.com/robots.txt</code><br><br>',
+        'cookie_step_4': '<b>Шаг 4:</b> Нажмите на иконку расширения → экспорт cookies → сохраните как <code>cookies.txt</code><br><br>',
+        'cookie_step_5': '<b>Шаг 5:</b> <b>Закройте приватное окно</b> (чтобы cookies не обновились)<br><br>',
+        'cookie_step_6': '<b>Шаг 6:</b> В этом приложении нажмите <b>"Обзор..."</b> и выберите сохранённый файл',
         'open_extension_page': 'Открыть страницу расширения (Chrome Web Store)',
-        'firefox_note': "Для Firefox: используйте расширение 'cookies.txt' из Firefox Add-ons",
+        'firefox_note': "Для Firefox: используйте расширение 'cookies.txt' из Firefox Add-ons. Те же шаги с инкогнито.",
         'close_btn': 'Закрыть',
         'select_cookies_file': 'Выберите файл Cookies',
         
