@@ -18,7 +18,7 @@ jobs:
           python-version: '3.12'
       
       - name: Install dependencies
-        run: pip install pyqt6 yt-dlp pyinstaller win10toast
+        run: pip install "pyqt6>=6.11.0" "yt-dlp>=2026.03.17" "pyinstaller>=6.19.0" win10toast
       
       - name: Download ffmpeg
         shell: bash
@@ -57,7 +57,7 @@ jobs:
         run: brew install sevenzip create-dmg
 
       - name: Install dependencies
-        run: pip install pyqt6 yt-dlp pync pyinstaller
+        run: pip install "pyqt6>=6.11.0" "yt-dlp>=2026.03.17" "pyinstaller>=6.19.0" pync
       
       - name: Download ffmpeg
         run: |
@@ -117,14 +117,19 @@ jobs:
           body: |
             ## Downloads
             
-            - **Windows**: VideoDownloader2-Windows.zip - распакуйте и запустите .exe
-            - **macOS**: VideoDownloader2-macOS.dmg - откройте и перетащите в Applications
+            - **Windows**: VideoDownloader2-Windows.zip — распакуйте и запустите .exe
+            - **macOS**: VideoDownloader2-macOS.dmg — откройте и перетащите в Applications
+            
+            ### Что нового
+            - ✅ Обновлён yt-dlp до 2026.03.17 — YouTube загрузки работают без cookies
+            - 🔧 Поддержка YouTube POT/JSC — обход анти-бот защиты
+            - 🍪 Улучшенные инструкции по экспорту cookies (инкогнито-метод)
+            - 🌍 Русский и английский языки интерфейса
+            - 📝 Логирование ошибок для отладки
             
             ### Включено
             - ffmpeg встроен, дополнительная установка не требуется
             - Поддержка YouTube, VK, и 1000+ других сайтов
-            - 🌍 Русский и английский языки интерфейса
-            - 🍪 Поддержка cookies для возрастных ограничений
           files: |
             VideoDownloader2-Windows.zip
             VideoDownloader2-macOS.dmg
