@@ -6,6 +6,8 @@ from typing import Optional
 
 from PyQt6.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSlot
 
+from utils.config import config_manager
+
 
 class UpdaterSignals(QObject):
     """Signals for updater."""
@@ -20,12 +22,33 @@ class UpdateChecker(QRunnable):
         super().__init__()
         self.signals = UpdaterSignals()
 
+    def _get_current_version(self) -> str:
+        """Get installed yt-dlp version with fallback strategies."""
+        # Strategy 1: Direct attribute access (fastest, works in most cases)
+        try:
+            import yt_dlp
+            version = getattr(yt_dlp, 'version', None)
+            if version:
+                v = getattr(version, '__version__', None)
+                if v:
+                    return v
+        except Exception:
+            pass
+
+        # Strategy 2: Direct module import (handles some bundled app edge cases)
+        try:
+            from yt_dlp import version
+            return version.__version__
+        except Exception:
+            pass
+
+        return "Unknown"
+
     @pyqtSlot()
     def run(self):
         """Check for updates."""
         try:
-            import yt_dlp
-            current = yt_dlp.version.__version__
+            current = self._get_current_version()
 
             # Check PyPI for latest version
             import urllib.request
@@ -87,8 +110,39 @@ class Updater(QObject):
         super().__init__()
         self.thread_pool = QThreadPool()
 
+    def should_check_for_updates(self) -> bool:
+        """Check if we should perform update check."""
+        # Don't check if update is pending restart
+        if config_manager.get('ytdlp_update_pending_restart', False):
+            return False
+        return True
+
+    def should_prompt_for_update(self, latest: str) -> bool:
+        """Check if we should prompt user about this update."""
+        dismissed = config_manager.get('last_dismissed_ytdlp_version', '')
+        if dismissed == latest:
+            return False
+        return True
+
+    def mark_update_dismissed(self, version: str) -> None:
+        """Record that user dismissed update for this version."""
+        config_manager.set('last_dismissed_ytdlp_version', version)
+
+    def mark_update_complete(self) -> None:
+        """Record that update completed successfully."""
+        config_manager.set('ytdlp_update_pending_restart', True)
+        # Clear dismissed version since they accepted the update
+        config_manager.set('last_dismissed_ytdlp_version', '')
+
+    def clear_update_pending(self) -> None:
+        """Clear pending restart flag (called on app start)."""
+        config_manager.set('ytdlp_update_pending_restart', False)
+
     def check_for_updates(self):
         """Check for available updates."""
+        if not self.should_check_for_updates():
+            return  # Skip check if update pending restart
+        
         checker = UpdateChecker()
         checker.signals.version_checked.connect(self._on_version_checked)
         self.thread_pool.start(checker)

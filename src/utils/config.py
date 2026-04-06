@@ -35,6 +35,13 @@ class Config:
     sound_enabled: bool = True
     check_updates: bool = True
     max_parallel_downloads: int = 2
+    language: str = "en"  # Interface language: 'en' or 'ru'
+    # Update loop prevention (BUG-04)
+    last_dismissed_ytdlp_version: str = ""  # Version user dismissed
+    ytdlp_update_pending_restart: bool = False  # True after successful update
+    # Browser cookie import (FEAT-01)
+    cookie_browser: str = ""  # Browser for cookie import: chrome, edge, firefox, brave, opera, or empty
+    cookie_file_path: str = ""  # Path to cookies.txt file (Netscape format) - more reliable than browser extraction
 
     def __post_init__(self):
         if not self.download_path:

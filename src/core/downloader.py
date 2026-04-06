@@ -1,6 +1,8 @@
 """yt-dlp wrapper for video downloading."""
 
+import logging
 import os
+import re
 import sys
 from dataclasses import dataclass
 from typing import Optional, Callable, List
@@ -8,6 +10,71 @@ from pathlib import Path
 
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
+
+from utils.config import config_manager
+
+logger = logging.getLogger(__name__)
+
+
+# Error patterns ordered by specificity (most specific first)
+ERROR_PATTERNS = [
+    # Cookie extraction failures - actionable
+    ('could not copy', 'Cannot access browser cookies. Close browser or use cookies.txt file in Settings.'),
+    ('dpapi', 'Cannot decrypt browser cookies. Use cookies.txt file instead (see Settings).'),
+    ('failed to decrypt', 'Cannot decrypt browser cookies. Use cookies.txt file instead (see Settings).'),
+    
+    # Bot detection - actionable
+    ('sign in to confirm you\'re not a bot', 'YouTube requires authentication. Set up cookies in Settings.'),
+    ('confirm you\'re not a bot', 'YouTube requires authentication. Set up cookies in Settings.'),
+    
+    # Age restriction - actionable (cookies can help)
+    ('sign in to confirm your age', 'This video requires age verification. Set up cookies in Settings.'),
+    ('age-restricted', 'This video is age-restricted. Set up cookies in Settings.'),
+    ('age gate', 'This video is age-restricted. Set up cookies in Settings.'),
+    
+    # Login required - actionable (cookies can help)
+    ('sign in to view', 'This video requires sign-in. Set up cookies in Settings.'),
+    ('members only', 'This video is for channel members only.'),
+    ('join this channel', 'This video is for channel members only.'),
+    ('premium', 'This video requires a premium subscription.'),
+    
+    # Availability - not actionable
+    ('video unavailable', 'This video is unavailable. It may have been removed or made private.'),
+    ('private video', 'This video is private.'),
+    ('removed by', 'This video has been removed.'),
+    ('deleted video', 'This video has been deleted.'),
+    ('copyright', 'This video was removed due to a copyright claim.'),
+    
+    # Geo-restriction - not actionable
+    ('not available in your country', 'This video is not available in your region.'),
+    ('geo', 'This video is geographically restricted.'),
+    ('blocked in your country', 'This video is blocked in your region.'),
+    
+    # Live content
+    ('live event will begin', 'This is an upcoming live stream. Try again when it starts.'),
+    ('premieres in', 'This video will premiere later. Try again after it starts.'),
+    
+    # HTTP errors
+    ('403', 'Access denied. Try importing browser cookies in Settings.'),
+    ('404', 'Video not found. Check the URL.'),
+    ('429', 'Too many requests. Please wait a moment and try again.'),
+    ('503', 'Service temporarily unavailable. Try again later.'),
+    
+    # Network errors
+    ('connection', 'Connection error. Check your internet connection.'),
+    ('timeout', 'Connection timed out. Try again.'),
+    ('network', 'Network error. Check your internet connection.'),
+    ('ssl', 'Secure connection failed. Check your network settings.'),
+    
+    # Technical errors
+    ('ffmpeg', 'FFmpeg is required but not found or failed.'),
+    ('postprocessing', 'Failed to process the downloaded video.'),
+    ('no video formats', 'No downloadable formats found for this video.'),
+    ('unsupported url', 'This URL is not supported.'),
+    
+    # Format selection failures (usually auth-related)
+    ('requested format is not available', 'No downloadable formats found. Try setting up cookies in Settings.'),
+]
 
 
 @dataclass
@@ -42,18 +109,19 @@ QUALITY_PRESETS = {
 def get_ffmpeg_path() -> Optional[str]:
     """Get FFmpeg path, handling PyInstaller bundling."""
     if getattr(sys, 'frozen', False):
-        # Running as bundled exe
         base_path = sys._MEIPASS
     else:
-        # Running as script - check project root
         base_path = Path(__file__).parent.parent.parent
 
-    # Check for ffmpeg (macOS/Linux) or ffmpeg.exe (Windows)
-    for name in ('ffmpeg', 'ffmpeg.exe'):
-        ffmpeg = Path(base_path) / name
-        if ffmpeg.exists():
-            return str(ffmpeg.parent)
+    # Platform-specific binary name
+    binary_name = 'ffmpeg.exe' if sys.platform == 'win32' else 'ffmpeg'
+    ffmpeg = Path(base_path) / binary_name
+    
+    if ffmpeg.exists():
+        logger.debug('Found bundled ffmpeg at: %s', ffmpeg.parent)
+        return str(ffmpeg.parent)
 
+    logger.debug('Bundled ffmpeg not found, using system PATH')
     return None  # Let yt-dlp find it in PATH
 
 
@@ -62,6 +130,7 @@ class Downloader:
 
     def __init__(self):
         self.ffmpeg_location = get_ffmpeg_path()
+        self._cookie_file_missing = False  # Track for error messages
 
     def _get_base_opts(self) -> dict:
         """Get base yt-dlp options."""
@@ -73,14 +142,37 @@ class Downloader:
             'fragment_retries': 10,
             'remote_components': ['ejs:github'],
             'concurrent_fragment_downloads': 4,
-            'legacy_server_connect': True,  # Fix SSL issues on macOS
+            # Fix BUG-01: Sanitize filenames for Windows compatibility
+            # Handles invalid chars (?*"<>|:/\), reserved names (CON, PRN), path limits
+            'windowsfilenames': True,
         }
+        
+        # Add cookies if configured (FEAT-01)
+        # Priority: cookie file (if exists) > browser extraction
+        cookie_file = config_manager.get('cookie_file_path', '')
+        cookie_browser = config_manager.get('cookie_browser', '')
+        self._cookie_file_missing = False  # Track for better error messages
+        
+        # Only use cookie file if it actually exists
+        if cookie_file and os.path.exists(cookie_file):
+            logger.debug('Using cookie file: %s', cookie_file)
+            opts['cookiefile'] = cookie_file
+        elif cookie_browser:
+            # Browser extraction as fallback or primary if no file
+            logger.debug('Using browser cookies: %s', cookie_browser)
+            opts['cookiesfrombrowser'] = (cookie_browser,)
+        elif cookie_file:
+            # Cookie file was configured but doesn't exist
+            logger.warning('Cookie file not found: %s', cookie_file)
+            self._cookie_file_missing = True
+        
         if self.ffmpeg_location:
             opts['ffmpeg_location'] = self.ffmpeg_location
         return opts
 
     def get_info(self, url: str) -> VideoInfo:
         """Extract video information without downloading."""
+        logger.info('Getting video info: %s', url[:80])
         opts = self._get_base_opts()
 
         with yt_dlp.YoutubeDL(opts) as ydl:
@@ -88,6 +180,7 @@ class Downloader:
                 info = ydl.extract_info(url, download=False)
                 info = ydl.sanitize_info(info)
 
+                logger.info('Video info retrieved: %s (duration: %s)', info.get('title', 'Unknown')[:50], info.get('duration', 0))
                 return VideoInfo(
                     url=url,
                     title=info.get('title', 'Unknown'),
@@ -97,9 +190,14 @@ class Downloader:
                     extractor=info.get('extractor', 'unknown'),
                 )
             except ExtractorError as e:
+                logger.error('Extractor error for %s: %s', url[:50], e)
+                raise DownloaderError(self._translate_error(e))
+            except DownloadError as e:
+                logger.error('Download error for %s: %s', url[:50], e)
                 raise DownloaderError(self._translate_error(e))
             except Exception as e:
-                raise DownloaderError(f"Failed to get video info: {e}")
+                logger.exception('Failed to get video info for %s', url[:50])
+                raise DownloaderError(self._translate_error(e))
 
     def download(
         self,
@@ -137,9 +235,10 @@ class Downloader:
             opts['merge_output_format'] = 'mp4'
 
         downloaded_file = None
+        last_logged_milestone = 0
 
         def progress_hook(d):
-            nonlocal downloaded_file
+            nonlocal downloaded_file, last_logged_milestone
 
             if d['status'] == 'downloading':
                 total = d.get('total_bytes') or d.get('total_bytes_estimate') or 0
@@ -151,45 +250,68 @@ class Downloader:
                     speed_mbps = speed / 1_000_000  # Convert to MB/s
                     if progress_callback:
                         progress_callback(percent, speed_mbps, 'downloading')
+                    
+                    # Only log at milestones to avoid log spam
+                    for milestone in (25, 50, 75, 100):
+                        if percent >= milestone and last_logged_milestone < milestone:
+                            logger.debug('Download progress: %d%% for %s', percent, url[:50])
+                            last_logged_milestone = milestone
+                            break
 
             elif d['status'] == 'finished':
                 downloaded_file = d.get('filename')
                 if progress_callback:
                     progress_callback(100, 0, 'processing')
+                logger.debug('Download progress: 100%% for %s', url[:50])
 
         opts['progress_hooks'] = [progress_hook]
+        logger.info('Starting download: %s (quality: %s)', url[:80], quality)
 
         with yt_dlp.YoutubeDL(opts) as ydl:
             try:
                 ydl.download([url])
                 if progress_callback:
                     progress_callback(100, 0, 'completed')
+                logger.info('Download completed: %s', downloaded_file or output_path)
                 return downloaded_file or output_path
             except DownloadError as e:
+                logger.error('Download error for %s: %s', url[:50], e)
                 raise DownloaderError(self._translate_error(e))
             except Exception as e:
-                raise DownloaderError(f"Download failed: {e}")
+                logger.exception('Unexpected download error for %s', url[:50])
+                raise DownloaderError(self._translate_error(e))
 
     def _translate_error(self, error: Exception) -> str:
         """Translate yt-dlp errors to user-friendly messages."""
         msg = str(error).lower()
-
-        if 'video unavailable' in msg or 'private video' in msg:
-            return "Video unavailable or private"
-        elif 'sign in' in msg or 'age' in msg:
-            return "Video requires age verification"
-        elif 'geo' in msg or 'not available in your country' in msg:
-            return "Video not available in your region"
-        elif '403' in msg:
-            return "Access denied to video"
-        elif '404' in msg:
-            return "Video not found"
-        elif '429' in msg:
-            return "Too many requests, try again later"
-        elif 'ffmpeg' in msg:
-            return "FFmpeg required but not found"
-        else:
-            return str(error)
+        
+        # Special case: format error when cookie file was configured but not found
+        # This often happens when config.json has a path from a different OS
+        if 'requested format is not available' in msg and getattr(self, '_cookie_file_missing', False):
+            return 'Cookie file not found. Re-import your cookies.txt file in Settings.'
+        
+        # Check against known patterns
+        for pattern, friendly_msg in ERROR_PATTERNS:
+            if pattern in msg:
+                return friendly_msg
+        
+        # Fallback: Clean up the original message
+        return self._clean_error_message(str(error))
+    
+    def _clean_error_message(self, msg: str) -> str:
+        """Remove technical details and wiki links from error message."""
+        # Remove GitHub/wiki URLs
+        msg = re.sub(r'https?://[^\s]+', '', msg)
+        # Remove "ERROR:" prefixes
+        msg = re.sub(r'^ERROR:\s*', '', msg, flags=re.IGNORECASE)
+        # Remove yt-dlp technical prefixes
+        msg = re.sub(r'\[[\w\.-]+\]\s*', '', msg)
+        # Collapse whitespace
+        msg = re.sub(r'\s+', ' ', msg).strip()
+        # Truncate if too long
+        if len(msg) > 200:
+            msg = msg[:197] + '...'
+        return msg if msg else 'Download failed. Please try again.'
 
 
 class DownloaderError(Exception):

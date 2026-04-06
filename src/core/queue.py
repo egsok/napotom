@@ -1,5 +1,6 @@
 """Download queue management with Qt signals."""
 
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, List
@@ -10,6 +11,8 @@ from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 from .downloader import Downloader, VideoInfo, DownloaderError
 from utils.notifications import notification_manager
 from utils.config import config_manager
+
+logger = logging.getLogger(__name__)
 
 
 class QueueItemStatus(Enum):
@@ -64,12 +67,15 @@ class DownloadWorker(QRunnable):
         if self._cancelled:
             return
 
+        logger.info('[%s] Worker started for: %s', self.item.id, self.item.url[:50])
+
         try:
             # First get video info if not available
             if not self.item.info:
                 info = self.downloader.get_info(self.item.url)
                 self.signals.info_ready.emit(self.item.id, info)
                 self.item.info = info
+                logger.info('[%s] Video info extracted: %s', self.item.id, info.title[:50])
 
             if self._cancelled:
                 return
@@ -90,8 +96,10 @@ class DownloadWorker(QRunnable):
                 self.signals.finished.emit(self.item.id, file_path)
 
         except DownloaderError as e:
+            logger.error('[%s] Download failed: %s', self.item.id, e)
             self.signals.error.emit(self.item.id, str(e))
         except Exception as e:
+            logger.exception('[%s] Unexpected worker error', self.item.id)
             self.signals.error.emit(self.item.id, f"Unexpected error: {e}")
 
 
@@ -125,6 +133,7 @@ class DownloadQueue(QObject):
         )
         self.items.append(item)
         self.item_added.emit(item)
+        logger.info('[%s] Added to queue: %s', item.id, url[:50])
 
         # Start processing if this is the only item
         self._process_next()
@@ -225,6 +234,7 @@ class DownloadQueue(QObject):
                 item.file_path = file_path
                 self.item_updated.emit(item)
                 notification_manager.notify_complete(item.info.title if item.info else "Video")
+                logger.info('[%s] Download completed: %s', item_id, file_path)
                 break
 
         self._active_workers.pop(item_id, None)
@@ -238,6 +248,7 @@ class DownloadQueue(QObject):
                 item.error = error
                 self.item_updated.emit(item)
                 notification_manager.notify_error(item.info.title if item.info else "Video", error)
+                logger.error('[%s] Download failed: %s', item_id, error)
                 break
 
         self._active_workers.pop(item_id, None)
