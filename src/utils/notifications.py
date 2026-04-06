@@ -34,7 +34,7 @@ class NotificationManager:
                     from PyQt6.QtCore import QUrl
                     self._sound = QSoundEffect()
                     self._sound.setSource(QUrl.fromLocalFile(str(sound_path)))
-                    self._sound.setVolume(0.5)
+                    self._sound.setVolume(0.35)
                 except Exception:
                     pass  # QApplication not ready yet
 
