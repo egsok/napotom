@@ -72,9 +72,23 @@ ERROR_PATTERNS = [
     ('no video formats', 'No downloadable formats found for this video.'),
     ('unsupported url', 'This URL is not supported.'),
     
-    # Format selection failures (usually auth-related)
+    # Format selection failures (usually auth-related or missing JS runtime)
     ('requested format is not available', 'No downloadable formats found. Try setting up cookies in Settings.'),
+    # JS runtime missing — YouTube needs it for challenge solving
+    ('no js runtime', 'YouTube requires a JavaScript runtime. Install Node.js or Deno.'),
+    ('jsc', 'YouTube requires a JavaScript runtime. Install Node.js or Deno.'),
 ]
+
+
+def check_js_runtime_available() -> bool:
+    """Check if any JavaScript runtime is available for yt-dlp's YouTube solver."""
+    import shutil
+    for cmd in ('deno', 'node', 'bun', 'qjs'):
+        if shutil.which(cmd):
+            logger.debug('Found JS runtime: %s', cmd)
+            return True
+    logger.warning('No JavaScript runtime found (node/deno/bun/qjs). YouTube downloads may fail.')
+    return False
 
 
 @dataclass
@@ -131,6 +145,7 @@ class Downloader:
     def __init__(self):
         self.ffmpeg_location = get_ffmpeg_path()
         self._cookie_file_missing = False  # Track for error messages
+        self.js_runtime_available = check_js_runtime_available()
 
     def _get_base_opts(self) -> dict:
         """Get base yt-dlp options."""
@@ -142,6 +157,14 @@ class Downloader:
             'fragment_retries': 10,
             'remote_components': ['ejs:github'],
             'concurrent_fragment_downloads': 4,
+            # Enable all JS runtimes for YouTube POT/JSC challenge solving
+            # Default yt-dlp only tries Deno — we want any available runtime
+            'js_runtimes': {
+                'deno': {},
+                'node': {},
+                'bun': {},
+                'quickjs': {},
+            },
             # Fix BUG-01: Sanitize filenames for Windows compatibility
             # Handles invalid chars (?*"<>|:/\), reserved names (CON, PRN), path limits
             'windowsfilenames': True,
@@ -289,6 +312,10 @@ class Downloader:
         # This often happens when config.json has a path from a different OS
         if 'requested format is not available' in msg and getattr(self, '_cookie_file_missing', False):
             return 'Cookie file not found. Re-import your cookies.txt file in Settings.'
+
+        # Special case: format error likely caused by missing JS runtime
+        if 'requested format is not available' in msg and not getattr(self, 'js_runtime_available', True):
+            return 'YouTube requires a JavaScript runtime (Node.js or Deno). Install one: brew install node'
         
         # Check against known patterns
         for pattern, friendly_msg in ERROR_PATTERNS:
