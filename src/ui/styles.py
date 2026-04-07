@@ -1,13 +1,13 @@
-"""Dark theme stylesheet with teal accent on neutral-dark palette."""
+"""Dark theme stylesheet with purple accent on neutral-dark palette."""
 
 # Color palette
 COLORS = {
     "bg_dark": "#1a1a1a",
     "bg_card": "#242424",
     "bg_input": "#1e1e1e",
-    "accent": "#2EC4B6",
-    "accent_hover": "#26A69A",
-    "accent_pressed": "#1E8C82",
+    "accent": "#9b59b6",
+    "accent_hover": "#b06ec6",
+    "accent_pressed": "#7b2d8e",
     "text_primary": "#eaeaea",
     "text_secondary": "#a0a0a0",
     "border": "#3a3a3a",

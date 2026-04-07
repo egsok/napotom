@@ -5,7 +5,8 @@ from PyQt6.QtWidgets import (
     QLineEdit, QPushButton, QComboBox, QLabel,
     QScrollArea, QFileDialog, QMessageBox
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtGui import QDesktopServices
 
 from core.queue import DownloadQueue, QueueItem
 from ui.widgets.queue_item_widget import QueueItemWidget
@@ -169,12 +170,39 @@ class MainWindow(QMainWindow):
         layout.addLayout(bottom_bar)
 
         # Credits footer
-        self.credits_label = QLabel(tr("credits_footer"))
+        credits_row = QHBoxLayout()
+        credits_row.setContentsMargins(0, 4, 0, 8)
+
+        credits_row.addStretch()
+
+        self.credits_label = QLabel(tr("credits_text"))
         self.credits_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.credits_label.setTextFormat(Qt.TextFormat.RichText)
-        self.credits_label.setOpenExternalLinks(True)
-        self.credits_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px; padding: 4px 0px 8px 0px;")
-        layout.addWidget(self.credits_label)
+        self.credits_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
+        credits_row.addWidget(self.credits_label)
+
+        self.subscribe_btn = QPushButton(tr("credits_subscribe"))
+        self.subscribe_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.subscribe_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 1px solid {COLORS['accent']};
+                border-radius: 10px;
+                color: {COLORS['accent']};
+                font-size: 11px;
+                padding: 3px 12px;
+                margin-left: 8px;
+            }}
+            QPushButton:hover {{
+                background-color: {COLORS['accent']};
+                color: white;
+            }}
+        """)
+        self.subscribe_btn.clicked.connect(self._on_subscribe_clicked)
+        credits_row.addWidget(self.subscribe_btn)
+
+        credits_row.addStretch()
+
+        layout.addLayout(credits_row)
 
     def _connect_signals(self):
         """Connect queue signals."""
@@ -244,6 +272,10 @@ class MainWindow(QMainWindow):
         """Handle retry button click."""
         self.queue.retry(item_id)
 
+    def _on_subscribe_clicked(self):
+        """Open Telegram channel link."""
+        QDesktopServices.openUrl(QUrl(tr("credits_url")))
+
     def _on_settings_clicked(self):
         """Handle settings button click."""
         from ui.settings_dialog import SettingsDialog
@@ -274,7 +306,8 @@ class MainWindow(QMainWindow):
         self.open_folder_btn.setText(tr("open_folder_btn"))
         self.settings_btn.setText(tr("settings_btn"))
         
-        self.credits_label.setText(tr("credits_footer"))
+        self.credits_label.setText(tr("credits_text"))
+        self.subscribe_btn.setText(tr("credits_subscribe"))
 
         # Update quality combo (preserve selection)
         current_quality = self.quality_combo.currentData()

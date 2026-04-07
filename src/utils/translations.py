@@ -114,7 +114,9 @@ TRANSLATIONS = {
         'open_folder_tooltip': 'Open folder',
 
         # Credits
-        'credits_footer': 'Created by <a href="https://t.me/AiVideoDownloader" style="color:#2EC4B6; text-decoration:none;">@AiVideoDownloader</a> · written by AI 🤖',
+        'credits_text': 'Сделано ИИ 🤖 · проверено человеком',
+        'credits_subscribe': 'подписывайся → @neiroset_ne_vinovata',
+        'credits_url': 'https://t.me/+GpZ_G6I4yl1jZDcy',
     },
     
     'ru': {
@@ -230,6 +232,8 @@ TRANSLATIONS = {
         'open_folder_tooltip': 'Открыть папку',
 
         # Credits
-        'credits_footer': 'Создано <a href="https://t.me/AiVideoDownloader" style="color:#2EC4B6; text-decoration:none;">@AiVideoDownloader</a> · написано ИИ 🤖',
+        'credits_text': 'Сделано ИИ 🤖 · проверено человеком',
+        'credits_subscribe': 'подписывайся → @neiroset_ne_vinovata',
+        'credits_url': 'https://t.me/+GpZ_G6I4yl1jZDcy',
     }
 }
