@@ -20,6 +20,15 @@ jobs:
       - name: Install dependencies
         run: pip install "pyqt6>=6.11.0" "yt-dlp>=2026.03.17" "pyinstaller>=6.19.0" win10toast
       
+      - name: Set up Node.js (bundled for YouTube JS solver)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Bundle Node.js binary
+        shell: bash
+        run: cp "$(which node)" ./node.exe
+
       - name: Download ffmpeg
         shell: bash
         run: |
