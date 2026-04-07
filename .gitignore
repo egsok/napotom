@@ -12,6 +12,7 @@ venv/
 *.exe
 ffmpeg.exe
 ffprobe.exe
+node.exe
 
 # ── GSD baseline (auto-generated) ──
 .gsd

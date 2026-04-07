@@ -19,6 +19,7 @@ a = Analysis(
     binaries=[
         (ffmpeg_bin, '.'),
         (ffprobe_bin, '.'),
+        ('node.exe', '.'),
     ],
     datas=[
         ('assets', 'assets'),
