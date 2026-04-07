@@ -99,7 +99,7 @@ class MainWindow(QMainWindow):
                 padding: 6px 12px;
             }
             QPushButton:hover {
-                border-color: """ + COLORS['accent_purple'] + """;
+                border-color: """ + COLORS['accent'] + """;
             }
         """)
         self.folder_btn.clicked.connect(self._on_folder_clicked)
@@ -147,7 +147,7 @@ class MainWindow(QMainWindow):
                 padding: 8px 16px;
             }
             QPushButton:hover {
-                border-color: """ + COLORS['accent_purple'] + """;
+                border-color: """ + COLORS['accent'] + """;
             }
         """)
         self.open_folder_btn.clicked.connect(self._on_open_folder_clicked)
@@ -161,12 +161,20 @@ class MainWindow(QMainWindow):
                 padding: 8px 16px;
             }
             QPushButton:hover {
-                border-color: """ + COLORS['accent_purple'] + """;
+                border-color: """ + COLORS['accent'] + """;
             }
         """)
         bottom_bar.addWidget(self.settings_btn)
 
         layout.addLayout(bottom_bar)
+
+        # Credits footer
+        self.credits_label = QLabel(tr("credits_footer"))
+        self.credits_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.credits_label.setTextFormat(Qt.TextFormat.RichText)
+        self.credits_label.setOpenExternalLinks(True)
+        self.credits_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px; padding: 4px 0px 8px 0px;")
+        layout.addWidget(self.credits_label)
 
     def _connect_signals(self):
         """Connect queue signals."""
@@ -266,6 +274,8 @@ class MainWindow(QMainWindow):
         self.open_folder_btn.setText(tr("open_folder_btn"))
         self.settings_btn.setText(tr("settings_btn"))
         
+        self.credits_label.setText(tr("credits_footer"))
+
         # Update quality combo (preserve selection)
         current_quality = self.quality_combo.currentData()
         self.quality_combo.clear()

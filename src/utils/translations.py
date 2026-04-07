@@ -112,6 +112,9 @@ TRANSLATIONS = {
         'status_cancelled': 'Cancelled',
         'retry_tooltip': 'Retry download',
         'open_folder_tooltip': 'Open folder',
+
+        # Credits
+        'credits_footer': 'Created by <a href="https://t.me/AiVideoDownloader" style="color:#2EC4B6; text-decoration:none;">@AiVideoDownloader</a> · written by AI 🤖',
     },
     
     'ru': {
@@ -225,5 +228,8 @@ TRANSLATIONS = {
         'status_cancelled': 'Отменено',
         'retry_tooltip': 'Повторить загрузку',
         'open_folder_tooltip': 'Открыть папку',
+
+        # Credits
+        'credits_footer': 'Создано <a href="https://t.me/AiVideoDownloader" style="color:#2EC4B6; text-decoration:none;">@AiVideoDownloader</a> · написано ИИ 🤖',
     }
 }

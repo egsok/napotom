@@ -57,7 +57,7 @@ class SettingsDialog(QDialog):
             }}
         """
 
-    def _create_button_style(self, hover_color='accent_purple'):
+    def _create_button_style(self, hover_color='accent'):
         """Return common button stylesheet."""
         return f"""
             QPushButton {{ 
@@ -254,11 +254,11 @@ class SettingsDialog(QDialog):
             QPushButton {{ 
                 background-color: transparent; 
                 border: none; 
-                color: {COLORS['accent_purple']}; 
+                color: {COLORS['accent']}; 
                 text-decoration: underline; 
                 padding: 6px 0; 
             }}
-            QPushButton:hover {{ color: {COLORS['accent_magenta']}; }}
+            QPushButton:hover {{ color: {COLORS['accent_hover']}; }}
         """)
         self.help_cookies_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.help_cookies_btn.clicked.connect(self._show_cookie_help)
@@ -314,7 +314,7 @@ class SettingsDialog(QDialog):
         self.cancel_btn = QPushButton(tr("cancel_btn"))
         self.cancel_btn.setStyleSheet(f"""
             QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 8px 20px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent_purple']}; }}
+            QPushButton:hover {{ border-color: {COLORS['accent']}; }}
         """)
         self.cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_btn)
@@ -552,8 +552,8 @@ class SettingsDialog(QDialog):
         
         ext_btn = QPushButton(tr("open_extension_page"))
         ext_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: {COLORS['accent_purple']}; border: none; padding: 10px 20px; font-weight: bold; }}
-            QPushButton:hover {{ background-color: {COLORS['accent_magenta']}; }}
+            QPushButton {{ background-color: {COLORS['accent']}; border: none; padding: 10px 20px; font-weight: bold; }}
+            QPushButton:hover {{ background-color: {COLORS['accent_hover']}; }}
         """)
         ext_btn.clicked.connect(lambda: webbrowser.open(
             "https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
@@ -567,7 +567,7 @@ class SettingsDialog(QDialog):
         close_btn = QPushButton(tr("close_btn"))
         close_btn.setStyleSheet(f"""
             QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 8px 20px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent_purple']}; }}
+            QPushButton:hover {{ border-color: {COLORS['accent']}; }}
         """)
         close_btn.clicked.connect(dialog.accept)
         layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignRight)
@@ -633,3 +633,4 @@ class SettingsDialog(QDialog):
             self.cookie_status.setStyleSheet(f"color: {COLORS['error']};")
         finally:
             self.test_cookies_btn.setEnabled(True)
+

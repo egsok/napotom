@@ -30,6 +30,7 @@ class QueueItemWidget(QWidget):
             QueueItemWidget {{
                 background-color: {COLORS["bg_card"]};
                 border-radius: 8px;
+                border-left: 3px solid {COLORS["accent"]};
                 padding: 12px;
             }}
         """)

@@ -1,17 +1,21 @@
-"""Dark theme stylesheet with purple/magenta accents."""
+"""Dark theme stylesheet with teal accent on neutral-dark palette."""
 
 # Color palette
 COLORS = {
-    "bg_dark": "#1a1a2e",
-    "bg_card": "#16213e",
-    "bg_input": "#0f1526",
-    "accent_purple": "#9b59b6",
-    "accent_magenta": "#e91e9b",
+    "bg_dark": "#1a1a1a",
+    "bg_card": "#242424",
+    "bg_input": "#1e1e1e",
+    "accent": "#2EC4B6",
+    "accent_hover": "#26A69A",
+    "accent_pressed": "#1E8C82",
     "text_primary": "#eaeaea",
     "text_secondary": "#a0a0a0",
-    "border": "#2a2a4a",
+    "border": "#3a3a3a",
     "error": "#e74c3c",
     "success": "#2ecc71",
+    "warning": "#f39c12",
+    "disabled_bg": "#3a3a3a",
+    "disabled_text": "#6a6a6a",
 }
 
 STYLESHEET = f"""
@@ -36,7 +40,7 @@ QLabel#sectionTitle {{
 }}
 
 QPushButton {{
-    background-color: {COLORS["accent_purple"]};
+    background-color: {COLORS["accent"]};
     border: none;
     padding: 10px 20px;
     border-radius: 6px;
@@ -45,16 +49,16 @@ QPushButton {{
 }}
 
 QPushButton:hover {{
-    background-color: {COLORS["accent_magenta"]};
+    background-color: {COLORS["accent_hover"]};
 }}
 
 QPushButton:pressed {{
-    background-color: #7b2d8e;
+    background-color: {COLORS["accent_pressed"]};
 }}
 
 QPushButton:disabled {{
-    background-color: #3a3a5a;
-    color: #6a6a8a;
+    background-color: {COLORS["disabled_bg"]};
+    color: {COLORS["disabled_text"]};
 }}
 
 QPushButton#iconButton {{
@@ -69,11 +73,11 @@ QLineEdit {{
     border-radius: 6px;
     padding: 10px 14px;
     color: {COLORS["text_primary"]};
-    selection-background-color: {COLORS["accent_purple"]};
+    selection-background-color: {COLORS["accent"]};
 }}
 
 QLineEdit:focus {{
-    border-color: {COLORS["accent_purple"]};
+    border-color: {COLORS["accent"]};
 }}
 
 QLineEdit::placeholder {{
@@ -90,7 +94,7 @@ QComboBox {{
 }}
 
 QComboBox:hover {{
-    border-color: {COLORS["accent_purple"]};
+    border-color: {COLORS["accent"]};
 }}
 
 QComboBox::drop-down {{
@@ -110,7 +114,7 @@ QComboBox QAbstractItemView {{
     background-color: {COLORS["bg_card"]};
     border: 2px solid {COLORS["border"]};
     border-radius: 6px;
-    selection-background-color: {COLORS["accent_purple"]};
+    selection-background-color: {COLORS["accent"]};
     outline: none;
 }}
 
@@ -125,8 +129,8 @@ QProgressBar {{
 QProgressBar::chunk {{
     background: qlineargradient(
         x1:0, y1:0, x2:1, y2:0,
-        stop:0 {COLORS["accent_purple"]},
-        stop:1 {COLORS["accent_magenta"]}
+        stop:0 {COLORS["accent"]},
+        stop:1 {COLORS["accent_hover"]}
     );
     border-radius: 4px;
 }}
@@ -149,7 +153,7 @@ QScrollBar::handle:vertical {{
 }}
 
 QScrollBar::handle:vertical:hover {{
-    background-color: {COLORS["accent_purple"]};
+    background-color: {COLORS["accent"]};
 }}
 
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
@@ -170,11 +174,11 @@ QCheckBox::indicator {{
 }}
 
 QCheckBox::indicator:checked {{
-    background-color: {COLORS["accent_purple"]};
-    border-color: {COLORS["accent_purple"]};
+    background-color: {COLORS["accent"]};
+    border-color: {COLORS["accent"]};
 }}
 
 QCheckBox::indicator:hover {{
-    border-color: {COLORS["accent_purple"]};
+    border-color: {COLORS["accent"]};
 }}
 """
