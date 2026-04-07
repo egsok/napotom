@@ -12,3 +12,27 @@ venv/
 *.exe
 ffmpeg.exe
 ffprobe.exe
+
+# ── GSD baseline (auto-generated) ──
+.gsd
+.gsd-id
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.code-workspace
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+*.pyc
+target/
+vendor/
+*.log
+coverage/
+.cache/
+tmp/
