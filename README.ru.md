@@ -93,8 +93,9 @@ pyinstaller build_mac.spec --noconfirm
 
 Сделал [Егор Соколов](https://egorsokolov.ru/) — 10 лет в продукте (Сбер, Рольф, Клаустрофобия). Пишу и экспериментирую с AI-инструментами — в основном Claude Code, Codex и тулинг для разработки.
 
-Телеграм-канал про AI-инструменты: **[@neiroset_ne_vinovata](https://t.me/neiroset_ne_vinovata)**
-Подписаться: [t.me/+SzDNKr86V2tkYzM6](https://t.me/+SzDNKr86V2tkYzM6)
+📣 Мой телеграм про AI без хайпа — нахожу, пробую, ломаю, рассказываю:
+
+[![Telegram](https://img.shields.io/badge/Telegram-%40neiroset__ne__vinovata-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/+SzDNKr86V2tkYzM6)
 
 Другие open-source эксперименты:
 

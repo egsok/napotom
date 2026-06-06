@@ -93,8 +93,9 @@ Built with [PyQt6](https://www.riverbankcomputing.com/software/pyqt/) and [yt-dl
 
 Built by [Egor Sokolov](https://egorsokolov.ru/) — 10 years in product (Sberbank, Rolf, Claustrophobia). Writing and experimenting with AI tooling — mostly Claude Code, Codex, and dev workflow tooling.
 
-Telegram channel about AI tooling: **[@neiroset_ne_vinovata](https://t.me/neiroset_ne_vinovata)**
-Join: [t.me/+SzDNKr86V2tkYzM6](https://t.me/+SzDNKr86V2tkYzM6)
+📣 My Telegram, where I geek out about AI tooling:
+
+[![Telegram](https://img.shields.io/badge/Telegram-%40neiroset__ne__vinovata-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/+SzDNKr86V2tkYzM6)
 
 Other open-source experiments:
 
