@@ -2,24 +2,23 @@
 
 # 🎬 Video Downloader 2
 
-**A simple, beautiful video downloader for YouTube, VK, and 1000+ sites.**
+**A simple, beautiful desktop video downloader for YouTube, VK, and 1000+ sites.**
 
-[English](#english) | [Русский](#русский-версия)
+**English** · [Русский](README.ru.md)
 
 [![Latest Release](https://img.shields.io/github/v/release/egsok/video-downloader2?style=for-the-badge)](../../releases/latest)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-blue?style=for-the-badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-![Main Window](screenshots/main-window.png)
-<!-- Replace with actual screenshot -->
+![Video Downloader 2](screenshots/main-window.png)
 
 </div>
 
 ---
 
-## English
+Video Downloader 2 is a small desktop app for grabbing video and audio from YouTube, VK, and 1000+ other sites. It's a friendly front-end for [yt-dlp](https://github.com/yt-dlp/yt-dlp) with `ffmpeg` and `Node.js` bundled in (on Windows), so there's nothing else to install — paste a link and download.
 
-### ✨ Features
+## ✨ Features
 
 - 🎥 **Download from YouTube, VK, and 1000+ sites** — powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - 📺 **Quality selection** — Best, 1080p, 720p, or Audio only (MP3)
@@ -27,94 +26,81 @@
 - 🔔 **Completion notifications** with sound
 - 🔄 **yt-dlp auto-update** from Settings
 - 🌐 **Bilingual interface** — English & Russian
-- 🎨 **Dark theme** with teal accent (#2EC4B6)
+- 🎨 **Dark theme** with a purple accent (`#9b59b6`)
 - 📦 **Bundled ffmpeg and Node.js** (Windows) — no extra installs needed
-- 🍪 **Cookie import** for age-restricted and private videos
+- 🍪 **Cookie import** for age-restricted and members-only videos
 
-### 📥 Download
+## 📥 Download
 
-| Platform | File | Instructions |
-|----------|------|--------------|
-| Windows  | `VideoDownloader2-Windows.zip` | Extract and run the `.exe` |
-| macOS    | `VideoDownloader2-macOS.dmg`   | Open and drag to Applications |
+Grab the latest build from the **[Releases page](../../releases/latest)**.
 
-**[⬇ Download Latest Release](../../releases/latest)**
+- **Windows** — download `VideoDownloader2-Windows.zip`, extract it, and run `VideoDownloader2.exe`. On first launch Windows SmartScreen may show *"Windows protected your PC"* — click **More info → Run anyway**. The build is unsigned (see [Build from source](#-build-from-source) if you'd rather compile it yourself).
+- **macOS** — download `VideoDownloader2-macOS.dmg`, open it, and drag **VideoDownloader2.app** to Applications. On first launch macOS may say the app *"is damaged and can't be opened"* — it isn't damaged, it's just unsigned and quarantined. Remove the quarantine flag in Terminal:
 
-### 🔨 Build from Source
+  ```bash
+  xattr -d com.apple.quarantine /Applications/VideoDownloader2.app
+  ```
+
+  (If that errors with permission, try `sudo xattr -cr /Applications/VideoDownloader2.app`.) After this it launches normally.
+
+## 🍪 Cookies — you'll probably need them for YouTube
+
+You can try downloading without cookies — for plenty of videos it just works. But sooner rather than later YouTube will hand you a video that refuses to download ("Sign in to confirm you're not a bot", age-restricted, members-only). That's YouTube's anti-bot protection, **not a bug in the app**. The fix is to load your YouTube cookies once, and downloads work again.
+
+> ⚠️ **Important:** YouTube rotates cookies on open tabs. Export them from a **private/incognito window** so the file stays valid.
+
+**How to export cookies (Chrome, Edge, Firefox):**
+
+1. Install the **[Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)** browser extension. *(Firefox: [get it from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/get-cookies-txt-locally/).)*
+2. Open a **private/incognito window** and log into YouTube.
+3. In the **same tab**, go to `https://www.youtube.com/robots.txt`.
+4. Click the extension icon → **export cookies** → save as `cookies.txt`.
+5. **Close the private window** (so the cookies don't rotate).
+6. In Video Downloader 2, open **Settings → Cookies → Browse…** and select the saved file.
+
+![Settings — Cookies](screenshots/settings-cookies.png)
+
+The extension is open-source and never sends your data anywhere: [github.com/kairi003/Get-cookies.txt-LOCALLY](https://github.com/kairi003/Get-cookies.txt-LOCALLY).
+
+> 🔒 Your `cookies.txt` is a live key to your account — don't share it, and delete it when you're done. If you download a lot, consider using a throwaway Google account.
+
+## 🔨 Build from source
 
 #### Windows
 
 ```bash
 pip install -r requirements.txt
-pyinstaller build.spec
+pyinstaller build.spec --noconfirm
 ```
 
 #### macOS
 
 ```bash
-git checkout mac
 pip install -r requirements.txt
 iconutil -c icns assets/icon.iconset -o assets/icon.icns
-pyinstaller build_mac.spec
+pyinstaller build_mac.spec --noconfirm
 ```
 
-### 🤝 Credits
+> For the exact release builds (with `ffmpeg`, `ffprobe`, and `node` bundled in), see [`.github/workflows/release.yml`](.github/workflows/release.yml).
 
-Created by [@AiVideoDownloader](https://t.me/AiVideoDownloader) · Written by AI 🤖
+## 🤝 Credits
+
+Made by AI 🤖 · checked by human.
 
 Built with [PyQt6](https://www.riverbankcomputing.com/software/pyqt/) and [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 
----
+## 👤 Author
 
-## Русский версия
+Built by [Egor Sokolov](https://egorsokolov.ru/) — 10 years in product (Sberbank, Rolf, Claustrophobia). Writing and experimenting with AI tooling — mostly Claude Code, Codex, and dev workflow tooling.
 
-### ✨ Возможности
+Telegram channel about AI tooling: **[@neiroset_ne_vinovata](https://t.me/neiroset_ne_vinovata)**
+Join: [t.me/+SzDNKr86V2tkYzM6](https://t.me/+SzDNKr86V2tkYzM6)
 
-- 🎥 **Загрузка с YouTube, VK и 1000+ сайтов** — на базе [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- 📺 **Выбор качества** — Лучшее, 1080p, 720p или Только аудио (MP3)
-- 📋 **Очередь загрузок** с параллельным скачиванием
-- 🔔 **Уведомления о завершении** со звуком
-- 🔄 **Автообновление yt-dlp** из Настроек
-- 🌐 **Двуязычный интерфейс** — Английский и Русский
-- 🎨 **Тёмная тема** с бирюзовым акцентом (#2EC4B6)
-- 📦 **Встроенные ffmpeg и Node.js** (Windows) — дополнительная установка не требуется
-- 🍪 **Импорт cookies** для видео с возрастными ограничениями и приватных видео
+Other open-source experiments:
 
-### 📥 Скачать
+- [Handy-custom](https://github.com/egsok/Handy-custom) — personal Russian-optimized fork of Handy, an offline speech-to-text app.
+- [plan-tango](https://github.com/egsok/plan-tango) — a Claude ↔ Codex plan-review loop for Claude Code.
 
-| Платформа | Файл | Инструкция |
-|-----------|------|------------|
-| Windows   | `VideoDownloader2-Windows.zip` | Распакуйте и запустите `.exe` |
-| macOS     | `VideoDownloader2-macOS.dmg`   | Откройте и перетащите в Applications |
+## License
 
-**[⬇ Скачать последний релиз](../../releases/latest)**
-
-### 🔨 Сборка из исходников
-
-#### Windows
-
-```bash
-pip install -r requirements.txt
-pyinstaller build.spec
-```
-
-#### macOS
-
-```bash
-git checkout mac
-pip install -r requirements.txt
-iconutil -c icns assets/icon.iconset -o assets/icon.icns
-pyinstaller build_mac.spec
-```
-
-### 🤝 Авторы
-
-Создано [@AiVideoDownloader](https://t.me/AiVideoDownloader) · Написано ИИ 🤖
-
-Сделано с [PyQt6](https://www.riverbankcomputing.com/software/pyqt/) и [yt-dlp](https://github.com/yt-dlp/yt-dlp).
-
----
-
-## License / Лицензия
-
-MIT
+MIT — see [LICENSE](LICENSE). Copyright (c) 2026 Egor Sokolov.
