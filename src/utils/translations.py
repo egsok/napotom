@@ -104,6 +104,10 @@ TRANSLATIONS = {
         'update_failed_title': 'Update Failed',
         'update_pending_restart_message': 'The yt-dlp update is already installed.\n\nRestart the application to apply it.',
 
+        # Exit confirmation
+        'exit_confirm_title': 'Downloads in Progress',
+        'exit_confirm_message': 'Downloads are still in progress. Quit anyway?',
+
         # Queue item statuses
         'status_waiting': 'Waiting',
         'status_downloading': '{progress}%',
@@ -222,6 +226,10 @@ TRANSLATIONS = {
         'update_complete_title': 'Обновление завершено',
         'update_failed_title': 'Ошибка обновления',
         'update_pending_restart_message': 'Обновление yt-dlp уже установлено.\n\nПерезапустите приложение, чтобы применить его.',
+
+        # Exit confirmation
+        'exit_confirm_title': 'Загрузки выполняются',
+        'exit_confirm_message': 'Загрузки ещё не завершены. Всё равно выйти?',
 
         # Queue item statuses
         'status_waiting': 'Ожидание',

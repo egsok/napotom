@@ -121,6 +121,7 @@ class DownloadQueue(QObject):
         self.thread_pool = QThreadPool()
         self._update_max_parallel()
         self._active_workers: dict[str, DownloadWorker] = {}
+        self._shutting_down = False
 
     def _update_max_parallel(self):
         """Update max parallel downloads from config."""
@@ -163,6 +164,26 @@ class DownloadQueue(QObject):
                 self.item_updated.emit(item)
                 break
 
+    def has_active_downloads(self) -> bool:
+        """Return True if any download workers are running."""
+        return bool(self._active_workers)
+
+    def cancel_all(self) -> None:
+        """Cancel all downloads for shutdown; no new downloads will start."""
+        self._shutting_down = True
+        # Mark ALL non-terminal items (including PENDING) as cancelled,
+        # so cancelling active workers can't kick off the next queue items
+        for item in self.items:
+            if item.status in (
+                QueueItemStatus.PENDING,
+                QueueItemStatus.DOWNLOADING,
+                QueueItemStatus.PROCESSING,
+            ):
+                item.status = QueueItemStatus.CANCELLED
+                self.item_updated.emit(item)
+        for worker in self._active_workers.values():
+            worker.cancel()
+
     def retry(self, item_id: str) -> None:
         """Retry failed download."""
         for item in self.items:
@@ -184,6 +205,9 @@ class DownloadQueue(QObject):
 
     def _process_next(self) -> None:
         """Start next pending downloads up to max parallel limit."""
+        if self._shutting_down:
+            return
+
         max_parallel = config_manager.get('max_parallel_downloads', 2)
         active_count = len(self._active_workers)
 

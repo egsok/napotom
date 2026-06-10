@@ -325,6 +325,22 @@ class MainWindow(QMainWindow):
         """Handle open folder button click."""
         open_folder(config_manager.get('download_path'))
 
+    def closeEvent(self, event):
+        """Confirm exit while downloads are active; cancel them on confirm."""
+        if self.queue.has_active_downloads():
+            reply = QMessageBox.question(
+                self,
+                tr("exit_confirm_title"),
+                tr("exit_confirm_message"),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                event.ignore()
+                return
+            self.queue.cancel_all()
+            self.queue.thread_pool.waitForDone(5000)
+        event.accept()
+
     @staticmethod
     def _shorten_path(path: str, max_len: int = 30) -> str:
         """Shorten path for display."""
