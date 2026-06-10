@@ -19,6 +19,40 @@ from utils.config import config_manager, get_app_data_dir
 logger = logging.getLogger(__name__)
 
 
+def get_ytdlp_version() -> Optional[str]:
+    """Get the installed yt-dlp version, or None if it cannot be determined."""
+    # Strategy 1: Direct attribute access (fastest, works in most cases)
+    try:
+        import yt_dlp
+        version = getattr(yt_dlp, 'version', None)
+        if version:
+            v = getattr(version, '__version__', None)
+            if v:
+                return v
+    except Exception:
+        pass
+
+    # Strategy 2: Direct module import (handles some bundled app edge cases)
+    try:
+        from yt_dlp import version
+        return version.__version__
+    except Exception:
+        pass
+
+    return None
+
+
+def parse_version(v: str) -> Optional[tuple]:
+    """Parse a dotted version string into an int tuple; None if invalid.
+
+    Handles yt-dlp style versions like "2025.12.8" / "2025.12.08".
+    """
+    try:
+        return tuple(int(x) for x in v.split('.'))
+    except (ValueError, AttributeError):
+        return None
+
+
 def get_override_dir() -> Path:
     """Return the directory where updated yt-dlp packages are extracted.
 
@@ -128,33 +162,11 @@ class UpdateChecker(QRunnable):
         super().__init__()
         self.signals = UpdaterSignals()
 
-    def _get_current_version(self) -> str:
-        """Get installed yt-dlp version with fallback strategies."""
-        # Strategy 1: Direct attribute access (fastest, works in most cases)
-        try:
-            import yt_dlp
-            version = getattr(yt_dlp, 'version', None)
-            if version:
-                v = getattr(version, '__version__', None)
-                if v:
-                    return v
-        except Exception:
-            pass
-
-        # Strategy 2: Direct module import (handles some bundled app edge cases)
-        try:
-            from yt_dlp import version
-            return version.__version__
-        except Exception:
-            pass
-
-        return "Unknown"
-
     @pyqtSlot()
     def run(self):
         """Check for updates."""
         try:
-            current = self._get_current_version()
+            current = get_ytdlp_version() or "Unknown"
 
             # Check PyPI for latest version
             import urllib.request
@@ -288,12 +300,7 @@ class Updater(QObject):
 
     def _normalize_version(self, version: str) -> tuple:
         """Normalize version string to comparable tuple."""
-        # yt-dlp versions are like "2025.12.8" or "2025.12.08"
-        # Convert to tuple of ints for proper comparison
-        try:
-            return tuple(int(x) for x in version.split('.'))
-        except ValueError:
-            return (0,)
+        return parse_version(version) or (0,)
 
     def _on_version_checked(self, current: str, latest: str):
         """Handle version check result."""

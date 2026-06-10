@@ -12,10 +12,11 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSlot
 
 from ui.styles import COLORS
+from ui.common import populate_quality_combo
 from utils.config import config_manager
 from utils.logger import get_log_file_path
 from utils.i18n import tr, get_current_language, set_language
-from core.updater import Updater
+from core.updater import Updater, get_ytdlp_version
 from yt_dlp.cookies import extract_cookies_from_browser
 
 
@@ -134,10 +135,7 @@ class SettingsDialog(QDialog):
         quality_layout.setContentsMargins(12, 12, 12, 8)
 
         self.quality_combo = QComboBox()
-        self.quality_combo.addItem(tr("quality_best"), "best")
-        self.quality_combo.addItem(tr("quality_1080p"), "1080p")
-        self.quality_combo.addItem(tr("quality_720p"), "720p")
-        self.quality_combo.addItem(tr("quality_audio"), "audio")
+        populate_quality_combo(self.quality_combo)
         self.quality_combo.setMinimumWidth(100)
         quality_layout.addWidget(self.quality_combo)
 
@@ -335,17 +333,8 @@ class SettingsDialog(QDialog):
         self.save_btn.setText(tr("save_btn"))
         
         # Update quality combo items (preserve selection)
-        current_quality = self.quality_combo.currentData()
-        self.quality_combo.clear()
-        self.quality_combo.addItem(tr("quality_best"), "best")
-        self.quality_combo.addItem(tr("quality_1080p"), "1080p")
-        self.quality_combo.addItem(tr("quality_720p"), "720p")
-        self.quality_combo.addItem(tr("quality_audio"), "audio")
-        for i in range(self.quality_combo.count()):
-            if self.quality_combo.itemData(i) == current_quality:
-                self.quality_combo.setCurrentIndex(i)
-                break
-        
+        populate_quality_combo(self.quality_combo, self.quality_combo.currentData())
+
         # Update browser combo (preserve selection)
         current_browser = self.browser_combo.currentData()
         self.browser_combo.setItemText(0, tr("browser_none"))
@@ -426,22 +415,8 @@ class SettingsDialog(QDialog):
         super().reject()
 
     def _get_ytdlp_version(self) -> str:
-        """Get installed yt-dlp version with fallback strategies."""
-        try:
-            import yt_dlp
-            version = getattr(yt_dlp, 'version', None)
-            if version:
-                v = getattr(version, '__version__', None)
-                if v:
-                    return v
-        except Exception:
-            pass
-        try:
-            from yt_dlp import version
-            return version.__version__
-        except Exception:
-            pass
-        return "Not installed"
+        """Get installed yt-dlp version for display."""
+        return get_ytdlp_version() or "Not installed"
 
     def _check_updates(self):
         """Check for yt-dlp updates."""

@@ -11,6 +11,7 @@ from PyQt6.QtGui import QDesktopServices
 from core.queue import DownloadQueue, QueueItem
 from ui.widgets.queue_item_widget import QueueItemWidget
 from ui.styles import COLORS
+from ui.common import populate_quality_combo
 from utils.config import config_manager
 from utils.helpers import open_folder
 from utils.i18n import tr
@@ -65,18 +66,8 @@ class MainWindow(QMainWindow):
         quality_layout.addWidget(quality_label)
 
         self.quality_combo = QComboBox()
-        self.quality_combo.addItem(tr("quality_best"), "best")
-        self.quality_combo.addItem(tr("quality_1080p"), "1080p")
-        self.quality_combo.addItem(tr("quality_720p"), "720p")
-        self.quality_combo.addItem(tr("quality_audio"), "audio")
-        
-        # Set current quality from config
-        quality_key = config_manager.get('default_quality', 'best')
-        for i in range(self.quality_combo.count()):
-            if self.quality_combo.itemData(i) == quality_key:
-                self.quality_combo.setCurrentIndex(i)
-                break
-        
+        populate_quality_combo(self.quality_combo, config_manager.get('default_quality', 'best'))
+
         quality_layout.addWidget(self.quality_combo)
         options_section.addLayout(quality_layout)
 
@@ -283,16 +274,7 @@ class MainWindow(QMainWindow):
         self.subscribe_btn.setText(tr("credits_subscribe"))
 
         # Update quality combo (preserve selection)
-        current_quality = self.quality_combo.currentData()
-        self.quality_combo.clear()
-        self.quality_combo.addItem(tr("quality_best"), "best")
-        self.quality_combo.addItem(tr("quality_1080p"), "1080p")
-        self.quality_combo.addItem(tr("quality_720p"), "720p")
-        self.quality_combo.addItem(tr("quality_audio"), "audio")
-        for i in range(self.quality_combo.count()):
-            if self.quality_combo.itemData(i) == current_quality:
-                self.quality_combo.setCurrentIndex(i)
-                break
+        populate_quality_combo(self.quality_combo, self.quality_combo.currentData())
 
     def _on_open_folder_clicked(self):
         """Handle open folder button click."""

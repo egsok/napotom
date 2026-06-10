@@ -81,23 +81,27 @@ def _cleanup_stale_override() -> None:
             return
 
         # --- Compare as tuples of ints (e.g. (2025, 3, 31)) ---
-        def _ver_tuple(v: str) -> tuple:
-            return tuple(int(x) for x in v.split('.'))
+        # Local import: core.updater pulls in PyQt6, keep it out of the
+        # minimal pre-override import surface at module top
+        from core.updater import parse_version
 
-        try:
-            if _ver_tuple(bundled_version) >= _ver_tuple(override_version):
-                logger.info(
-                    "Bundled yt-dlp %s >= override %s — removing stale override dir",
-                    bundled_version, override_version,
-                )
-                shutil.rmtree(override_dir, ignore_errors=True)
-            else:
-                logger.info(
-                    "Override yt-dlp %s is newer than bundled %s — keeping override",
-                    override_version, bundled_version,
-                )
-        except (ValueError, TypeError):
+        bundled_t = parse_version(bundled_version)
+        override_t = parse_version(override_version)
+        if bundled_t is None or override_t is None:
             logger.warning("Version comparison failed — leaving override in place")
+            return
+
+        if bundled_t >= override_t:
+            logger.info(
+                "Bundled yt-dlp %s >= override %s — removing stale override dir",
+                bundled_version, override_version,
+            )
+            shutil.rmtree(override_dir, ignore_errors=True)
+        else:
+            logger.info(
+                "Override yt-dlp %s is newer than bundled %s — keeping override",
+                override_version, bundled_version,
+            )
 
     except Exception:
         # Never block startup
