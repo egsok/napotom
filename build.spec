@@ -24,6 +24,9 @@ a = Analysis(
     datas=[
         ('assets', 'assets'),
         (jsc_vendor_dir, os.path.join('yt_dlp', 'extractor', 'youtube', 'jsc', '_builtin', 'vendor')),
+        # Bundled yt-dlp version metadata for stale-override cleanup.
+        # Must be a neutral dir (NOT yt_dlp/) so it doesn't shadow the archived package.
+        (os.path.join(yt_dlp_dir, 'version.py'), '_bundled_meta'),
     ],
     hiddenimports=[
         'yt_dlp',

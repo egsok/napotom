@@ -236,6 +236,7 @@ class Updater(QObject):
     already_up_to_date = pyqtSignal(str)  # current version
     check_failed = pyqtSignal(str)  # error message
     update_result = pyqtSignal(bool, str)  # success, message
+    check_skipped = pyqtSignal()  # update already installed, pending restart
 
     def __init__(self):
         super().__init__()
@@ -272,8 +273,9 @@ class Updater(QObject):
     def check_for_updates(self):
         """Check for available updates."""
         if not self.should_check_for_updates():
-            return  # Skip check if update pending restart
-        
+            self.check_skipped.emit()  # Update pending restart
+            return
+
         checker = UpdateChecker()
         checker.signals.version_checked.connect(self._on_version_checked)
         self.thread_pool.start(checker)
@@ -304,4 +306,8 @@ class Updater(QObject):
 
     def _on_update_complete(self, success: bool, message: str):
         """Handle update result."""
+        if success:
+            # Single owner of the pending-restart flag: set it here so updates
+            # started from any place (startup dialog, Settings) record it
+            self.mark_update_complete()
         self.update_result.emit(success, message)

@@ -35,6 +35,7 @@ class SettingsDialog(QDialog):
         self._updater.already_up_to_date.connect(self._on_already_up_to_date)
         self._updater.check_failed.connect(self._on_check_failed)
         self._updater.update_result.connect(self._on_update_result)
+        self._updater.check_skipped.connect(self._on_check_skipped)
 
         self._setup_ui()
         self._load_settings()
@@ -489,6 +490,14 @@ class SettingsDialog(QDialog):
         self.check_updates_btn.setEnabled(True)
         self.check_updates_btn.setText(tr("check_now_btn"))
         QMessageBox.information(self, tr("up_to_date_title"), tr("up_to_date_message", version=version))
+
+    def _on_check_skipped(self):
+        """Handle check skipped signal (update already installed, pending restart)."""
+        self.check_updates_btn.setEnabled(True)
+        self.check_updates_btn.setText(tr("check_now_btn"))
+        QMessageBox.information(
+            self, tr("update_complete_title"), tr("update_pending_restart_message")
+        )
 
     def _on_check_failed(self, error: str):
         """Handle check failed signal."""
