@@ -9,7 +9,7 @@ from typing import Optional, Callable, List
 from pathlib import Path
 
 import yt_dlp
-from yt_dlp.utils import DownloadError, ExtractorError
+from yt_dlp.utils import DownloadError, ExtractorError, DownloadCancelled
 
 from utils.config import config_manager
 
@@ -228,6 +228,8 @@ class Downloader:
         output_path: str,
         quality: str = "best",
         progress_callback: Optional[Callable[[int, float, str], None]] = None,
+        cancel_check: Optional[Callable[[], bool]] = None,
+        info_callback: Optional[Callable[[VideoInfo], None]] = None,
     ) -> str:
         """
         Download video.
@@ -237,6 +239,10 @@ class Downloader:
             output_path: Directory to save to
             quality: Quality preset key
             progress_callback: Callback(percent, speed_mbps, status)
+            cancel_check: Returns True when the download should be aborted;
+                raises DownloadCancelled out of this method
+            info_callback: Called once with VideoInfo as soon as extraction
+                completes (before the actual download starts)
 
         Returns:
             Path to downloaded file
@@ -259,9 +265,27 @@ class Downloader:
 
         downloaded_file = None
         last_logged_milestone = 0
+        info_emitted = False
 
         def progress_hook(d):
-            nonlocal downloaded_file, last_logged_milestone
+            nonlocal downloaded_file, last_logged_milestone, info_emitted
+
+            if cancel_check and cancel_check():
+                raise DownloadCancelled('Cancelled by user')
+
+            # First hook fires right after extraction — hooks run separately
+            # for video and audio streams, so emit info only once
+            if info_callback and not info_emitted:
+                info_emitted = True
+                info = d.get('info_dict') or {}
+                info_callback(VideoInfo(
+                    url=url,
+                    title=info.get('title', 'Unknown'),
+                    duration=info.get('duration', 0) or 0,
+                    thumbnail=info.get('thumbnail'),
+                    uploader=info.get('uploader'),
+                    extractor=info.get('extractor', 'unknown'),
+                ))
 
             if d['status'] == 'downloading':
                 total = d.get('total_bytes') or d.get('total_bytes_estimate') or 0
@@ -288,15 +312,32 @@ class Downloader:
                 logger.debug('Download progress: 100%% for %s', url[:50])
 
         opts['progress_hooks'] = [progress_hook]
+
+        if cancel_check:
+            # match_filter runs after extraction, before the download starts —
+            # covers the cancellation window during the extraction phase,
+            # where progress hooks are not yet called
+            def cancel_filter(info_dict, *, incomplete=False):
+                if cancel_check():
+                    raise DownloadCancelled('Cancelled by user')
+                return None
+
+            opts['match_filter'] = cancel_filter
+
         logger.info('Starting download: %s (quality: %s)', url[:80], quality)
 
         with yt_dlp.YoutubeDL(opts) as ydl:
             try:
+                if cancel_check and cancel_check():
+                    raise DownloadCancelled('Cancelled by user')
                 ydl.download([url])
                 if progress_callback:
                     progress_callback(100, 0, 'completed')
                 logger.info('Download completed: %s', downloaded_file or output_path)
                 return downloaded_file or output_path
+            except DownloadCancelled:
+                logger.info('Download cancelled: %s', url[:50])
+                raise
             except DownloadError as e:
                 logger.error('Download error for %s: %s', url[:50], e)
                 raise DownloaderError(self._translate_error(e))

@@ -7,6 +7,7 @@ from typing import Optional, List
 from uuid import uuid4
 
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
+from yt_dlp.utils import DownloadCancelled
 
 from .downloader import Downloader, VideoInfo, DownloaderError
 from utils.notifications import notification_manager
@@ -45,6 +46,7 @@ class WorkerSignals(QObject):
     finished = pyqtSignal(str, str)  # item_id, file_path
     error = pyqtSignal(str, str)  # item_id, error_message
     info_ready = pyqtSignal(str, object)  # item_id, VideoInfo
+    cancelled = pyqtSignal(str)  # item_id
 
 
 class DownloadWorker(QRunnable):
@@ -65,36 +67,37 @@ class DownloadWorker(QRunnable):
     def run(self):
         """Execute download in background thread."""
         if self._cancelled:
+            self.signals.cancelled.emit(self.item.id)
             return
 
         logger.info('[%s] Worker started for: %s', self.item.id, self.item.url[:50])
 
         try:
-            # First get video info if not available
-            if not self.item.info:
-                info = self.downloader.get_info(self.item.url)
-                self.signals.info_ready.emit(self.item.id, info)
-                self.item.info = info
-                logger.info('[%s] Video info extracted: %s', self.item.id, info.title[:50])
-
-            if self._cancelled:
-                return
-
-            # Download with progress callback
             def on_progress(percent: int, speed: float, status: str):
                 if not self._cancelled:
                     self.signals.progress.emit(self.item.id, percent, speed, status)
+
+            def on_info(info: VideoInfo):
+                logger.info('[%s] Video info extracted: %s', self.item.id, info.title[:50])
+                self.signals.info_ready.emit(self.item.id, info)
 
             file_path = self.downloader.download(
                 url=self.item.url,
                 output_path=self.item.output_path,
                 quality=self.item.quality,
                 progress_callback=on_progress,
+                cancel_check=lambda: self._cancelled,
+                info_callback=on_info,
             )
 
-            if not self._cancelled:
+            if self._cancelled:
+                self.signals.cancelled.emit(self.item.id)
+            else:
                 self.signals.finished.emit(self.item.id, file_path)
 
+        except DownloadCancelled:
+            logger.info('[%s] Download cancelled by user', self.item.id)
+            self.signals.cancelled.emit(self.item.id)
         except DownloaderError as e:
             logger.error('[%s] Download failed: %s', self.item.id, e)
             self.signals.error.emit(self.item.id, str(e))
@@ -211,6 +214,7 @@ class DownloadQueue(QObject):
         worker.signals.finished.connect(self._on_finished)
         worker.signals.error.connect(self._on_error)
         worker.signals.info_ready.connect(self._on_info_ready)
+        worker.signals.cancelled.connect(self._on_cancelled)
 
         self.thread_pool.start(worker)
 
@@ -251,6 +255,12 @@ class DownloadQueue(QObject):
                 logger.error('[%s] Download failed: %s', item_id, error)
                 break
 
+        self._active_workers.pop(item_id, None)
+        self._process_next()
+
+    def _on_cancelled(self, item_id: str):
+        """Handle download cancellation: free the slot and continue the queue."""
+        logger.info('[%s] Download cancelled, slot released', item_id)
         self._active_workers.pop(item_id, None)
         self._process_next()
 
