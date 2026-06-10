@@ -10,10 +10,29 @@ from pathlib import Path
 
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError, DownloadCancelled
+from yt_dlp.postprocessor.common import PostProcessor
 
 from utils.config import config_manager
 
 logger = logging.getLogger(__name__)
+
+
+class FinalPathCollector(PostProcessor):
+    """Captures the final file path at the 'after_move' stage.
+
+    Progress hooks report per-stream intermediate files; only at
+    'after_move' is info['filepath'] final for all cases (single file,
+    video+audio merge, mp3 extraction).
+    """
+
+    filepath = None
+
+    def run(self, info):
+        try:
+            self.filepath = info.get('filepath')
+        except Exception:
+            pass  # Never abort the download from a collector
+        return [], info
 
 
 # Error patterns ordered by specificity (most specific first)
@@ -327,14 +346,17 @@ class Downloader:
         logger.info('Starting download: %s (quality: %s)', url[:80], quality)
 
         with yt_dlp.YoutubeDL(opts) as ydl:
+            collector = FinalPathCollector(ydl)
+            ydl.add_post_processor(collector, when='after_move')
             try:
                 if cancel_check and cancel_check():
                     raise DownloadCancelled('Cancelled by user')
                 ydl.download([url])
                 if progress_callback:
                     progress_callback(100, 0, 'completed')
-                logger.info('Download completed: %s', downloaded_file or output_path)
-                return downloaded_file or output_path
+                final_path = collector.filepath or downloaded_file or output_path
+                logger.info('Download completed: %s', final_path)
+                return final_path
             except DownloadCancelled:
                 logger.info('Download cancelled: %s', url[:50])
                 raise
