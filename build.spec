@@ -42,7 +42,7 @@ a = Analysis(
         'yt_dlp.extractor.youtube.jsc._builtin.ejs',
         'yt_dlp.extractor.youtube.jsc._builtin.node',
         'yt_dlp.extractor.youtube.jsc._builtin.quickjs',
-        'win10toast',
+        'winotify',
         'ui',
         'ui.main_window',
         'ui.settings_dialog',

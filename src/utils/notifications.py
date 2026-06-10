@@ -67,9 +67,15 @@ class NotificationManager:
                 sound = 'default' if config_manager.get('sound_enabled', True) else None
                 pync.notify(message, title=title, sound=sound)
             elif sys.platform == 'win32':
-                from win10toast import ToastNotifier
-                toaster = ToastNotifier()
-                toaster.show_toast(title, message, duration=5, threaded=True)
+                from winotify import Notification
+                icon_path = get_assets_path() / 'icon.ico'
+                Notification(
+                    app_id="Video Downloader 2",
+                    title=title,
+                    msg=message,
+                    icon=str(icon_path) if icon_path.exists() else "",
+                    duration="short",
+                ).show()
         except ImportError:
             pass
         except Exception:

@@ -1,5 +1,5 @@
 PyQt6>=6.11.0
 yt-dlp>=2026.03.17
 pyinstaller>=6.19.0
-win10toast>=0.9; sys_platform == "win32"
+winotify>=1.1.0; sys_platform == "win32"
 pync>=2.0.0; sys_platform == "darwin"
