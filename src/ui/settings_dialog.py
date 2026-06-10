@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
     QLineEdit, QPushButton, QComboBox, QCheckBox, QLabel,
     QFileDialog, QGroupBox, QMessageBox, QSpinBox, QFrame
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSlot
 
 from ui.styles import COLORS
 from utils.config import config_manager
@@ -17,6 +17,29 @@ from utils.logger import get_log_file_path
 from utils.i18n import tr, get_current_language, set_language
 from core.updater import Updater
 from yt_dlp.cookies import extract_cookies_from_browser
+
+
+class CookieTestSignals(QObject):
+    """Signals for cookie test worker."""
+    success = pyqtSignal(int)  # cookie count
+    error = pyqtSignal(str)  # error message
+
+
+class CookieTestWorker(QRunnable):
+    """Background worker for testing browser cookie extraction."""
+
+    def __init__(self, browser_key: str):
+        super().__init__()
+        self.browser_key = browser_key
+        self.signals = CookieTestSignals()
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            jar = extract_cookies_from_browser(self.browser_key)
+            self.signals.success.emit(len(list(jar)))
+        except Exception as e:
+            self.signals.error.emit(str(e))
 
 
 class SettingsDialog(QDialog):
@@ -611,7 +634,7 @@ class SettingsDialog(QDialog):
         self.cookie_status.setStyleSheet(f"color: {COLORS['text_secondary']};")
 
     def _test_cookie_import(self):
-        """Test cookie import from selected browser."""
+        """Test cookie import from selected browser (in a background thread)."""
         browser_key = self.browser_combo.currentData()
         if not browser_key:
             self.cookie_status.setText(tr("select_browser_first"))
@@ -622,24 +645,34 @@ class SettingsDialog(QDialog):
         self.cookie_status.setStyleSheet(f"color: {COLORS['text_secondary']};")
         self.test_cookies_btn.setEnabled(False)
 
-        try:
-            jar = extract_cookies_from_browser(browser_key)
-            count = len(list(jar))
-            if count > 0:
-                self.cookie_status.setText(tr("cookie_import_success", count=count, browser=browser_key.title()))
-                self.cookie_status.setStyleSheet(f"color: {COLORS['success']};")
-            else:
-                self.cookie_status.setText(tr("cookie_import_empty", browser=browser_key.title()))
-                self.cookie_status.setStyleSheet(f"color: {COLORS['warning']};")
-        except Exception as e:
-            error_msg = str(e)
-            if 'DPAPI' in error_msg or 'decrypt' in error_msg.lower():
-                self.cookie_status.setText(tr("cookie_import_dpapi_error"))
-            elif 'Permission' in error_msg or 'access' in error_msg.lower():
-                self.cookie_status.setText(tr("cookie_import_permission_error", browser=browser_key.title()))
-            else:
-                self.cookie_status.setText(tr("cookie_import_error", error=error_msg[:100]))
-            self.cookie_status.setStyleSheet(f"color: {COLORS['error']};")
-        finally:
-            self.test_cookies_btn.setEnabled(True)
+        worker = CookieTestWorker(browser_key)
+        worker.signals.success.connect(
+            lambda count, b=browser_key: self._on_cookie_test_success(count, b)
+        )
+        worker.signals.error.connect(
+            lambda error, b=browser_key: self._on_cookie_test_error(error, b)
+        )
+        self._cookie_test_worker = worker  # Keep alive until signals delivered
+        QThreadPool.globalInstance().start(worker)
+
+    def _on_cookie_test_success(self, count: int, browser_key: str):
+        """Handle cookie test result."""
+        self.test_cookies_btn.setEnabled(True)
+        if count > 0:
+            self.cookie_status.setText(tr("cookie_import_success", count=count, browser=browser_key.title()))
+            self.cookie_status.setStyleSheet(f"color: {COLORS['success']};")
+        else:
+            self.cookie_status.setText(tr("cookie_import_empty", browser=browser_key.title()))
+            self.cookie_status.setStyleSheet(f"color: {COLORS['warning']};")
+
+    def _on_cookie_test_error(self, error_msg: str, browser_key: str):
+        """Handle cookie test failure."""
+        self.test_cookies_btn.setEnabled(True)
+        if 'DPAPI' in error_msg or 'decrypt' in error_msg.lower():
+            self.cookie_status.setText(tr("cookie_import_dpapi_error"))
+        elif 'Permission' in error_msg or 'access' in error_msg.lower():
+            self.cookie_status.setText(tr("cookie_import_permission_error", browser=browser_key.title()))
+        else:
+            self.cookie_status.setText(tr("cookie_import_error", error=error_msg[:100]))
+        self.cookie_status.setStyleSheet(f"color: {COLORS['error']};")
 
