@@ -37,3 +37,13 @@ vendor/
 coverage/
 .cache/
 tmp/
+
+# ── Local artifacts (downloads, builds, logs) ──
+*.mp4
+*.m4a
+*.mp3
+*.zip
+output/
+logs_dir/
+ci_log.txt
+.bg-shell/
