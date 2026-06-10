@@ -101,6 +101,7 @@ TRANSLATIONS = {
         'update_check_failed_title': 'Update Check Failed',
         'update_check_failed_message': 'Could not check for updates:\n{error}',
         'update_complete_title': 'Update Complete',
+        'update_complete_message': 'yt-dlp has been updated successfully.\n\nPlease restart the application to use the new version.',
         'update_failed_title': 'Update Failed',
         'update_pending_restart_message': 'The yt-dlp update is already installed.\n\nRestart the application to apply it.',
 
@@ -224,6 +225,7 @@ TRANSLATIONS = {
         'update_check_failed_title': 'Ошибка проверки обновлений',
         'update_check_failed_message': 'Не удалось проверить обновления:\n{error}',
         'update_complete_title': 'Обновление завершено',
+        'update_complete_message': 'yt-dlp успешно обновлён.\n\nПерезапустите приложение, чтобы использовать новую версию.',
         'update_failed_title': 'Ошибка обновления',
         'update_pending_restart_message': 'Обновление yt-dlp уже установлено.\n\nПерезапустите приложение, чтобы применить его.',
 

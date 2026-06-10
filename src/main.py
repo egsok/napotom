@@ -142,6 +142,7 @@ from ui.styles import STYLESHEET  # noqa: E402
 from ui.main_window import MainWindow  # noqa: E402  (triggers yt_dlp import)
 from core.updater import Updater  # noqa: E402
 from utils.config import config_manager  # noqa: E402
+from utils.i18n import tr  # noqa: E402
 
 
 def get_asset_path(filename: str) -> str:
@@ -207,8 +208,8 @@ def main():
 
             reply = QMessageBox.question(
                 window,
-                "Update Available",
-                f"yt-dlp {latest} is available (current: {current}).\n\nUpdate now?",
+                tr("update_available_title"),
+                tr("update_available_message", latest=latest, current=current),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if reply == QMessageBox.StandardButton.Yes:
@@ -222,12 +223,11 @@ def main():
                 # Pending-restart flag is set inside Updater._on_update_complete
                 QMessageBox.information(
                     window,
-                    "Update Complete",
-                    "yt-dlp has been updated successfully.\n\n"
-                    "Please restart the application to use the new version."
+                    tr("update_complete_title"),
+                    tr("update_complete_message")
                 )
             else:
-                QMessageBox.warning(window, "Update Failed", message)
+                QMessageBox.warning(window, tr("update_failed_title"), message)
 
         updater.update_available.connect(on_update_available)
         updater.update_result.connect(on_update_result)
