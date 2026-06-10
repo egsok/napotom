@@ -63,45 +63,11 @@ class SettingsDialog(QDialog):
         self._setup_ui()
         self._load_settings()
 
-    def _create_group_style(self):
-        """Return common group box stylesheet."""
-        return f"""
-            QGroupBox {{
-                font-weight: bold;
-                border: 1px solid {COLORS['border']};
-                border-radius: 6px;
-                margin-top: 8px;
-                padding-top: 4px;
-            }}
-            QGroupBox::title {{
-                subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 4px;
-                color: {COLORS['text_primary']};
-            }}
-        """
-
-    def _create_button_style(self, hover_color='accent'):
-        """Return common button stylesheet."""
-        return f"""
-            QPushButton {{ 
-                background-color: transparent; 
-                border: 1px solid {COLORS['border']}; 
-                padding: 6px 12px; 
-            }}
-            QPushButton:hover {{ 
-                border-color: {COLORS[hover_color]}; 
-            }}
-        """
-
     def _setup_ui(self):
         """Setup dialog UI."""
         layout = QVBoxLayout(self)
         layout.setSpacing(8)
         layout.setContentsMargins(16, 16, 16, 16)
-
-        group_style = self._create_group_style()
-        btn_style = self._create_button_style()
 
         # === ROW 1: Language (inline, compact) + Preferences ===
         row1 = QHBoxLayout()
@@ -109,7 +75,6 @@ class SettingsDialog(QDialog):
 
         # Language - compact inline
         lang_group = QGroupBox(tr("language_section"))
-        lang_group.setStyleSheet(group_style)
         lang_layout = QHBoxLayout(lang_group)
         lang_layout.setContentsMargins(12, 12, 12, 8)
 
@@ -128,7 +93,6 @@ class SettingsDialog(QDialog):
 
         # Preferences - compact checkboxes in a row
         prefs_group = QGroupBox(tr("preferences_section"))
-        prefs_group.setStyleSheet(group_style)
         prefs_layout = QHBoxLayout(prefs_group)
         prefs_layout.setContentsMargins(12, 12, 12, 8)
         prefs_layout.setSpacing(16)
@@ -146,7 +110,6 @@ class SettingsDialog(QDialog):
 
         # === ROW 2: Download Path (full width) ===
         path_group = QGroupBox(tr("download_path_label").rstrip(':'))
-        path_group.setStyleSheet(group_style)
         path_layout = QHBoxLayout(path_group)
         path_layout.setContentsMargins(12, 12, 12, 8)
 
@@ -155,7 +118,7 @@ class SettingsDialog(QDialog):
         path_layout.addWidget(self.path_input, 1)
 
         self.browse_btn = QPushButton(tr("browse_btn"))
-        self.browse_btn.setStyleSheet(btn_style)
+        self.browse_btn.setObjectName("secondaryButton")
         self.browse_btn.clicked.connect(self._browse_folder)
         path_layout.addWidget(self.browse_btn)
 
@@ -167,7 +130,6 @@ class SettingsDialog(QDialog):
 
         # Quality
         quality_group = QGroupBox(tr("default_quality_label").rstrip(':'))
-        quality_group.setStyleSheet(group_style)
         quality_layout = QHBoxLayout(quality_group)
         quality_layout.setContentsMargins(12, 12, 12, 8)
 
@@ -183,7 +145,6 @@ class SettingsDialog(QDialog):
 
         # Parallel downloads
         parallel_group = QGroupBox(tr("parallel_downloads_label").rstrip(':'))
-        parallel_group.setStyleSheet(group_style)
         parallel_layout = QHBoxLayout(parallel_group)
         parallel_layout.setContentsMargins(12, 12, 12, 8)
 
@@ -197,7 +158,6 @@ class SettingsDialog(QDialog):
 
         # yt-dlp version
         ytdlp_group = QGroupBox(tr("ytdlp_section"))
-        ytdlp_group.setStyleSheet(group_style)
         ytdlp_layout = QHBoxLayout(ytdlp_group)
         ytdlp_layout.setContentsMargins(12, 12, 12, 8)
 
@@ -210,7 +170,7 @@ class SettingsDialog(QDialog):
         ytdlp_layout.addWidget(self.version_label)
 
         self.check_updates_btn = QPushButton(tr("check_now_btn"))
-        self.check_updates_btn.setStyleSheet(btn_style)
+        self.check_updates_btn.setObjectName("secondaryButton")
         self.check_updates_btn.clicked.connect(self._check_updates)
         ytdlp_layout.addWidget(self.check_updates_btn)
 
@@ -218,7 +178,6 @@ class SettingsDialog(QDialog):
 
         # Logging
         log_group = QGroupBox(tr("logging_section"))
-        log_group.setStyleSheet(group_style)
         log_layout = QHBoxLayout(log_group)
         log_layout.setContentsMargins(12, 12, 12, 8)
 
@@ -230,7 +189,7 @@ class SettingsDialog(QDialog):
         log_layout.addWidget(self.log_path_value)
 
         self.open_log_folder_btn = QPushButton(tr("open_folder_btn"))
-        self.open_log_folder_btn.setStyleSheet(btn_style)
+        self.open_log_folder_btn.setObjectName("secondaryButton")
         self.open_log_folder_btn.clicked.connect(self._open_log_folder)
         log_layout.addWidget(self.open_log_folder_btn)
 
@@ -239,7 +198,6 @@ class SettingsDialog(QDialog):
 
         # === ROW 4: Cookies section ===
         cookie_group = QGroupBox(tr("cookies_section"))
-        cookie_group.setStyleSheet(group_style)
         cookie_layout = QVBoxLayout(cookie_group)
         cookie_layout.setContentsMargins(12, 12, 12, 8)
         cookie_layout.setSpacing(8)
@@ -264,12 +222,12 @@ class SettingsDialog(QDialog):
         file_row.addWidget(self.cookie_file_input, 1)
 
         self.browse_cookies_btn = QPushButton(tr("browse_btn"))
-        self.browse_cookies_btn.setStyleSheet(btn_style)
+        self.browse_cookies_btn.setObjectName("secondaryButton")
         self.browse_cookies_btn.clicked.connect(self._browse_cookie_file)
         file_row.addWidget(self.browse_cookies_btn)
 
         self.clear_cookies_btn = QPushButton(tr("clear_btn"))
-        self.clear_cookies_btn.setStyleSheet(self._create_button_style('error'))
+        self.clear_cookies_btn.setObjectName("dangerButton")
         self.clear_cookies_btn.clicked.connect(self._clear_cookie_file)
         file_row.addWidget(self.clear_cookies_btn)
 
@@ -313,7 +271,7 @@ class SettingsDialog(QDialog):
         browser_row.addWidget(self.browser_combo)
 
         self.test_cookies_btn = QPushButton(tr("test_import_btn"))
-        self.test_cookies_btn.setStyleSheet(btn_style)
+        self.test_cookies_btn.setObjectName("secondaryButton")
         self.test_cookies_btn.clicked.connect(self._test_cookie_import)
         browser_row.addWidget(self.test_cookies_btn)
 
@@ -336,10 +294,7 @@ class SettingsDialog(QDialog):
         button_layout.addStretch()
 
         self.cancel_btn = QPushButton(tr("cancel_btn"))
-        self.cancel_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 8px 20px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent']}; }}
-        """)
+        self.cancel_btn.setObjectName("secondaryButton")
         self.cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_btn)
 
@@ -597,10 +552,7 @@ class SettingsDialog(QDialog):
         layout.addWidget(note)
         
         close_btn = QPushButton(tr("close_btn"))
-        close_btn.setStyleSheet(f"""
-            QPushButton {{ background-color: transparent; border: 1px solid {COLORS['border']}; padding: 8px 20px; }}
-            QPushButton:hover {{ border-color: {COLORS['accent']}; }}
-        """)
+        close_btn.setObjectName("secondaryButton")
         close_btn.clicked.connect(dialog.accept)
         layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignRight)
         

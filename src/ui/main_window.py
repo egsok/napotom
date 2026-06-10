@@ -93,16 +93,7 @@ class MainWindow(QMainWindow):
         folder_layout.addWidget(self.folder_label)
 
         self.folder_btn = QPushButton(tr("change_btn"))
-        self.folder_btn.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border: 1px solid """ + COLORS['border'] + """;
-                padding: 6px 12px;
-            }
-            QPushButton:hover {
-                border-color: """ + COLORS['accent'] + """;
-            }
-        """)
+        self.folder_btn.setObjectName("secondaryButton")
         self.folder_btn.clicked.connect(self._on_folder_clicked)
         folder_layout.addWidget(self.folder_btn)
 
@@ -141,30 +132,12 @@ class MainWindow(QMainWindow):
         bottom_bar.addStretch()
 
         self.open_folder_btn = QPushButton(tr("open_folder_btn"))
-        self.open_folder_btn.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border: 1px solid """ + COLORS['border'] + """;
-                padding: 8px 16px;
-            }
-            QPushButton:hover {
-                border-color: """ + COLORS['accent'] + """;
-            }
-        """)
+        self.open_folder_btn.setObjectName("secondaryButton")
         self.open_folder_btn.clicked.connect(self._on_open_folder_clicked)
         bottom_bar.addWidget(self.open_folder_btn)
 
         self.settings_btn = QPushButton(tr("settings_btn"))
-        self.settings_btn.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border: 1px solid """ + COLORS['border'] + """;
-                padding: 8px 16px;
-            }
-            QPushButton:hover {
-                border-color: """ + COLORS['accent'] + """;
-            }
-        """)
+        self.settings_btn.setObjectName("secondaryButton")
         bottom_bar.addWidget(self.settings_btn)
 
         layout.addLayout(bottom_bar)

@@ -67,6 +67,41 @@ QPushButton#iconButton {{
     max-width: 40px;
 }}
 
+QPushButton#secondaryButton {{
+    background-color: transparent;
+    border: 1px solid {COLORS["border"]};
+    padding: 6px 12px;
+}}
+
+QPushButton#secondaryButton:hover {{
+    border-color: {COLORS["accent"]};
+}}
+
+QPushButton#dangerButton {{
+    background-color: transparent;
+    border: 1px solid {COLORS["border"]};
+    padding: 6px 12px;
+}}
+
+QPushButton#dangerButton:hover {{
+    border-color: {COLORS["error"]};
+}}
+
+QGroupBox {{
+    font-weight: bold;
+    border: 1px solid {COLORS["border"]};
+    border-radius: 6px;
+    margin-top: 8px;
+    padding-top: 4px;
+}}
+
+QGroupBox::title {{
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 4px;
+    color: {COLORS["text_primary"]};
+}}
+
 QLineEdit {{
     background-color: {COLORS["bg_input"]};
     border: 2px solid {COLORS["border"]};
