@@ -176,6 +176,7 @@ class Downloader:
             'fragment_retries': 10,
             'remote_components': ['ejs:github'],
             'concurrent_fragment_downloads': 4,
+            'legacy_server_connect': True,  # Fix SSL issues on macOS
             # Enable all JS runtimes for YouTube POT/JSC challenge solving
             # Default yt-dlp only tries Deno — we want any available runtime
             'js_runtimes': {
