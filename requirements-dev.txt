@@ -1,2 +1,3 @@
 -r requirements.txt
 pytest>=8.0
+pillow>=10.0  # icon generation (scripts/generate_brand_icon.py, scripts/rebuild_icon.py)

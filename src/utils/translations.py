@@ -9,7 +9,7 @@ TRANSLATIONS = {
         'save_to_label': 'Save to:',
         'change_btn': 'Change',
         'queue_title': 'QUEUE',
-        'empty_queue': 'Paste a video URL and click + to start downloading',
+        'empty_queue': 'Blank sheet so far — paste a link above and hit +',
         'open_folder_btn': 'Open Folder',
         'settings_btn': 'Settings',
         'invalid_url_title': 'Invalid URL',
@@ -118,6 +118,8 @@ TRANSLATIONS = {
         'status_cancelled': 'Cancelled',
         'retry_tooltip': 'Retry download',
         'open_folder_tooltip': 'Open folder',
+        'item_retry': 'retry',
+        'item_folder': 'folder',
 
         # Credits
         'credits_text': 'Сделано ИИ 🤖 · проверено человеком',
@@ -133,7 +135,7 @@ TRANSLATIONS = {
         'save_to_label': 'Сохранить в:',
         'change_btn': 'Изменить',
         'queue_title': 'ОЧЕРЕДЬ',
-        'empty_queue': 'Вставьте URL видео и нажмите + для начала загрузки',
+        'empty_queue': 'Пока пусто — вставь ссылку сверху и нажми +',
         'open_folder_btn': 'Открыть папку',
         'settings_btn': 'Настройки',
         'invalid_url_title': 'Неверный URL',
@@ -242,6 +244,8 @@ TRANSLATIONS = {
         'status_cancelled': 'Отменено',
         'retry_tooltip': 'Повторить загрузку',
         'open_folder_tooltip': 'Открыть папку',
+        'item_retry': 'повторить',
+        'item_folder': 'папка',
 
         # Credits
         'credits_text': 'Сделано ИИ 🤖 · проверено человеком',

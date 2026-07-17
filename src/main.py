@@ -135,7 +135,7 @@ _cleanup_stale_override()
 _apply_ytdlp_override()
 
 from PyQt6.QtWidgets import QApplication, QMessageBox  # noqa: E402
-from PyQt6.QtGui import QIcon  # noqa: E402
+from PyQt6.QtGui import QFont, QFontDatabase, QIcon  # noqa: E402
 
 from utils.logger import setup_logging  # noqa: E402
 from ui.styles import STYLESHEET  # noqa: E402
@@ -154,6 +154,17 @@ def get_asset_path(filename: str) -> str:
         # Running in dev mode
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, 'assets', filename)
+
+
+def _load_brand_fonts():
+    """Register bundled brand fonts (Unbounded, IBM Plex) with Qt."""
+    fonts_dir = get_asset_path('fonts')
+    if not os.path.isdir(fonts_dir):
+        logging.getLogger(__name__).warning('Fonts dir missing: %s', fonts_dir)
+        return
+    for name in os.listdir(fonts_dir):
+        if name.lower().endswith('.ttf'):
+            QFontDatabase.addApplicationFont(os.path.join(fonts_dir, name))
 
 
 def _setup_bundled_path():
@@ -181,6 +192,10 @@ def main():
     atexit.register(graceful_exit)
 
     app = QApplication(sys.argv)
+    _load_brand_fonts()
+    body_font = QFont('IBM Plex Sans', 10)
+    body_font.setStyleHint(QFont.StyleHint.SansSerif)
+    app.setFont(body_font)
     app.setStyleSheet(STYLESHEET)
 
     # Set application icon (for taskbar and window title)

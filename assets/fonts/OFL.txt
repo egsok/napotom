@@ -1,0 +1,6 @@
+The fonts bundled in this directory are licensed under the SIL Open Font License, Version 1.1.
+
+- Unbounded — Copyright 2022 The Unbounded Project Authors (https://github.com/w-marco/unbounded)
+- IBM Plex Sans, IBM Plex Mono — Copyright IBM Corp. (https://github.com/IBM/plex)
+
+The full license text is available at: https://openfontlicense.org
