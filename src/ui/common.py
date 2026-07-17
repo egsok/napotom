@@ -1,6 +1,7 @@
 """Shared UI helpers and nnv brand widgets."""
 
 import random
+import sys
 
 from PyQt6.QtCore import Qt, QPointF, QRectF
 from PyQt6.QtGui import QColor, QFont, QImage, QPainter, QPen, QPixmap
@@ -8,6 +9,40 @@ from PyQt6.QtWidgets import QGraphicsDropShadowEffect, QWidget
 
 from ui.styles import COLORS, FONT_DISPLAY, FONT_MONO
 from utils.i18n import tr
+
+
+def apply_brand_titlebar(window: QWidget) -> None:
+    """Paint the native Windows title bar in wall ink (Windows 11 DWM API).
+
+    Falls back to plain dark mode on Windows 10; no-op elsewhere.
+    """
+    if sys.platform != 'win32':
+        return
+    import ctypes
+
+    def colorref(hex_color: str) -> int:
+        r, g, b = (int(hex_color[i:i + 2], 16) for i in (1, 3, 5))
+        return (b << 16) | (g << 8) | r
+
+    try:
+        hwnd = int(window.winId())
+        dwm = ctypes.windll.dwmapi
+        DWMWA_CAPTION_COLOR = 35
+        DWMWA_TEXT_COLOR = 36
+        caption = ctypes.c_uint(colorref(COLORS['bg_dark']))
+        text = ctypes.c_uint(colorref(COLORS['text_primary']))
+        if dwm.DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR,
+                                     ctypes.byref(caption), 4) != 0:
+            # Windows 10: no caption color — at least force dark title bar
+            DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+            dark = ctypes.c_int(1)
+            dwm.DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE,
+                                      ctypes.byref(dark), 4)
+        else:
+            dwm.DwmSetWindowAttribute(hwnd, DWMWA_TEXT_COLOR,
+                                      ctypes.byref(text), 4)
+    except Exception:
+        pass  # cosmetic only — never break startup over a title bar
 
 
 def populate_quality_combo(combo, selected_key=None):

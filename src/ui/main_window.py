@@ -12,8 +12,8 @@ from core.queue import DownloadQueue, QueueItem
 from ui.widgets.queue_item_widget import QueueItemWidget
 from ui.styles import COLORS
 from ui.common import (
-    KraftSheet, RegMark, display_font, ink_offset, mono_font,
-    populate_quality_combo,
+    KraftSheet, RegMark, apply_brand_titlebar, display_font, ink_offset,
+    mono_font, populate_quality_combo,
 )
 from utils.config import config_manager
 from utils.helpers import open_folder
@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
 
         self._setup_ui()
         self._connect_signals()
+        apply_brand_titlebar(self)
 
     def _setup_ui(self):
         """Setup main window UI."""

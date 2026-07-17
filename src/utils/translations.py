@@ -122,11 +122,11 @@ TRANSLATIONS = {
         'item_folder': 'folder',
 
         # Credits
-        'credits_text': 'Сделано ИИ 🤖 · проверено человеком',
-        'credits_subscribe': 'подписывайся → @neiroset_ne_vinovata',
+        'credits_text': 'Made by AI 🤖 · checked by a human',
+        'credits_subscribe': 'subscribe → @neiroset_ne_vinovata',
         'credits_url': 'https://t.me/+GpZ_G6I4yl1jZDcy',
     },
-    
+
     'ru': {
         # Main window
         'app_title': 'Napotom',

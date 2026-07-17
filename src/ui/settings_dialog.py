@@ -13,7 +13,9 @@ from PyQt6.QtCore import Qt, QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSl
 from PyQt6.QtGui import QFont
 
 from ui.styles import COLORS
-from ui.common import KraftSheet, mono_font, populate_quality_combo
+from ui.common import (
+    KraftSheet, apply_brand_titlebar, mono_font, populate_quality_combo,
+)
 from utils.config import config_manager
 from utils.logger import get_log_file_path
 from utils.i18n import tr, get_current_language, set_language
@@ -64,6 +66,7 @@ class SettingsDialog(QDialog):
 
         self._setup_ui()
         self._load_settings()
+        apply_brand_titlebar(self)
 
     def _setup_ui(self):
         """Setup dialog UI: settings printed on a kraft sheet pinned to the wall."""
@@ -501,6 +504,7 @@ class SettingsDialog(QDialog):
         dialog = QDialog(self)
         dialog.setWindowTitle(tr("cookie_help_title"))
         dialog.setMinimumWidth(500)
+        apply_brand_titlebar(dialog)
         
         layout = QVBoxLayout(dialog)
         layout.setSpacing(12)

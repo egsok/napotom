@@ -112,6 +112,7 @@ class QueueItemWidget(QWidget):
     def _set_stamp(self, on: bool):
         """Style the status label as the 'done' rubber stamp (violet + magenta dot)."""
         if on:
+            self.status_label.setFont(display_font(9, QFont.Weight.Bold))
             self.status_label.setTextFormat(Qt.TextFormat.RichText)
             self.status_label.setText(
                 f"{tr('status_done').upper()} <span style='color:{COLORS['accent']};'>·</span>"
@@ -122,6 +123,7 @@ class QueueItemWidget(QWidget):
                 "border-radius: 2px; padding: 1px 7px;"
             )
         else:
+            self.status_label.setFont(mono_font(10, QFont.Weight.DemiBold, 1.4))
             self.status_label.setTextFormat(Qt.TextFormat.PlainText)
             self.status_label.setStyleSheet(f"color: {COLORS['violet_ink']}; border: none;")
 
