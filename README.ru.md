@@ -12,7 +12,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-blue?style=for-the-badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-![Video Downloader 2](screenshots/main-window.png)
+![Napotom](screenshots/main-window.png)
 
 </div>
 
@@ -28,7 +28,7 @@ Napotom (бывший video-downloader2) — небольшое десктоп-�
 - 🔔 **Уведомления о завершении** со звуком
 - 🔄 **Автообновление yt-dlp** из Настроек
 - 🌐 **Двуязычный интерфейс** — английский и русский
-- 🎨 **Тёмная тема** с фиолетовым акцентом (`#9b59b6`)
+- 🎨 **Печать в две краски** — magenta + фиолет по чернильной стене и крафту, фирменный стиль [«Нейросеть не виновата»](https://t.me/+GpZ_G6I4yl1jZDcy)
 - 📦 **Встроенные ffmpeg и Node.js** (Windows) — дополнительная установка не требуется
 - 🍪 **Импорт cookies** для видео с возрастными ограничениями и только для участников
 

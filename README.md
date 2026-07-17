@@ -12,7 +12,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-blue?style=for-the-badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-![Video Downloader 2](screenshots/main-window.png)
+![Napotom](screenshots/main-window.png)
 
 </div>
 
@@ -28,7 +28,7 @@ Napotom (formerly video-downloader2) is a small desktop app for grabbing video a
 - 🔔 **Completion notifications** with sound
 - 🔄 **yt-dlp auto-update** from Settings
 - 🌐 **Bilingual interface** — English & Russian
-- 🎨 **Dark theme** with a purple accent (`#9b59b6`)
+- 🎨 **Two-ink print design** — magenta + violet inks on an ink-wall and kraft paper, the [«Нейросеть не виновата»](https://t.me/+GpZ_G6I4yl1jZDcy) brand look
 - 📦 **Bundled ffmpeg and Node.js** (Windows) — no extra installs needed
 - 🍪 **Cookie import** for age-restricted and members-only videos
 
