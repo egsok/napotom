@@ -1,12 +1,14 @@
 <div align="center">
 
-# 🎬 Video Downloader 2
+# 🎬 Napotom
 
 **A simple, beautiful desktop video downloader for YouTube, VK, and 1000+ sites.**
 
+*Napotom is Russian for "for later" — because that's where all those videos go.*
+
 **English** · [Русский](README.ru.md)
 
-[![Latest Release](https://img.shields.io/github/v/release/egsok/video-downloader2?style=for-the-badge)](../../releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/egsok/napotom?style=for-the-badge)](../../releases/latest)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-blue?style=for-the-badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
@@ -16,7 +18,7 @@
 
 ---
 
-Video Downloader 2 is a small desktop app for grabbing video and audio from YouTube, VK, and 1000+ other sites. It's a friendly front-end for [yt-dlp](https://github.com/yt-dlp/yt-dlp) with `ffmpeg` and `Node.js` bundled in (on Windows), so there's nothing else to install — paste a link and download.
+Napotom (formerly video-downloader2) is a small desktop app for grabbing video and audio from YouTube, VK, and 1000+ other sites. It's a friendly front-end for [yt-dlp](https://github.com/yt-dlp/yt-dlp) with `ffmpeg` and `Node.js` bundled in (on Windows), so there's nothing else to install — paste a link and download.
 
 ## ✨ Features
 
@@ -56,7 +58,7 @@ You can try downloading without cookies — for plenty of videos it just works. 
 3. In the **same tab**, go to `https://www.youtube.com/robots.txt`.
 4. Click the extension icon → **export cookies** → save as `cookies.txt`.
 5. **Close the private window** (so the cookies don't rotate).
-6. In Video Downloader 2, open **Settings → Cookies → Browse…** and select the saved file.
+6. In Napotom, open **Settings → Cookies → Browse…** and select the saved file.
 
 ![Settings — Cookies](screenshots/settings-cookies.png)
 
@@ -99,8 +101,9 @@ Built by [Egor Sokolov](https://egorsokolov.ru/) — 10 years in product (Sberba
 
 Other open-source experiments:
 
-- [Handy-custom](https://github.com/egsok/Handy-custom) — personal Russian-optimized fork of Handy, an offline speech-to-text app.
+- [klava-nevinovata](https://github.com/egsok/klava-nevinovata) — personal Russian-optimized fork of Handy, an offline speech-to-text app.
 - [plan-tango](https://github.com/egsok/plan-tango) — a Claude ↔ Codex plan-review loop for Claude Code.
+- [press-1](https://github.com/egsok/press-1) — answer Claude Code's permission prompts with a single keypress, from any window.
 
 ## License
 

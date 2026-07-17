@@ -1,12 +1,14 @@
 <div align="center">
 
-# 🎬 Video Downloader 2
+# 🎬 Napotom
 
 **Простой и приятный десктоп-загрузчик видео с YouTube, VK и 1000+ сайтов.**
 
+*«Напотом» — потому что именно туда откладываются все эти видео.*
+
 [English](README.md) · **Русский**
 
-[![Latest Release](https://img.shields.io/github/v/release/egsok/video-downloader2?style=for-the-badge)](../../releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/egsok/napotom?style=for-the-badge)](../../releases/latest)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-blue?style=for-the-badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
@@ -16,7 +18,7 @@
 
 ---
 
-Video Downloader 2 — небольшое десктоп-приложение для скачивания видео и аудио с YouTube, VK и 1000+ других сайтов. По сути это удобная оболочка над [yt-dlp](https://github.com/yt-dlp/yt-dlp) со встроенными `ffmpeg` и `Node.js` (на Windows), так что больше ничего ставить не нужно — вставьте ссылку и качайте.
+Napotom (бывший video-downloader2) — небольшое десктоп-приложение для скачивания видео и аудио с YouTube, VK и 1000+ других сайтов. По сути это удобная оболочка над [yt-dlp](https://github.com/yt-dlp/yt-dlp) со встроенными `ffmpeg` и `Node.js` (на Windows), так что больше ничего ставить не нужно — вставьте ссылку и качайте.
 
 ## ✨ Возможности
 
@@ -56,7 +58,7 @@ Video Downloader 2 — небольшое десктоп-приложение д
 3. В **той же вкладке** перейдите на `https://www.youtube.com/robots.txt`.
 4. Нажмите на иконку расширения → **экспорт cookies** → сохраните как `cookies.txt`.
 5. **Закройте приватное окно** (чтобы cookies не обновились).
-6. В Video Downloader 2 откройте **Настройки → Cookies → Обзор…** и выберите сохранённый файл.
+6. В Napotom откройте **Настройки → Cookies → Обзор…** и выберите сохранённый файл.
 
 ![Настройки — Cookies](screenshots/settings-cookies.png)
 
@@ -99,8 +101,9 @@ pyinstaller build_mac.spec --noconfirm
 
 Другие open-source эксперименты:
 
-- [Handy-custom](https://github.com/egsok/Handy-custom) — личный форк Handy под русский, офлайн-распознавание речи.
+- [klava-nevinovata](https://github.com/egsok/klava-nevinovata) — личный форк Handy под русский, офлайн-распознавание речи.
 - [plan-tango](https://github.com/egsok/plan-tango) — цикл взаимной проверки планов Claude ↔ Codex для Claude Code.
+- [press-1](https://github.com/egsok/press-1) — отвечать на permission-промпты Claude Code одной клавишей из любого окна.
 
 ## Лицензия
 
