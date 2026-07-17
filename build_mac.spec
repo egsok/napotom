@@ -102,10 +102,10 @@ app = BUNDLE(
     name='VideoDownloader2.app',
     icon='assets/icon.icns',
     bundle_identifier='com.egsok.videodownloader2',
-    version='1.2.0',
+    version='1.5.0',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
-        'CFBundleShortVersionString': '1.2.0',
+        'CFBundleShortVersionString': '1.5.0',
     },
 )
