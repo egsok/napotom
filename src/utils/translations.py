@@ -3,7 +3,7 @@
 TRANSLATIONS = {
     'en': {
         # Main window
-        'app_title': 'Video Downloader 2',
+        'app_title': 'Napotom',
         'url_placeholder': 'Paste video URL here...',
         'quality_label': 'Quality:',
         'save_to_label': 'Save to:',
@@ -129,7 +129,7 @@ TRANSLATIONS = {
     
     'ru': {
         # Main window
-        'app_title': 'Video Downloader 2',
+        'app_title': 'Napotom',
         'url_placeholder': 'Вставьте URL видео...',
         'quality_label': 'Качество:',
         'save_to_label': 'Сохранить в:',
