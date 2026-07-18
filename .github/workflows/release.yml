@@ -44,13 +44,13 @@ jobs:
         shell: bash
         run: |
           cd dist
-          7z a ../VideoDownloader2-Windows.zip VideoDownloader2.exe
+          7z a ../Napotom-Windows.zip Napotom.exe
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: VideoDownloader2-Windows.zip
+          path: Napotom-Windows.zip
 
   build-macos:
     runs-on: macos-latest
@@ -96,22 +96,22 @@ jobs:
       - name: Create DMG
         run: |
           create-dmg \
-            --volname "VideoDownloader2" \
+            --volname "Napotom" \
             --volicon "assets/icon.icns" \
             --window-pos 200 120 \
             --window-size 600 300 \
             --icon-size 100 \
-            --icon "VideoDownloader2.app" 175 120 \
-            --hide-extension "VideoDownloader2.app" \
+            --icon "Napotom.app" 175 120 \
+            --hide-extension "Napotom.app" \
             --app-drop-link 425 120 \
-            "VideoDownloader2-macOS.dmg" \
-            "dist/VideoDownloader2.app"
+            "Napotom-macOS.dmg" \
+            "dist/Napotom.app"
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: VideoDownloader2-macOS.dmg
+          path: Napotom-macOS.dmg
 
   release:
     needs: [build-windows, build-macos]
@@ -132,12 +132,12 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ github.ref_name }} - Video Downloader 2
+          name: ${{ github.ref_name }} - Napotom
           body: |
             ## Downloads
             
-            - **Windows**: VideoDownloader2-Windows.zip - распакуйте и запустите .exe
-            - **macOS**: VideoDownloader2-macOS.dmg - откройте и перетащите в Applications
+            - **Windows**: Napotom-Windows.zip - распакуйте и запустите .exe
+            - **macOS**: Napotom-macOS.dmg - откройте и перетащите в Applications
             
             ### Включено
             - ffmpeg встроен, дополнительная установка не требуется
@@ -145,7 +145,7 @@ jobs:
             - 🌍 Русский и английский языки интерфейса
             - 🍪 Поддержка cookies для возрастных ограничений
           files: |
-            VideoDownloader2-Windows.zip
-            VideoDownloader2-macOS.dmg
+            Napotom-Windows.zip
+            Napotom-macOS.dmg
           draft: false
           prerelease: false

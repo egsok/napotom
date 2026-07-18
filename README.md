@@ -36,14 +36,14 @@ Napotom (formerly video-downloader2) is a small desktop app for grabbing video a
 
 Grab the latest build from the **[Releases page](../../releases/latest)**.
 
-- **Windows** — download `VideoDownloader2-Windows.zip`, extract it, and run `VideoDownloader2.exe`. On first launch Windows SmartScreen may show *"Windows protected your PC"* — click **More info → Run anyway**. The build is unsigned (see [Build from source](#-build-from-source) if you'd rather compile it yourself).
-- **macOS** — download `VideoDownloader2-macOS.dmg`, open it, and drag **VideoDownloader2.app** to Applications. On first launch macOS may say the app *"is damaged and can't be opened"* — it isn't damaged, it's just unsigned and quarantined. Remove the quarantine flag in Terminal:
+- **Windows** — download `Napotom-Windows.zip`, extract it, and run `Napotom.exe`. On first launch Windows SmartScreen may show *"Windows protected your PC"* — click **More info → Run anyway**. The build is unsigned (see [Build from source](#-build-from-source) if you'd rather compile it yourself).
+- **macOS** — download `Napotom-macOS.dmg`, open it, and drag **Napotom.app** to Applications. On first launch macOS may say the app *"is damaged and can't be opened"* — it isn't damaged, it's just unsigned and quarantined. Remove the quarantine flag in Terminal:
 
   ```bash
-  xattr -d com.apple.quarantine /Applications/VideoDownloader2.app
+  xattr -d com.apple.quarantine /Applications/Napotom.app
   ```
 
-  (If that errors with permission, try `sudo xattr -cr /Applications/VideoDownloader2.app`.) After this it launches normally.
+  (If that errors with permission, try `sudo xattr -cr /Applications/Napotom.app`.) After this it launches normally.
 
 ## 🍪 Cookies — you'll probably need them for YouTube
 

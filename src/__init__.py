@@ -1,1 +1,1 @@
-"""Video Downloader 2 application."""
+"""Napotom application."""

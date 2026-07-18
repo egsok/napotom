@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Build script for VideoDownloader2."""
+"""Build script for Napotom."""
 
 import subprocess
 import sys
@@ -25,7 +25,7 @@ def main():
 
     if result.returncode == 0:
         print("\n✓ Build successful!")
-        print(f"  Output: {root / 'dist' / 'VideoDownloader2.exe'}")
+        print(f"  Output: {root / 'dist' / 'Napotom.exe'}")
     else:
         print("\n✗ Build failed!")
         sys.exit(1)

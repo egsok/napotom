@@ -80,7 +80,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='VideoDownloader2',
+    name='Napotom',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

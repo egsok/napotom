@@ -8,13 +8,23 @@ from typing import Optional
 
 
 def get_app_data_dir() -> Path:
-    """Get application data directory."""
+    """Get application data directory.
+
+    Migrates the legacy VideoDownloader2 directory (pre-Napotom rename) so
+    existing settings, cookies and the yt-dlp override survive the rebrand.
+    """
     if os.name == 'nt':  # Windows
         base = Path(os.environ.get('APPDATA', Path.home()))
     else:  # Linux/Mac
         base = Path.home() / '.config'
 
-    app_dir = base / 'VideoDownloader2'
+    app_dir = base / 'Napotom'
+    legacy_dir = base / 'VideoDownloader2'
+    if not app_dir.exists() and legacy_dir.is_dir():
+        try:
+            legacy_dir.rename(app_dir)
+        except OSError:
+            pass  # e.g. old app still running — start fresh, keep legacy dir
     app_dir.mkdir(parents=True, exist_ok=True)
     return app_dir
 

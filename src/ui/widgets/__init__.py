@@ -1,1 +1,1 @@
-"""UI widgets for Video Downloader."""
+"""UI widgets for Napotom."""

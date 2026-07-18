@@ -1,4 +1,4 @@
-"""Video Downloader 2 - Main entry point."""
+"""Napotom - Main entry point."""
 
 import logging
 import os

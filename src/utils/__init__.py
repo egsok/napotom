@@ -1,1 +1,1 @@
-"""Utility modules for Video Downloader."""
+"""Utility modules for Napotom."""

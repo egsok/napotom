@@ -70,7 +70,7 @@ class NotificationManager:
                 from winotify import Notification
                 icon_path = get_assets_path() / 'icon.ico'
                 Notification(
-                    app_id="Video Downloader 2",
+                    app_id="Napotom",
                     title=title,
                     msg=message,
                     icon=str(icon_path) if icon_path.exists() else "",

@@ -73,7 +73,7 @@ exe = EXE(
     pyz,
     a.scripts,
     exclude_binaries=True,
-    name='VideoDownloader2',
+    name='Napotom',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -94,14 +94,14 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='VideoDownloader2',
+    name='Napotom',
 )
 
 app = BUNDLE(
     coll,
-    name='VideoDownloader2.app',
+    name='Napotom.app',
     icon='assets/icon.icns',
-    bundle_identifier='com.egsok.videodownloader2',
+    bundle_identifier='com.egsok.napotom',
     version='1.5.0',
     info_plist={
         'NSPrincipalClass': 'NSApplication',

@@ -1,1 +1,1 @@
-"""UI components and styling for Video Downloader 2."""
+"""UI components and styling for Napotom."""
