@@ -5,6 +5,8 @@ Draws the two-ink misregistered download arrow with QPainter at each target
 size (per-size stroke tuning, no downscaling blur), then writes:
   - assets/icon.iconset/icon_*.png  (macOS iconset, converted to .icns in CI)
   - assets/icon.ico                 (Windows multi-size ICO, via Pillow)
+  - assets/toast.png                (Windows toast notifications — toasts
+                                     render .ico badly, they need a big PNG)
 
 Usage:
     .venv/Scripts/python.exe scripts/generate_brand_icon.py
@@ -104,6 +106,11 @@ def main() -> None:
         render_icon(base).save(str(ICONSET_DIR / f"icon_{base}x{base}.png"))
         render_icon(base * 2).save(str(ICONSET_DIR / f"icon_{base}x{base}@2x.png"))
     print(f"iconset: 12 PNGs -> {ICONSET_DIR}")
+
+    # Windows toast icon: one big PNG
+    toast_png = REPO_ROOT / "assets" / "toast.png"
+    render_icon(256).save(str(toast_png))
+    print(f"toast: {toast_png}")
 
     # Windows ICO: independent per-size renders as separate frames
     sizes = [256, 128, 64, 48, 32, 24, 16]

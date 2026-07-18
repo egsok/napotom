@@ -68,7 +68,9 @@ class NotificationManager:
                 pync.notify(message, title=title, sound=sound)
             elif sys.platform == 'win32':
                 from winotify import Notification
-                icon_path = get_assets_path() / 'icon.ico'
+                # Toasts render .ico badly (blurry upscale of a small frame) —
+                # use the dedicated large PNG
+                icon_path = get_assets_path() / 'toast.png'
                 Notification(
                     app_id="Napotom",
                     title=title,
