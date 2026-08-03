@@ -2,7 +2,7 @@
 
 import json
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 from pathlib import Path
 from typing import Optional
 
@@ -69,20 +69,42 @@ class ConfigManager:
         self.config = self._load()
 
     def _load(self) -> Config:
-        """Load config from file or create default."""
+        """Load config from file or create default.
+
+        Unknown keys are dropped rather than fatal: a config written by a newer
+        build used to raise TypeError here, fall back to defaults, and get
+        overwritten by the next set() — losing everything on a downgrade.
+        A file we genuinely cannot parse is kept aside instead of vanishing.
+        """
         if self.config_path.exists():
             try:
                 with open(self.config_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                return Config(**data)
-            except (json.JSONDecodeError, TypeError):
-                pass
+                known = {f.name for f in fields(Config)}
+                return Config(**{k: v for k, v in data.items() if k in known})
+            except (json.JSONDecodeError, TypeError, OSError, ValueError):
+                try:
+                    os.replace(self.config_path,
+                               self.config_path.with_suffix('.json.corrupt'))
+                except OSError:
+                    pass
         return Config()
 
     def save(self) -> None:
-        """Save config to file."""
-        with open(self.config_path, 'w', encoding='utf-8') as f:
+        """Save config to file, atomically.
+
+        Every set() rewrites the whole file, so a crash or a second process
+        writing at the same moment used to leave a truncated config — which
+        _load() then failed to parse and silently replaced with defaults,
+        losing every setting at once. Write beside the target and rename:
+        os.replace is atomic, so a reader sees either the old file or the new.
+        """
+        tmp_path = self.config_path.with_suffix('.json.tmp')
+        with open(tmp_path, 'w', encoding='utf-8') as f:
             json.dump(asdict(self.config), f, indent=2, ensure_ascii=False)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, self.config_path)
 
     def get(self, key: str, default=None):
         """Get config value."""
