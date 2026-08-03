@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
     QProgressBar, QPushButton, QSizePolicy
 )
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QFontMetrics
 
 from core.queue import QueueItem, QueueItemStatus
 from ui.styles import COLORS
@@ -24,6 +24,7 @@ class QueueItemWidget(QWidget):
         super().__init__(parent)
         self.item = item
         self.run_no = run_no
+        self._title_text = ""
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self._setup_ui()
         self.update_from_item(item)
@@ -49,8 +50,11 @@ class QueueItemWidget(QWidget):
         title_font.setWeight(QFont.Weight.DemiBold)
         self.title_label.setFont(title_font)
         self.title_label.setStyleSheet(f"color: {COLORS['violet']};")
-        self.title_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        top_row.addWidget(self.title_label)
+        # Ignored (not Expanding): the label takes the width the row can spare
+        # instead of demanding the width of its text, which would push the
+        # status and action buttons past the right edge of a narrow window
+        self.title_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        top_row.addWidget(self.title_label, stretch=1)
 
         self.status_label = QLabel("")
         self.status_label.setFont(mono_font(10, QFont.Weight.DemiBold, 1.4))
@@ -102,7 +106,51 @@ class QueueItemWidget(QWidget):
 
         layout.addLayout(bottom_row)
 
+        # Failure detail on its own line: wraps to the sheet width instead of
+        # stretching the card past the window edge like the speed label did
+        self.error_label = QLabel("")
+        self.error_label.setWordWrap(True)
+        self.error_label.setFont(mono_font(9, QFont.Weight.Medium, 0.4))
+        self.error_label.setStyleSheet(f"color: {COLORS['violet_ink']};")
+        # Ignored width for the same reason as the title: a wrapping label still
+        # demands the width of its longest word, which an error message with a
+        # long unbroken token (a path, a token, a URL) would blow up
+        self.error_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Minimum)
+        self.error_label.setVisible(False)
+        layout.addWidget(self.error_label)
+
         self._retranslate_buttons()
+
+    def _set_title(self, text: str):
+        """Store the full title and show it elided to the label's actual width."""
+        self._title_text = text
+        self.title_label.setToolTip(text)
+        self._apply_title_elide()
+
+    def _apply_title_elide(self):
+        """Re-elide the stored title for the current label width."""
+        metrics = QFontMetrics(self.title_label.font())
+        width = max(self.title_label.width(), 40)
+        self.title_label.setText(
+            metrics.elidedText(self._title_text, Qt.TextElideMode.ElideRight, width)
+        )
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._apply_title_elide()
+        self._fit_error_height()
+
+    def _fit_error_height(self):
+        """Reserve the height the wrapped error text needs at the current width.
+
+        The label's width policy is Ignored, so the layout no longer asks it how
+        tall it wants to be — we have to tell it.
+        """
+        if not self.error_label.isVisible():
+            return
+        self.error_label.setMinimumHeight(
+            self.error_label.heightForWidth(self.error_label.width())
+        )
 
     def _retranslate_buttons(self):
         """Set localized uppercase captions on the mono action buttons."""
@@ -132,13 +180,7 @@ class QueueItemWidget(QWidget):
         self.item = item
 
         # Title
-        if item.info:
-            title = item.info.title
-            if len(title) > 50:
-                title = title[:47] + "..."
-            self.title_label.setText(title)
-        else:
-            self.title_label.setText(tr("getting_video_info"))
+        self._set_title(item.info.title if item.info else tr("getting_video_info"))
 
         # Progress
         self.progress_bar.setValue(item.progress)
@@ -147,6 +189,7 @@ class QueueItemWidget(QWidget):
         self.retry_btn.setVisible(False)
         self.folder_btn.setVisible(False)
         self.cancel_btn.setVisible(True)
+        self.error_label.setVisible(False)
         self._set_stamp(False)
         self.no_label.setStyleSheet(f"color: {COLORS['violet']};")
         self.no_label.setGraphicsEffect(None)
@@ -180,8 +223,11 @@ class QueueItemWidget(QWidget):
             self.status_label.setStyleSheet(
                 f"color: {COLORS['accent']}; border: none; font-weight: 600;"
             )
-            self.speed_label.setText(item.error or "")
-            self.speed_label.setStyleSheet(f"color: {COLORS['violet_ink']};")
+            self.speed_label.setText("")
+            self.error_label.setText(item.error or "")
+            self.error_label.setToolTip(item.error or "")
+            self.error_label.setVisible(bool(item.error))
+            self._fit_error_height()
             self.progress_bar.setVisible(False)
             self.retry_btn.setVisible(True)
         elif item.status == QueueItemStatus.CANCELLED:
