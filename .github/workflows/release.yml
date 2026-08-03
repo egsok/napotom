@@ -10,10 +10,10 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       
@@ -21,7 +21,7 @@ jobs:
         run: pip install "pyqt6>=6.11.0" "yt-dlp>=2026.03.17" "pyinstaller>=6.19.0" "winotify>=1.1.0"
       
       - name: Set up Node.js (bundled for YouTube JS solver)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -47,7 +47,7 @@ jobs:
           7z a ../Napotom-Windows.zip Napotom.exe
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-build
           path: Napotom-Windows.zip
@@ -55,10 +55,10 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       
@@ -66,7 +66,7 @@ jobs:
         run: brew install sevenzip create-dmg
 
       - name: Set up Node.js (bundled for YouTube JS solver)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -108,7 +108,7 @@ jobs:
             "dist/Napotom.app"
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macos-build
           path: Napotom-macOS.dmg
@@ -120,17 +120,17 @@ jobs:
       contents: write
     steps:
       - name: Download Windows artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: windows-build
       
       - name: Download macOS artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: macos-build
       
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           name: ${{ github.ref_name }} - Napotom
           body: |
