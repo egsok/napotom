@@ -102,10 +102,10 @@ app = BUNDLE(
     name='Napotom.app',
     icon='assets/icon.icns',
     bundle_identifier='com.egsok.napotom',
-    version='1.5.0',
+    version='1.6.0',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
-        'CFBundleShortVersionString': '1.5.0',
+        'CFBundleShortVersionString': '1.6.0',
     },
 )
