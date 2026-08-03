@@ -15,6 +15,7 @@ from PyQt6.QtGui import QFont
 from ui.styles import COLORS
 from ui.common import (
     KraftSheet, apply_brand_titlebar, mono_font, populate_quality_combo,
+    update_prompt_text,
 )
 from utils.config import config_manager
 from utils.logger import get_log_file_path
@@ -52,6 +53,8 @@ class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._initial_lang = get_current_language()
+        self._initial_nightly = config_manager.get('ytdlp_nightly', False)
+        self._updating = False  # an update install is in flight
         self.setWindowTitle(tr("settings_title"))
         self.setMinimumWidth(600)
         self.setModal(True)
@@ -176,6 +179,15 @@ class SettingsDialog(QDialog):
         self.version_label = QLabel(self._get_ytdlp_version())
         self.version_label.setStyleSheet("font-weight: bold;")
         ytdlp_layout.addWidget(self.version_label)
+
+        self.nightly_check = QCheckBox(tr("ytdlp_nightly"))
+        self.nightly_check.setToolTip(tr("ytdlp_nightly_tooltip"))
+        # Applied immediately (and rolled back on Cancel) so "Check Now" below
+        # queries the channel the checkbox currently shows
+        self.nightly_check.toggled.connect(
+            lambda on: config_manager.set('ytdlp_nightly', on)
+        )
+        ytdlp_layout.addWidget(self.nightly_check)
 
         self.check_updates_btn = QPushButton(tr("check_now_btn").upper())
         self.check_updates_btn.setObjectName("secondaryButton")
@@ -322,6 +334,7 @@ class SettingsDialog(QDialog):
         outer.addLayout(button_layout)
 
         self._fit_group_titles()
+        self._fit_update_button()
 
     def _fit_group_titles(self):
         """Widen group boxes so their mono uppercase titles never clip."""
@@ -330,6 +343,24 @@ class SettingsDialog(QDialog):
         for group in self.findChildren(QGroupBox):
             title_w = metrics.horizontalAdvance(group.title()) + 30
             group.setMinimumWidth(max(group.minimumWidth(), title_w))
+
+    def _fit_update_button(self):
+        """Reserve room for the widest caption the update button can show.
+
+        It swaps between "Check Now", "Checking..." and "Updating..." — without
+        a reserved width the longer captions clip and squeeze the neighbouring
+        group out of the row.
+        """
+        button = self.check_updates_btn
+        original = button.text()
+        widest = 0
+        for key in ('check_now_btn', 'checking_btn', 'updating_btn'):
+            button.setText(tr(key).upper())
+            # Ask the button itself: font metrics miss the QSS padding and the
+            # per-character letter-spacing of the mono brand font
+            widest = max(widest, button.sizeHint().width())
+        button.setText(original)
+        button.setMinimumWidth(widest)
 
     def _retranslate_ui(self):
         """Update all UI text to current language (hot reload)."""
@@ -347,7 +378,10 @@ class SettingsDialog(QDialog):
         self.updates_check.setText(tr("check_updates_startup"))
         self.browse_btn.setText(tr("browse_btn").upper())
         self.version_text_label.setText(tr("version_label"))
+        self.nightly_check.setText(tr("ytdlp_nightly"))
+        self.nightly_check.setToolTip(tr("ytdlp_nightly_tooltip"))
         self.check_updates_btn.setText(tr("check_now_btn").upper())
+        self._fit_update_button()
         self.open_log_folder_btn.setText(tr("open_folder_btn").upper())
         self.cookie_desc.setText(tr("cookies_description"))
         self.cookies_file_label.setText(tr("cookies_file_label"))
@@ -386,6 +420,7 @@ class SettingsDialog(QDialog):
         self.notifications_check.setChecked(config_manager.get('notifications_enabled', True))
         self.sound_check.setChecked(config_manager.get('sound_enabled', True))
         self.updates_check.setChecked(config_manager.get('check_updates', True))
+        self.nightly_check.setChecked(config_manager.get('ytdlp_nightly', False))
         
         current_lang = config_manager.get('language', 'en')
         for i in range(self.language_combo.count()):
@@ -427,21 +462,49 @@ class SettingsDialog(QDialog):
 
     def _save_and_close(self):
         """Save settings and close dialog."""
+        if self._updating:
+            return  # the disabled button can still be triggered by Enter
         config_manager.set('download_path', self.path_input.text())
         config_manager.set('default_quality', self.quality_combo.currentData())
         config_manager.set('max_parallel_downloads', self.parallel_spin.value())
         config_manager.set('notifications_enabled', self.notifications_check.isChecked())
         config_manager.set('sound_enabled', self.sound_check.isChecked())
         config_manager.set('check_updates', self.updates_check.isChecked())
+        config_manager.set('ytdlp_nightly', self.nightly_check.isChecked())
         set_language(self.language_combo.currentData())
         config_manager.set('cookie_file_path', self.cookie_file_input.text())
         config_manager.set('cookie_browser', self.browser_combo.currentData())
         self.accept()
 
     def reject(self):
-        """Handle cancel - restore original language."""
+        """Handle cancel - restore original language and update channel."""
+        if self._updating:
+            return  # see _set_updating()
         set_language(self._initial_lang)
+        config_manager.set('ytdlp_nightly', self._initial_nightly)
         super().reject()
+
+    def closeEvent(self, event):
+        """Keep the dialog open while an update is installing."""
+        if self._updating:
+            event.ignore()
+            return
+        super().closeEvent(event)
+
+    def _set_updating(self, updating: bool):
+        """Lock the dialog for the duration of an update install.
+
+        The result arrives on this dialog, and an application-modal message box
+        owned by a dialog the user already closed blocks the main window while
+        being effectively invisible — so the dialog has to outlive the install.
+        """
+        self._updating = updating
+        self.check_updates_btn.setEnabled(not updating)
+        self.check_updates_btn.setText(
+            tr("updating_btn" if updating else "check_now_btn").upper()
+        )
+        self.save_btn.setEnabled(not updating)
+        self.cancel_btn.setEnabled(not updating)
 
     def _get_ytdlp_version(self) -> str:
         """Get installed yt-dlp version for display."""
@@ -459,12 +522,11 @@ class SettingsDialog(QDialog):
         self.check_updates_btn.setText(tr("check_now_btn").upper())
         reply = QMessageBox.question(
             self, tr("update_available_title"),
-            tr("update_available_message", latest=latest, current=current),
+            update_prompt_text(self._updater, current, latest),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
-            self.check_updates_btn.setEnabled(False)
-            self.check_updates_btn.setText(tr("updating_btn").upper())
+            self._set_updating(True)
             self._updater.install_update()
 
     def _on_already_up_to_date(self, version: str):
@@ -489,8 +551,7 @@ class SettingsDialog(QDialog):
 
     def _on_update_result(self, success: bool, message: str):
         """Handle update result signal."""
-        self.check_updates_btn.setEnabled(True)
-        self.check_updates_btn.setText(tr("check_now_btn").upper())
+        self._set_updating(False)
         if success:
             QMessageBox.information(self, tr("update_complete_title"), message)
             self.version_label.setText(self._get_ytdlp_version())

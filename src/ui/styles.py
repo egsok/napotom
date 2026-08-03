@@ -104,6 +104,12 @@ QPushButton#secondaryButton:hover {{
     color: {COLORS["text_primary"]};
 }}
 
+QPushButton#secondaryButton:disabled {{
+    background-color: transparent;
+    border-color: rgba(236, 227, 205, 12%);
+    color: {COLORS["disabled_text"]};
+}}
+
 QPushButton#dangerButton {{
     background-color: transparent;
     border: 1px solid rgba(236, 227, 205, 28%);
@@ -330,6 +336,11 @@ QWidget#kraftSheet QPushButton#secondaryButton {{
 QWidget#kraftSheet QPushButton#secondaryButton:hover {{
     border-color: {COLORS["accent"]};
     color: {COLORS["violet"]};
+}}
+
+QWidget#kraftSheet QPushButton#secondaryButton:disabled {{
+    border-color: rgba(44, 26, 114, 15%);
+    color: rgba(44, 26, 114, 35%);
 }}
 
 QWidget#kraftSheet QPushButton#dangerButton {{
