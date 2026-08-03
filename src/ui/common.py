@@ -62,6 +62,20 @@ def populate_quality_combo(combo, selected_key=None):
             break
 
 
+def update_prompt_text(updater, current: str, latest: str) -> str:
+    """Word the yt-dlp update prompt: a newer version, or a channel switch.
+
+    A channel switch can install an *older* version (nightly -> stable), so the
+    plain "X is available" wording would read as nonsense there.
+    """
+    from core.updater import get_update_channel
+
+    if updater.channel_switch:
+        return tr("update_channel_switch_message",
+                  channel=get_update_channel(), latest=latest, current=current)
+    return tr("update_available_message", latest=latest, current=current)
+
+
 def mono_font(px: int = 10, weight: QFont.Weight = QFont.Weight.Medium,
               tracking: float = 1.2) -> QFont:
     """Utility mono font (IBM Plex Mono) with letter-spacing — QSS can't do tracking."""

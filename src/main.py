@@ -139,6 +139,7 @@ from PyQt6.QtGui import QFont, QFontDatabase, QIcon  # noqa: E402
 
 from utils.logger import setup_logging  # noqa: E402
 from ui.styles import STYLESHEET  # noqa: E402
+from ui.common import update_prompt_text  # noqa: E402
 from ui.main_window import MainWindow  # noqa: E402  (triggers yt_dlp import)
 from core.updater import Updater  # noqa: E402
 from utils.config import config_manager  # noqa: E402
@@ -224,7 +225,7 @@ def main():
             reply = QMessageBox.question(
                 window,
                 tr("update_available_title"),
-                tr("update_available_message", latest=latest, current=current),
+                update_prompt_text(updater, current, latest),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if reply == QMessageBox.StandardButton.Yes:
