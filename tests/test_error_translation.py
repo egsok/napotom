@@ -3,6 +3,14 @@
 import pytest
 
 from core.downloader import Downloader, ERROR_PATTERNS
+from utils.translations import TRANSLATIONS
+
+
+@pytest.fixture(autouse=True)
+def english_ui(monkeypatch):
+    # Error messages are localized through tr(); pin the language so the
+    # assertions below test the mapping, not the user's config
+    monkeypatch.setattr('utils.i18n.get_current_language', lambda: 'en')
 
 
 @pytest.fixture
@@ -64,3 +72,39 @@ def test_all_patterns_are_lowercase():
     # or they can never match
     for pattern, _ in ERROR_PATTERNS:
         assert pattern == pattern.lower()
+
+
+def test_vimeo_401_explains_itself(downloader):
+    # The real yt-dlp message names its internal API client ("macos"), which
+    # reads as an OS mismatch to the user — it must never reach the UI verbatim
+    msg = downloader._translate_error(Exception(
+        "ERROR: [vimeo] 1214343121: Unable to download macos API JSON: "
+        "HTTP Error 401: Unauthorized (caused by <HTTPError 401: Unauthorized>)"
+    ))
+    assert 'macos' not in msg.lower()
+    assert 'Vimeo' in msg
+    assert 'yt-dlp' in msg
+
+
+def test_vimeo_oauth_failure_maps_to_same_hint(downloader):
+    msg = downloader._translate_error(Exception(
+        "ERROR: [vimeo] 1214343121: Failed to fetch macos OAuth token: HTTP Error 401: Unauthorized"
+    ))
+    assert 'Vimeo' in msg
+
+
+def test_non_vimeo_401_stays_generic(downloader):
+    # A 401 from any other site must not blame Vimeo
+    msg = downloader._translate_error(Exception("ERROR: [generic] HTTP Error 401: Unauthorized"))
+    assert 'Vimeo' not in msg
+    assert '401' in msg
+
+
+def test_every_pattern_key_is_translated():
+    # A missing key makes tr() return the key itself, e.g. "err_ssl" in the UI
+    keys = {key for _, key in ERROR_PATTERNS}
+    keys |= {'err_cookie_file_missing', 'err_no_js_runtime_install',
+             'err_vimeo_auth', 'err_download_failed'}
+    for lang, table in TRANSLATIONS.items():
+        missing = sorted(keys - table.keys())
+        assert not missing, f'{lang} is missing: {missing}'

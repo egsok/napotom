@@ -13,6 +13,7 @@ from yt_dlp.utils import DownloadError, ExtractorError, DownloadCancelled
 from yt_dlp.postprocessor.common import PostProcessor
 
 from utils.config import config_manager
+from utils.i18n import tr
 
 logger = logging.getLogger(__name__)
 
@@ -35,67 +36,71 @@ class FinalPathCollector(PostProcessor):
         return [], info
 
 
-# Error patterns ordered by specificity (most specific first)
+# Error patterns ordered by specificity (most specific first).
+# The second element is a translation key resolved through tr() at display time,
+# so error messages follow the interface language.
 ERROR_PATTERNS = [
     # Cookie extraction failures - actionable
-    ('could not copy', 'Cannot access browser cookies. Close browser or use cookies.txt file in Settings.'),
-    ('dpapi', 'Cannot decrypt browser cookies. Use cookies.txt file instead (see Settings).'),
-    ('failed to decrypt', 'Cannot decrypt browser cookies. Use cookies.txt file instead (see Settings).'),
-    
+    ('could not copy', 'err_cookie_copy'),
+    ('dpapi', 'err_cookie_decrypt'),
+    ('failed to decrypt', 'err_cookie_decrypt'),
+
     # Bot detection - actionable
-    ('sign in to confirm you\'re not a bot', 'YouTube requires authentication. Set up cookies in Settings.'),
-    ('confirm you\'re not a bot', 'YouTube requires authentication. Set up cookies in Settings.'),
-    
+    ('sign in to confirm you\'re not a bot', 'err_bot_check'),
+    ('confirm you\'re not a bot', 'err_bot_check'),
+
     # Age restriction - actionable (cookies can help)
-    ('sign in to confirm your age', 'This video requires age verification. Set up cookies in Settings.'),
-    ('age-restricted', 'This video is age-restricted. Set up cookies in Settings.'),
-    ('age gate', 'This video is age-restricted. Set up cookies in Settings.'),
-    
+    ('sign in to confirm your age', 'err_age_verify'),
+    ('age-restricted', 'err_age_restricted'),
+    ('age gate', 'err_age_restricted'),
+
     # Login required - actionable (cookies can help)
-    ('sign in to view', 'This video requires sign-in. Set up cookies in Settings.'),
-    ('members only', 'This video is for channel members only.'),
-    ('join this channel', 'This video is for channel members only.'),
-    ('premium', 'This video requires a premium subscription.'),
-    
+    ('sign in to view', 'err_sign_in_required'),
+    ('members only', 'err_members_only'),
+    ('join this channel', 'err_members_only'),
+    ('premium', 'err_premium_required'),
+
     # Availability - not actionable
-    ('video unavailable', 'This video is unavailable. It may have been removed or made private.'),
-    ('private video', 'This video is private.'),
-    ('removed by', 'This video has been removed.'),
-    ('deleted video', 'This video has been deleted.'),
-    ('copyright', 'This video was removed due to a copyright claim.'),
-    
+    ('video unavailable', 'err_video_unavailable'),
+    ('private video', 'err_video_private'),
+    ('removed by', 'err_video_removed'),
+    ('deleted video', 'err_video_deleted'),
+    ('copyright', 'err_copyright'),
+
     # Geo-restriction - not actionable
-    ('not available in your country', 'This video is not available in your region.'),
-    ('geo', 'This video is geographically restricted.'),
-    ('blocked in your country', 'This video is blocked in your region.'),
-    
+    ('not available in your country', 'err_geo_region'),
+    ('geo', 'err_geo_restricted'),
+    ('blocked in your country', 'err_geo_blocked'),
+
     # Live content
-    ('live event will begin', 'This is an upcoming live stream. Try again when it starts.'),
-    ('premieres in', 'This video will premiere later. Try again after it starts.'),
-    
+    ('live event will begin', 'err_upcoming_live'),
+    ('premieres in', 'err_premiere'),
+
     # HTTP errors
-    ('403', 'Access denied. Try importing browser cookies in Settings.'),
-    ('404', 'Video not found. Check the URL.'),
-    ('429', 'Too many requests. Please wait a moment and try again.'),
-    ('503', 'Service temporarily unavailable. Try again later.'),
-    
+    ('401', 'err_unauthorized'),
+    ('unauthorized', 'err_unauthorized'),
+    ('403', 'err_forbidden'),
+    ('404', 'err_not_found'),
+    ('429', 'err_rate_limited'),
+    ('503', 'err_service_unavailable'),
+
     # Network errors
-    ('connection', 'Connection error. Check your internet connection.'),
-    ('timeout', 'Connection timed out. Try again.'),
-    ('network', 'Network error. Check your internet connection.'),
-    ('ssl', 'Secure connection failed. Check your network settings.'),
-    
+    ('connection', 'err_connection'),
+    ('timeout', 'err_timeout'),
+    ('network', 'err_network'),
+    ('ssl', 'err_ssl'),
+
     # Technical errors
-    ('ffmpeg', 'FFmpeg is required but not found or failed.'),
-    ('postprocessing', 'Failed to process the downloaded video.'),
-    ('no video formats', 'No downloadable formats found for this video.'),
-    ('unsupported url', 'This URL is not supported.'),
-    
+    ('ffmpeg', 'err_ffmpeg'),
+    ('postprocessing', 'err_postprocessing'),
+    ('no video formats', 'err_no_formats'),
+    ('unsupported url', 'err_unsupported_url'),
+
     # Format selection failures (usually auth-related or missing JS runtime)
-    ('requested format is not available', 'No downloadable formats found. Try setting up cookies in Settings.'),
+    ('requested format is not available', 'err_no_formats_cookies'),
     # JS runtime missing — YouTube needs it for challenge solving
-    ('no js runtime', 'YouTube requires a JavaScript runtime. Install Node.js or Deno.'),
-    ('jsc', 'YouTube requires a JavaScript runtime. Install Node.js or Deno.'),
+    ('no js runtime', 'err_no_js_runtime'),
+    ('jsc', 'err_no_js_runtime'),
 ]
 
 
@@ -371,21 +376,27 @@ class Downloader:
     def _translate_error(self, error: Exception) -> str:
         """Translate yt-dlp errors to user-friendly messages."""
         msg = str(error).lower()
-        
+
         # Special case: format error when cookie file was configured but not found
         # This often happens when config.json has a path from a different OS
         if 'requested format is not available' in msg and getattr(self, '_cookie_file_missing', False):
-            return 'Cookie file not found. Re-import your cookies.txt file in Settings.'
+            return tr('err_cookie_file_missing')
 
         # Special case: format error likely caused by missing JS runtime
         if 'requested format is not available' in msg and not getattr(self, 'js_runtime_available', True):
-            return 'YouTube requires a JavaScript runtime (Node.js or Deno). Install one: brew install node'
-        
+            return tr('err_no_js_runtime_install')
+
+        # Special case: Vimeo revoked the anonymous API clients yt-dlp ships with,
+        # so every anonymous extraction fails with 401 until yt-dlp is updated.
+        # The 'macos'/'oauth token' wording is the yt-dlp API client name, not the OS.
+        if 'vimeo' in msg and ('401' in msg or 'unauthorized' in msg or 'oauth token' in msg):
+            return tr('err_vimeo_auth')
+
         # Check against known patterns
-        for pattern, friendly_msg in ERROR_PATTERNS:
+        for pattern, message_key in ERROR_PATTERNS:
             if pattern in msg:
-                return friendly_msg
-        
+                return tr(message_key)
+
         # Fallback: Clean up the original message
         return self._clean_error_message(str(error))
     
@@ -402,7 +413,7 @@ class Downloader:
         # Truncate if too long
         if len(msg) > 200:
             msg = msg[:197] + '...'
-        return msg if msg else 'Download failed. Please try again.'
+        return msg if msg else tr('err_download_failed')
 
 
 class DownloaderError(Exception):
