@@ -26,7 +26,7 @@ Napotom (formerly video-downloader2) is a small desktop app for grabbing video a
 - 📺 **Quality selection** — Best, 1080p, 720p, or Audio only (MP3)
 - 📋 **Download queue** with parallel downloads
 - 🔔 **Completion notifications** with sound
-- 🔄 **yt-dlp auto-update** from Settings
+- 🔄 **yt-dlp auto-update** from Settings — stable channel or nightly builds, which carry site fixes weeks ahead of releases
 - 🌐 **Bilingual interface** — English & Russian
 - 🎨 **Two-ink print design** — magenta + violet inks on an ink-wall and kraft paper, the [«Нейросеть не виновата»](https://t.me/+GpZ_G6I4yl1jZDcy) brand look
 - 📦 **Bundled ffmpeg and Node.js** (Windows) — no extra installs needed
@@ -65,6 +65,12 @@ You can try downloading without cookies — for plenty of videos it just works. 
 The extension is open-source and never sends your data anywhere: [github.com/kairi003/Get-cookies.txt-LOCALLY](https://github.com/kairi003/Get-cookies.txt-LOCALLY).
 
 > 🔒 Your `cookies.txt` is a live key to your account — don't share it, and delete it when you're done. If you download a lot, consider using a throwaway Google account.
+
+## 🎬 Vimeo currently needs a yt-dlp nightly build
+
+Vimeo revoked the anonymous API credentials yt-dlp ships with, so every stable yt-dlp release fails with `HTTP Error 401` ([yt-dlp#17271](https://github.com/yt-dlp/yt-dlp/issues/17271)). The fix is already in the nightly builds.
+
+Open **Settings → yt-dlp**, tick **Nightly**, press **Check Now**, and restart the app. Once a stable yt-dlp release ships the fix, you can untick it — the app will offer to move you back to the stable channel.
 
 ## 🔨 Build from source
 
