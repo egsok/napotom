@@ -4,12 +4,14 @@ from PyQt6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel,
     QProgressBar, QPushButton, QSizePolicy
 )
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtGui import QFont, QFontMetrics
 
 from core.queue import QueueItem, QueueItemStatus
-from ui.styles import COLORS
-from ui.common import display_font, ink_offset, mono_font
+from ui.styles import (
+    CANCEL_BTN, COLORS, FONT_BODY, FS_BODY, FS_DISPLAY, FS_META, FS_MONO,
+)
+from ui.common import TaktDots, display_font, folder_icon, ink_offset, mono_font
 from utils.helpers import open_folder
 from utils.i18n import tr
 
@@ -19,6 +21,8 @@ class QueueItemWidget(QWidget):
 
     cancel_clicked = pyqtSignal(str)  # item_id
     retry_clicked = pyqtSignal(str)  # item_id
+
+    CANCEL_SIZE = CANCEL_BTN  # the actions column is reserved from this, not sizeHint
 
     def __init__(self, item: QueueItem, run_no: int = 0, parent=None):
         super().__init__(parent)
@@ -32,21 +36,21 @@ class QueueItemWidget(QWidget):
     def _setup_ui(self):
         """Setup widget UI."""
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(2, 10, 2, 12)
-        layout.setSpacing(7)
+        layout.setContentsMargins(2, 11, 2, 13)
+        layout.setSpacing(8)
 
         # Top row: run number, title, status, action buttons
         top_row = QHBoxLayout()
         top_row.setSpacing(10)
 
         self.no_label = QLabel(f"{self.run_no:02d}")
-        self.no_label.setFont(display_font(11, QFont.Weight.ExtraBold))
+        self.no_label.setFont(display_font(FS_DISPLAY, QFont.Weight.ExtraBold))
         self.no_label.setStyleSheet(f"color: {COLORS['violet']};")
         top_row.addWidget(self.no_label)
 
         self.title_label = QLabel("...")
-        title_font = QFont("IBM Plex Sans")
-        title_font.setPixelSize(13)
+        title_font = QFont(FONT_BODY)
+        title_font.setPixelSize(FS_BODY)
         title_font.setWeight(QFont.Weight.DemiBold)
         self.title_label.setFont(title_font)
         self.title_label.setStyleSheet(f"color: {COLORS['violet']};")
@@ -56,38 +60,60 @@ class QueueItemWidget(QWidget):
         self.title_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         top_row.addWidget(self.title_label, stretch=1)
 
+        # Statuses print on a common right edge: a reserved column, so "ЖДЁТ"
+        # and "37%" do not wander with the width of their own text.
         self.status_label = QLabel("")
-        self.status_label.setFont(mono_font(10, QFont.Weight.DemiBold, 1.4))
+        self.status_label.setFont(mono_font(FS_MONO, QFont.Weight.DemiBold, 1.4))
+        self.status_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
         top_row.addWidget(self.status_label)
+
+        # ...and the buttons keep a column of their own, so the status edge is
+        # not pushed around by which actions this state happens to offer.
+        self.actions = QWidget()
+        actions_row = QHBoxLayout(self.actions)
+        actions_row.setContentsMargins(0, 0, 0, 0)
+        actions_row.setSpacing(7)
+        actions_row.addStretch()
 
         self.retry_btn = QPushButton()
         self.retry_btn.setObjectName("kraftActionMag")
-        self.retry_btn.setFont(mono_font(9, QFont.Weight.DemiBold, 1.0))
+        self.retry_btn.setFont(mono_font(FS_MONO, QFont.Weight.DemiBold, 1.0))
         self.retry_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.retry_btn.setToolTip(tr("retry_tooltip"))
         self.retry_btn.clicked.connect(lambda: self.retry_clicked.emit(self.item.id))
         self.retry_btn.setVisible(False)
-        top_row.addWidget(self.retry_btn)
+        actions_row.addWidget(self.retry_btn)
 
         self.folder_btn = QPushButton()
         self.folder_btn.setObjectName("kraftAction")
-        self.folder_btn.setFont(mono_font(9, QFont.Weight.DemiBold, 1.0))
+        self.folder_btn.setFont(mono_font(FS_MONO, QFont.Weight.DemiBold, 1.0))
         self.folder_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.folder_btn.setIcon(folder_icon())
+        self.folder_btn.setIconSize(QSize(15, 12))
         self.folder_btn.setToolTip(tr("open_folder_tooltip"))
         self.folder_btn.clicked.connect(self._on_folder_clicked)
         self.folder_btn.setVisible(False)
-        top_row.addWidget(self.folder_btn)
+        actions_row.addWidget(self.folder_btn)
 
-        self.cancel_btn = QPushButton("✕")
+        # U+00D7, not U+2715: the bundled Plex faces have no heavy multiply
+        # glyph, and the OS fallback prints a tofu box instead
+        self.cancel_btn = QPushButton("×")
         self.cancel_btn.setObjectName("kraftCancel")
-        self.cancel_btn.setFixedSize(22, 22)
+        # The glyph fills its box: a small multiply sign rattling around inside
+        # a square frame reads as a rendering slip, not as a button.
+        self.cancel_btn.setFont(mono_font(17, QFont.Weight.Bold, 0))
+        self.cancel_btn.setFixedSize(self.CANCEL_SIZE, self.CANCEL_SIZE)
         self.cancel_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.cancel_btn.clicked.connect(lambda: self.cancel_clicked.emit(self.item.id))
-        top_row.addWidget(self.cancel_btn)
+        actions_row.addWidget(self.cancel_btn)
+
+        top_row.addWidget(self.actions)
 
         layout.addLayout(top_row)
 
-        # Bottom row: progress bar and speed
+        # Bottom row: progress bar (or the takt dots) and speed
         bottom_row = QHBoxLayout()
         bottom_row.setSpacing(10)
 
@@ -98,19 +124,29 @@ class QueueItemWidget(QWidget):
         self.progress_bar.setFixedHeight(6)
         bottom_row.addWidget(self.progress_bar, stretch=1)
 
+        # While ffmpeg merges there is no percentage to tell the truth with:
+        # the dots print in takts instead of parking the bar at the last value.
+        self.takt_dots = TaktDots()
+        self.takt_dots.setVisible(False)
+        bottom_row.addWidget(self.takt_dots)
+
         self.speed_label = QLabel("")
-        self.speed_label.setFont(mono_font(9, QFont.Weight.Medium, 0.8))
-        self.speed_label.setStyleSheet(f"color: {COLORS['accent']}; min-width: 90px;")
-        self.speed_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.speed_label.setFont(mono_font(FS_MONO, QFont.Weight.Medium, 0.8))
+        self.speed_label.setStyleSheet(f"color: {COLORS['mag_text']}; min-width: 96px;")
+        self.speed_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
         bottom_row.addWidget(self.speed_label)
 
         layout.addLayout(bottom_row)
 
-        # Failure detail on its own line: wraps to the sheet width instead of
-        # stretching the card past the window edge like the speed label did
+        # Failure detail on its own line: prose, not a caption. Wraps to the
+        # sheet width instead of stretching the card past the window edge
+        error_font = QFont(FONT_BODY)
+        error_font.setPixelSize(FS_META)
         self.error_label = QLabel("")
         self.error_label.setWordWrap(True)
-        self.error_label.setFont(mono_font(9, QFont.Weight.Medium, 0.4))
+        self.error_label.setFont(error_font)
         self.error_label.setStyleSheet(f"color: {COLORS['violet_ink']};")
         # Ignored width for the same reason as the title: a wrapping label still
         # demands the width of its longest word, which an error message with a
@@ -155,24 +191,51 @@ class QueueItemWidget(QWidget):
     def _retranslate_buttons(self):
         """Set localized uppercase captions on the mono action buttons."""
         self.retry_btn.setText("↻ " + tr("item_retry").upper())
-        self.folder_btn.setText("▸ " + tr("item_folder").upper())
+        self.folder_btn.setText(tr("item_folder").upper())
+        self._measure_columns()
+
+    def _measure_columns(self):
+        """Reserve the status and action columns for the widest state.
+
+        Measured per language: a caption longer than the reserved width would
+        push its own row's status out of the column and break the alignment.
+        """
+        metrics = QFontMetrics(mono_font(FS_MONO, QFont.Weight.DemiBold, 1.4))
+        status = max(metrics.horizontalAdvance(tr(key).upper()) for key in (
+            "status_waiting", "status_processing", "status_failed", "status_cancelled",
+        ))
+        # the stamp carries a 2px rule box and 8px side padding on top of its text
+        stamp = QFontMetrics(display_font(FS_MONO, QFont.Weight.Bold)).horizontalAdvance(
+            tr("status_done").upper() + " ·") + 22
+        self.status_label.setMinimumWidth(max(status, stamp))
+
+        # Reserve from the cancel button's REAL size, not its sizeHint: the QSS
+        # zeroes its padding and min-width, so the hint came out at 11px and the
+        # layout squeezed the 28px square into a sliver of a frame.
+        buttons = max(self.retry_btn.sizeHint().width(), self.folder_btn.sizeHint().width())
+        self.actions.setFixedWidth(buttons + 7 + self.CANCEL_SIZE)
 
     def _set_stamp(self, on: bool):
         """Style the status label as the 'done' rubber stamp (violet + magenta dot)."""
         if on:
-            self.status_label.setFont(display_font(9, QFont.Weight.Bold))
+            self.status_label.setFont(display_font(FS_MONO, QFont.Weight.Bold))
             self.status_label.setTextFormat(Qt.TextFormat.RichText)
+            # the rule box spans the reserved column, so the type centres in it
+            self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.status_label.setText(
                 f"{tr('status_done').upper()} <span style='color:{COLORS['accent']};'>·</span>"
             )
             self.status_label.setStyleSheet(
                 f"color: {COLORS['violet']};"
                 f"border: 2px solid {COLORS['violet']};"
-                "border-radius: 2px; padding: 1px 7px;"
+                "border-radius: 2px; padding: 2px 8px;"
             )
         else:
-            self.status_label.setFont(mono_font(10, QFont.Weight.DemiBold, 1.4))
+            self.status_label.setFont(mono_font(FS_MONO, QFont.Weight.DemiBold, 1.4))
             self.status_label.setTextFormat(Qt.TextFormat.PlainText)
+            self.status_label.setAlignment(
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+            )
             self.status_label.setStyleSheet(f"color: {COLORS['violet_ink']}; border: none;")
 
     def update_from_item(self, item: QueueItem):
@@ -190,6 +253,7 @@ class QueueItemWidget(QWidget):
         self.folder_btn.setVisible(False)
         self.cancel_btn.setVisible(True)
         self.error_label.setVisible(False)
+        self.takt_dots.setVisible(False)
         self._set_stamp(False)
         self.no_label.setStyleSheet(f"color: {COLORS['violet']};")
         self.no_label.setGraphicsEffect(None)
@@ -202,16 +266,18 @@ class QueueItemWidget(QWidget):
         elif item.status == QueueItemStatus.DOWNLOADING:
             # Active run: magenta number with violet misregistration
             self.no_label.setStyleSheet(f"color: {COLORS['accent']};")
-            ink_offset(self.no_label, 1.2, 1.2, COLORS["violet_2"])
+            ink_offset(self.no_label, 1, 1, COLORS["violet_2"])
             self.status_label.setText(f"{item.progress}%")
-            self.status_label.setStyleSheet(f"color: {COLORS['accent']}; border: none;")
+            self.status_label.setStyleSheet(f"color: {COLORS['mag_text']}; border: none;")
             self.speed_label.setText(f"{item.speed:.1f} MB/S" if item.speed > 0 else "")
             self.progress_bar.setVisible(True)
         elif item.status == QueueItemStatus.PROCESSING:
             self.status_label.setText(tr("status_processing").upper())
             self.status_label.setStyleSheet(f"color: {COLORS['violet']}; border: none;")
             self.speed_label.setText("")
-            self.progress_bar.setVisible(True)
+            # No percentage exists here — hide the bar, print takts instead
+            self.progress_bar.setVisible(False)
+            self.takt_dots.setVisible(True)
         elif item.status == QueueItemStatus.COMPLETED:
             self._set_stamp(True)
             self.speed_label.setText("")
@@ -221,7 +287,7 @@ class QueueItemWidget(QWidget):
         elif item.status == QueueItemStatus.FAILED:
             self.status_label.setText(tr("status_failed").upper())
             self.status_label.setStyleSheet(
-                f"color: {COLORS['accent']}; border: none; font-weight: 600;"
+                f"color: {COLORS['mag_text']}; border: none; font-weight: 600;"
             )
             self.speed_label.setText("")
             self.error_label.setText(item.error or "")
@@ -235,9 +301,6 @@ class QueueItemWidget(QWidget):
             self.speed_label.setText("")
             self.progress_bar.setVisible(False)
             self.cancel_btn.setVisible(False)
-
-        if item.status == QueueItemStatus.DOWNLOADING:
-            self.speed_label.setStyleSheet(f"color: {COLORS['accent']}; min-width: 90px;")
 
     def _on_folder_clicked(self):
         """Open folder containing the downloaded file."""

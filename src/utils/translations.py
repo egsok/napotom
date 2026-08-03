@@ -9,7 +9,9 @@ TRANSLATIONS = {
         'save_to_label': 'Save to:',
         'change_btn': 'Change',
         'queue_title': 'QUEUE',
-        'empty_queue': 'Blank sheet so far — paste a link above and hit +',
+        'add_btn': 'Add',
+        'clear_done_btn': 'clear done',
+        'empty_queue': 'Blank sheet so far — paste a link above and hit Add',
         'open_folder_btn': 'Open Folder',
         'settings_btn': 'Settings',
         'invalid_url_title': 'Invalid URL',
@@ -32,20 +34,22 @@ TRANSLATIONS = {
         'download_path_label': 'Download Path:',
         'browse_btn': 'Browse...',
         'default_quality_label': 'Default Quality:',
-        'parallel_downloads_label': 'Parallel Downloads:',
-        'parallel_downloads_tooltip': 'Number of videos to download simultaneously',
+        'parallel_downloads_label': 'Parallel downloads:',
+        'parallel_downloads_row_desc': 'Past five you just split the same connection, '
+            'not go faster.',
         'preferences_section': 'Preferences',
         'enable_notifications': 'Enable notifications',
         'enable_sound': 'Enable sound',
-        'check_updates_startup': 'Check for updates on startup',
+        'check_updates_startup': 'Check for yt-dlp updates at startup',
         'ytdlp_section': 'yt-dlp',
         'version_label': 'Version:',
         'check_now_btn': 'Check Now',
         'ytdlp_nightly': 'Nightly',
         'ytdlp_nightly_tooltip': 'Use yt-dlp nightly builds. They carry site fixes weeks before '
             'stable releases, at the cost of occasional instability.',
-        'cookies_section': 'Cookies (for age-restricted videos)',
-        'cookies_description': 'Required for age-restricted or members-only videos. Use cookies.txt file (recommended) or browser import.',
+        'cookies_section': 'Cookies',
+        'cookies_description': 'Needed for age-restricted videos and for members-only ones. '
+            'Everything else downloads without them.',
         'cookies_file_label': 'Cookies file:',
         'no_file_selected': 'No file selected',
         'clear_btn': 'Clear',
@@ -59,7 +63,34 @@ TRANSLATIONS = {
         'not_configured': 'Not configured',
         'cancel_btn': 'Cancel',
         'save_btn': 'Save',
-        
+
+        # Settings sections and row explanations (rows, not island cards)
+        'general_section': 'General',
+        'downloads_section': 'Downloads',
+        'language_row': 'Interface language',
+        'language_row_desc': 'Applies immediately, no restart needed',
+        'download_path_row': 'Download folder',
+        'download_path_row_desc': 'Where finished videos are saved',
+        'default_quality_row': 'Default quality',
+        'default_quality_row_desc': 'Picked for every new link you add',
+        'ytdlp_version_row': 'yt-dlp version',
+        'ytdlp_version_row_desc': 'The engine that does the actual downloading',
+        'ytdlp_channel_row': 'Update channel',
+        'ytdlp_channel_stable': 'Stable',
+        'ytdlp_channel_nightly': 'Nightly',
+        'ytdlp_channel_help': 'Stable is the tested release — pick it and forget it.\n\n'
+            'Nightly is yesterday\'s build: when YouTube or Vimeo changes something and '
+            'downloads start failing, the fix lands here weeks earlier. The price is that '
+            'a nightly build occasionally breaks something else.\n\n'
+            'Rule of thumb: switch to nightly when downloads stop working, switch back '
+            'once they do.',
+        'log_row': 'Log file',
+        'log_row_desc': 'Send this file along if you report a problem',
+        'cookies_method_row': 'Where to take cookies from',
+        'cookies_method_file': 'cookies.txt file',
+        'cookies_method_browser': 'From browser',
+        'cookies_browser_warning': 'Often fails on Windows — the file is safer.',
+
         # Cookie help dialog
         'cookie_help_title': 'How to Export Cookies',
         'cookie_help_when_needed': '<b>When do you need cookies?</b><br>'
@@ -180,7 +211,9 @@ TRANSLATIONS = {
         'save_to_label': 'Сохранить в:',
         'change_btn': 'Изменить',
         'queue_title': 'ОЧЕРЕДЬ',
-        'empty_queue': 'Пока пусто — вставь ссылку сверху и нажми +',
+        'add_btn': 'Добавить',
+        'clear_done_btn': 'убрать готовые',
+        'empty_queue': 'Пока пусто — вставь ссылку сверху и нажми «Добавить»',
         'open_folder_btn': 'Открыть папку',
         'settings_btn': 'Настройки',
         'invalid_url_title': 'Неверный URL',
@@ -204,19 +237,21 @@ TRANSLATIONS = {
         'browse_btn': 'Обзор...',
         'default_quality_label': 'Качество по умолчанию:',
         'parallel_downloads_label': 'Параллельных загрузок:',
-        'parallel_downloads_tooltip': 'Количество одновременно загружаемых видео',
+        'parallel_downloads_row_desc': 'Пять — потолок: больше делит тот же интернет '
+            'и диск, а не качает быстрее.',
         'preferences_section': 'Настройки',
         'enable_notifications': 'Включить уведомления',
         'enable_sound': 'Включить звук',
-        'check_updates_startup': 'Проверять обновления при запуске',
+        'check_updates_startup': 'Проверять обновления yt-dlp при запуске',
         'ytdlp_section': 'yt-dlp',
         'version_label': 'Версия:',
         'check_now_btn': 'Проверить',
         'ytdlp_nightly': 'Nightly',
         'ytdlp_nightly_tooltip': 'Использовать nightly-сборки yt-dlp. В них исправления для сайтов '
             'появляются на недели раньше стабильных релизов — ценой редкой нестабильности.',
-        'cookies_section': 'Cookies (для видео с ограничением по возрасту)',
-        'cookies_description': 'Требуется для видео с возрастными ограничениями или только для участников. Используйте файл cookies.txt (рекомендуется) или импорт из браузера.',
+        'cookies_section': 'Cookies',
+        'cookies_description': 'Нужны для видео с ограничением по возрасту и для роликов '
+            'только для участников. Остальное качается и без них.',
         'cookies_file_label': 'Файл cookies:',
         'no_file_selected': 'Файл не выбран',
         'clear_btn': 'Очистить',
@@ -230,7 +265,34 @@ TRANSLATIONS = {
         'not_configured': 'Не настроено',
         'cancel_btn': 'Отмена',
         'save_btn': 'Сохранить',
-        
+
+        # Settings sections and row explanations (rows, not island cards)
+        'general_section': 'Общее',
+        'downloads_section': 'Загрузка',
+        'language_row': 'Язык интерфейса',
+        'language_row_desc': 'Применяется сразу, перезапуск не нужен',
+        'download_path_row': 'Папка загрузки',
+        'download_path_row_desc': 'Куда складывать готовые видео',
+        'default_quality_row': 'Качество по умолчанию',
+        'default_quality_row_desc': 'Подставляется для каждой новой ссылки',
+        'ytdlp_version_row': 'Версия yt-dlp',
+        'ytdlp_version_row_desc': 'Движок, который и качает видео',
+        'ytdlp_channel_row': 'Канал обновлений',
+        'ytdlp_channel_stable': 'Стабильная',
+        'ytdlp_channel_nightly': 'Nightly',
+        'ytdlp_channel_help': 'Стабильная — проверенный релиз, поставил и забыл.\n\n'
+            'Nightly — вчерашняя сборка: когда YouTube или Vimeo что-то меняет и видео '
+            'перестают качаться, починка приезжает сюда на недели раньше. Плата — такая '
+            'сборка иногда ломает что-то другое.\n\n'
+            'Правило простое: перестало качаться — переключись на nightly, заработало — '
+            'вернись обратно.',
+        'log_row': 'Файл логов',
+        'log_row_desc': 'Приложи его, если пишешь о проблеме',
+        'cookies_method_row': 'Откуда брать cookies',
+        'cookies_method_file': 'Файл cookies.txt',
+        'cookies_method_browser': 'Из браузера',
+        'cookies_browser_warning': 'На Windows часто не работает — файл надёжнее.',
+
         # Cookie help dialog
         'cookie_help_title': 'Как экспортировать Cookies',
         'cookie_help_when_needed': '<b>Когда нужны cookies?</b><br>'

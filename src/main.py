@@ -138,7 +138,7 @@ from PyQt6.QtWidgets import QApplication, QMessageBox  # noqa: E402
 from PyQt6.QtGui import QFont, QFontDatabase, QIcon  # noqa: E402
 
 from utils.logger import setup_logging  # noqa: E402
-from ui.styles import STYLESHEET  # noqa: E402
+from ui.styles import COLORS, FS_BODY, STYLESHEET  # noqa: E402
 from ui.common import update_prompt_text  # noqa: E402
 from ui.main_window import MainWindow  # noqa: E402  (triggers yt_dlp import)
 from core.updater import Updater  # noqa: E402
@@ -168,6 +168,27 @@ def _load_brand_fonts():
             QFontDatabase.addApplicationFont(os.path.join(fonts_dir, name))
 
 
+def _apply_paper_palette(app):
+    """Put the bits QSS cannot reach into the paper register.
+
+    Placeholder text has no QSS property (`QLineEdit::placeholder` is silently
+    ignored), and tooltips/base colours leak the OS light theme's greys.
+    """
+    from PyQt6.QtGui import QColor, QPalette
+
+    palette = app.palette()
+    palette.setColor(QPalette.ColorRole.Window, QColor(COLORS['paper']))
+    palette.setColor(QPalette.ColorRole.Base, QColor(COLORS['paper_2']))
+    palette.setColor(QPalette.ColorRole.Text, QColor(COLORS['violet']))
+    palette.setColor(QPalette.ColorRole.WindowText, QColor(COLORS['violet']))
+    palette.setColor(QPalette.ColorRole.PlaceholderText, QColor(58, 42, 122, 130))
+    palette.setColor(QPalette.ColorRole.Highlight, QColor(COLORS['accent']))
+    palette.setColor(QPalette.ColorRole.HighlightedText, QColor(COLORS['on_ink']))
+    palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(COLORS['paper_2']))
+    palette.setColor(QPalette.ColorRole.ToolTipText, QColor(COLORS['prose']))
+    app.setPalette(palette)
+
+
 def _setup_bundled_path():
     """Add PyInstaller bundle dir to PATH so bundled binaries (node, ffmpeg) are discoverable."""
     if getattr(sys, 'frozen', False):
@@ -194,9 +215,11 @@ def main():
 
     app = QApplication(sys.argv)
     _load_brand_fonts()
-    body_font = QFont('IBM Plex Sans', 10)
+    body_font = QFont('IBM Plex Sans')
+    body_font.setPixelSize(FS_BODY)
     body_font.setStyleHint(QFont.StyleHint.SansSerif)
     app.setFont(body_font)
+    _apply_paper_palette(app)
     app.setStyleSheet(STYLESHEET)
 
     # Set application icon (for taskbar and window title)
